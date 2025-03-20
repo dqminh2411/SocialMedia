@@ -1,0 +1,90 @@
+body{
+    background-color:black;
+    text-align: center;
+   
+}
+.part1{
+    border-style: groove;
+    margin-top:2px;
+    text-align:center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    height: 100vh; 
+}
+.button1{
+   
+   
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    width: 150px;
+    height: 40px;
+    background-color: blue;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    
+  
+   
+}
+.title{
+    color:white;
+}
+.text1{
+    color: white;
+}
+.text2{
+    color:white;
+}
+.part2{
+    display:flex;
+    float:left;
+    color:white;
+    text-align: center;
+}
+.OR {
+    color:white;
+    
+}
+.fb-login {
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
+}
+.content1{
+    color:blue;
+    cursor:pointer;
+    font-weight: bold;
+    margin:0;
+}
+.anh1{
+    height: 30px;
+    width: 30px;
+}
+.p3{
+    color:white;
+    cursor:pointer;
+}
+.div2{
+    border-style:groove;
+    gap:10px;
+    margin-top:100px;
+}
+
+.po1{
+    cursor: pointer;
+}
+.po{
+    color:blue;
+    cursor:pointer;
+}
+.part3{
+    gap:35px;
+    margin-top:50px;
+}
+.pic1,.pic2,.pic3{
+    width:50px;
+    height:30px;
+}
