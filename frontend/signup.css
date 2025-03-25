@@ -1,0 +1,26 @@
+.part1{
+    text-align:center;
+    border-style:groove;
+    gap:20px;
+}
+.dangki{
+    color: azure;
+    display:inline;
+    width:150px;
+    background-color: blue;
+    text-align:center;
+ 
+}
+.hr::after,hr::before{
+    flex:1px;
+    border-bottom:1px;
+
+}
+.part2{
+    margin-top:50px;
+    border-style:groove;
+    text-align:center;
+}
+.dangnhap{
+    color: blue;
+}
