@@ -38,7 +38,7 @@ public class SecurityConfiguration {
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults()).authorizeHttpRequests(
-                        authz -> authz.requestMatchers("/", "/login", "/users/signup","/auth/refresh").permitAll().anyRequest().authenticated())
+                        authz -> authz.requestMatchers("/", "/auth/login", "/users/signup","/auth/refresh", "/storage/**").permitAll().anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(customAuthenticationEntryPoint))
                 //.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()).accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
                 .formLogin(form -> form.disable()) // allow everyone to acesss login page

@@ -1,8 +1,10 @@
 package com.ttcs.socialmedia.service;
 
+import com.ttcs.socialmedia.domain.Profile;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.ResSignupDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
+import com.ttcs.socialmedia.repository.ProfileRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.constants.Role;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
@@ -13,12 +15,12 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    public void createUser(SignupDTO signupDTO) throws InvalidSignupException {
+    public void createUser(SignupDTO signupDTO) throws InvalidSignupException
+    {
         if(this.userRepository.existsByEmail(signupDTO.getEmail())){
             throw new InvalidSignupException("Email đã tồn tại. Hãy dùng email khác");
         }
@@ -31,6 +33,15 @@ public class UserService {
         newUser.setFullname(signupDTO.getFullname());
         newUser.setRole(Role.USER);
         newUser.setHashedPassword(passwordEncoder.encode(signupDTO.getPassword()));
+        if(newUser.getRole().equals(Role.USER)){
+            Profile profile = new Profile();
+            profile.setAvatar("defaultAvatar.jpg");
+            profile.setBio("");
+            profile.setUser(newUser);
+            newUser.setProfile(profile);
+        }else{
+            newUser.setProfile(null);
+        }
         userRepository.save(newUser);
     }
     public User getUserByEmail(String email){
