@@ -3,6 +3,7 @@ package com.ttcs.socialmedia.controller;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.LoginDTO;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
+import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.annotation.ApiMessage;
@@ -41,18 +42,18 @@ public class AuthController {
         ResLoginDTO resLoginDTO = new ResLoginDTO();
         if (loginUser != null) {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginUser.getUsername(), loginUser.getPassword());
+                    loginUser.getEmail(), loginUser.getPassword());
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
 
             // get user info
-            User user = this.userService.getUserByEmail(loginUser.getUsername());
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getFullname());
-            resLoginDTO.setUserLogin(userLogin);
+            User user = this.userService.getUserByEmail(loginUser.getEmail());
+            UserDTO userDTO = new UserDTO(user.getId(), user.getEmail(),user.getUsername(), user.getFullname());
+            resLoginDTO.setUserDTO(userDTO);
 
             // create access token
-            String accessToken = this.securityUtil.createAccessToken(userLogin);
+            String accessToken = this.securityUtil.createAccessToken(userDTO);
             resLoginDTO.setAccessToken(accessToken);
 
 
@@ -60,7 +61,7 @@ public class AuthController {
             // create refresh token
 
             String refreshToken = this.securityUtil.createRefreshToken(resLoginDTO);
-            this.userService.updateRefreshToken(loginUser.getUsername(), refreshToken);
+            this.userService.updateRefreshToken(loginUser.getEmail(), refreshToken);
             // attach refresh token to cookie
             ResponseCookie resCookie = ResponseCookie.from("refreshToken",refreshToken).httpOnly(true).path("/").maxAge(refreshTokenExpiration).build();
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookie.toString()).body(resLoginDTO);
@@ -68,11 +69,11 @@ public class AuthController {
         return null;
     }
     @GetMapping("/account")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount(){
+    public ResponseEntity<UserDTO> getAccount(){
         String email = SecurityUtil.getCurrentUserLogin().isPresent()? SecurityUtil.getCurrentUserLogin().get() : "";
         if(!email.isEmpty()){
             User user = this.userService.getUserByEmail(email);
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getFullname());
+            UserDTO userLogin = new UserDTO(user.getId(), user.getEmail(),user.getUsername(), user.getFullname());
             return ResponseEntity.ok().body(userLogin);
         }
         return null;
@@ -99,9 +100,9 @@ public class AuthController {
 
         // create resLoginDTO,
 
-        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(user.getId(), user.getEmail(), user.getFullname());
+        UserDTO userLogin = new UserDTO(user.getId(), user.getEmail(), user.getUsername(), user.getFullname());
         ResLoginDTO resLoginDTO = new ResLoginDTO();
-        resLoginDTO.setUserLogin(userLogin);
+        resLoginDTO.setUserDTO(userLogin);
 
         // create new access token with userLogin
         String newAccessToken = this.securityUtil.createAccessToken(userLogin);

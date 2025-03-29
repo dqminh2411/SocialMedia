@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -19,6 +20,7 @@ public class User {
     private String fullname;
 
     private String email;
+    private String username;
     private String hashedPassword;
     @Column(columnDefinition = "TEXT")
     private String refreshToken;
@@ -30,11 +32,19 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
+    @OneToMany(mappedBy="creator", cascade=CascadeType.ALL,  orphanRemoval = true)
+    List<Post> posts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<LikePost> likePosts;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<LikeComment> likeComments;
 
     @PrePersist
     public void prePersist() {
         this.setCreatedAt(Instant.now());
-
+        this.setUsername(getEmail().substring(0,getEmail().indexOf('@')));
     }
 
 

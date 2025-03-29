@@ -2,6 +2,7 @@ package com.ttcs.socialmedia.util;
 
 import com.nimbusds.jose.util.Base64;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
+import com.ttcs.socialmedia.domain.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -34,7 +35,7 @@ public class SecurityUtil {
     private long refreshTokenExpiration;
 
 
-    public  String createAccessToken(ResLoginDTO.UserLogin userLogin) {
+    public  String createAccessToken(UserDTO userLogin) {
 
         Instant now = Instant.now();
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
@@ -44,7 +45,7 @@ public class SecurityUtil {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)
-                .subject(userLogin.getUsername())
+                .subject(userLogin.getEmail())
                 .claim("user",userLogin)
                 .build();
 
@@ -62,7 +63,7 @@ public class SecurityUtil {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)
-                .subject(resLoginDTO.getUserLogin().getUsername())
+                .subject(resLoginDTO.getUserDTO().getEmail())
                 .claim("user", resLoginDTO)
                 .build();
 

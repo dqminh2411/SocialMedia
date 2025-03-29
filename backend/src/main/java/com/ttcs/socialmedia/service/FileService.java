@@ -38,20 +38,21 @@ public class FileService {
         }
     }
 
-    public String save(MultipartFile avatarFile, String directoryName) throws URISyntaxException, IOException {
+    public String save(MultipartFile file, String directoryName) throws URISyntaxException, IOException {
         // generate unique name
         String uuid = UUID.randomUUID().toString();
-        String fileName = uuid + "-" + avatarFile.getOriginalFilename();
+        String fileName = uuid + "-" + file.getOriginalFilename();
 
-        // get destination path to avatarFile
+        // get destination path to fileName
         URI uri = new URI(baseURI+directoryName+"/"+fileName);
         Path path = Paths.get(uri);
 
-        try(InputStream inputStream = avatarFile.getInputStream()) {
+        try(InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream,path, StandardCopyOption.REPLACE_EXISTING);
         }
         return fileName;
     }
+    
     public void deleteOldFiles(String fileName, String directoryName) throws URISyntaxException, IOException {
         URI uri = new URI(baseURI+directoryName+"/"+fileName);
         Path path = Paths.get(uri);

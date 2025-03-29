@@ -10,16 +10,6 @@ import lombok.Setter;
 
 public class ResLoginDTO {
     private String accessToken;
-    private UserLogin userLogin;
-
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class UserLogin{
-        private int id;
-        private String username;
-        private String fullname;
-    }
+    private UserDTO userDTO;
 }
 
