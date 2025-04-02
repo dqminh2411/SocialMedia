@@ -1,27 +1,31 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f8f9fa;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    gap: 150px;
+
 }
 
+.container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 200px;
+}
 
 .part1 {
     background: #fff;
-    padding: 20px;
     width: 20%;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    left: 20px;
-    top: 50%;
-    float: left;
-    position: absolute;
-    transform: translateY(-50%);
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
 }
 
 .part2 {
@@ -31,14 +35,30 @@ body {
     flex-direction: column;
     align-items: flex-start;
     padding-left: 20px;
-
+    float: right;
+    position: absolute;
+    left: 20%;
+    top: 0;
 }
 
 .icon {
-    display: block;
+    display: flex;
     flex-direction: row;
     gap: 10px;
     margin-top: 10px;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.icon span:nth-child(4) {
+    margin-left: auto;
+    /* Đẩy icon thứ 4 về bên phải */
+}
+
+.left-icon {
+    display: flex;
+    align-items: center;
 }
 
 
@@ -74,7 +94,7 @@ ul {
 }
 
 
-li {
+.part1 ul li {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -87,7 +107,7 @@ li {
     color: #333;
 }
 
-li:hover {
+.part1 ul li:hover {
     background: #e4e6eb;
     cursor: pointer;
 }
@@ -101,4 +121,27 @@ li img {
 
 .comment {
     color: #b8c7f1;
+}
+
+.img-container img {
+    width: 100%;
+    height: auto;
+}
+
+.post-list {
+    padding: 50px 30px;
+}
+
+.post-list ul {
+    list-style-type: none;
+}
+
+.post-list ul li {
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+}
+
+.post-list ul li .post-user {
+    padding-bottom: 20px;
 }

@@ -1,53 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giao diện wed</title>
     <link rel="stylesheet" href="giaodienwed.css" type="text/css">
 </head>
+
 <body>
-    <div class="part1">
-    <h2 class="tiltle">Instargram</h2>
-    <ul>
-       <li><img src="home.png" class="home"> Home</li>
-        <li><img src="Search.png" class="search"> Search</li>
-        <li><img src="explore.png" class="explore"> Explore</li>
-        <li><img src="messanges.png" class="messages"> Messages</li>
-        <li><img src="notifications.png" class="notifications"> Notifications</li>
-        <li><img src="create.png" class="create"> Create</li>
-        <li><img src="profile.png" class="profile"> Profile</li>
-        <li><img src="aistudio.png" class="aistudio"> AI Studio</li>
-        <li><img src="thread.png" class="thread"> Threads</li>
-        <li><img src="More.png" class="more"> More</li>
-    </ul>
-    </div>
-    <div class="part2">
-        <p>hello</p>
-        <img src="pexels-m-venter-792254-1659438.jpg" width="500px" height="500px">
-  
-       
-    <div class="icon">
-          
-            <span><img src="traitim.png" ></span>
-            <span><img src="binhluan.png"></span>
-            <span><img src="chiase.png"></span>
-            <span><img src="—Pngtree—a set of instagram icons_9062112 (1) (1).png" class="icon2"></span>
-            
-    </div>
-    <p>10000 likes</p>
-    <p>Oliver good ... <span class="comment">more </span></p>
-    <p class="comment">
-        View all 1024 comments
-    </p>
-    <p class="comment">
-        Add a comment...
-    </p>
-    
+    <div class="container">
+        <!-- my part1 overlaps part2 although i set container as display:flex -->
+        <!-- i set part1 as width: 20% and part2 as width: 80% but it still overlaps -->
+        <!-- i set part1 as float: left and part2 as float: right but it still overlaps -->
+        <!-- i set part1 as position: absolute and part2 as position: relative but it still overlaps -->
 
 
+        <div class="part1">
+            <h2 class="tiltle">Instargram</h2>
+            <ul>
+                <li><img src="home.png" class="home"> Home</li>
+                <li><img src="Search.png" class="search"> Search</li>
+                <li><img src="explore.png" class="explore"> Explore</li>
+                <li><img src="messanges.png" class="messages"> Messages</li>
+                <li><img src="notifications.png" class="notifications"> Notifications</li>
+                <li><img src="create.png" class="create"> Create</li>
+                <li><img src="profile.png" class="profile"> Profile</li>
+                <li><img src="aistudio.png" class="aistudio"> AI Studio</li>
+                <li><img src="thread.png" class="thread"> Threads</li>
+                <li><img src="More.png" class="more"> More</li>
+            </ul>
+        </div>
+        <div class="part2">
+            <div class="post-list">
+                <ul>
+                    <li>
+                        <div class="post-user">
+                            <p>hello</p>
+                        </div>
+                        <div class="img-container"><img src="pexels-m-venter-792254-1659438.jpg"></div>
+                        <div class="icon">
+                            <div class="left-icon">
+                                <span><img src="traitim2.png"></span>
+                                <span><img src="binhluan2.png"></span>
+                                <span><img src="chiase2.png"></span>
+                            </div>
+
+                            <div class="right-icon"><img src="—Pngtree—a set of instagram icons_9062112 (1) (1).png"
+                                    class="icon2">
+                            </div>
+
+                        </div>
+                        <p>10000 likes</p>
+                        <p>Oliver good ... <span class="comment">more </span></p>
+                        <p class="comment">
+                            View all 1024 comments
+                        </p>
+                        <p class="comment">
+                            Add a comment...
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-       
-    
+
 </body>
+
 </html>
