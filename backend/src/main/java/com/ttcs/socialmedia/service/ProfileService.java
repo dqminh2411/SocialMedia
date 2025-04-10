@@ -26,7 +26,7 @@ public class ProfileService {
                 try {
                     this.fileService.createDirectory(directoryName);
                     avatarFileName = this.fileService.save(avatarFile,directoryName);
-                    this.fileService.deleteOldFiles(profile.getAvatar(),directoryName);
+                    this.fileService.deleteFile(profile.getAvatar(),directoryName);
                 } catch (URISyntaxException | IOException e) {
                     throw new RuntimeException(e);
                 }

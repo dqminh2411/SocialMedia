@@ -53,7 +53,7 @@ public class FileService {
         return fileName;
     }
     
-    public void deleteOldFiles(String fileName, String directoryName) throws URISyntaxException, IOException {
+    public void deleteFile(String fileName, String directoryName) throws URISyntaxException, IOException {
         URI uri = new URI(baseURI+directoryName+"/"+fileName);
         Path path = Paths.get(uri);
         Files.deleteIfExists(path);

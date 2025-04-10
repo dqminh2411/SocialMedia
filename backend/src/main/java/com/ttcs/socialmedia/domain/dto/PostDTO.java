@@ -10,11 +10,7 @@ import java.util.List;
 @Setter
 public class PostDTO {
     private int id;
-    private String content;
-    private UserDTO userDTO;
-    private List<String> imageNames;
+    private String firstMediaName;
     private int likes;
-    private Instant createdAt;
-    private List<CommentDTO> comments;
-
+    private int comments;
 }
