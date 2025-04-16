@@ -4,6 +4,7 @@ import com.ttcs.socialmedia.domain.Profile;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.ResSignupDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
+import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.ProfileRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.constants.Role;
@@ -56,5 +57,16 @@ public class UserService {
     }
     public User getUserByEmailAndRefreshToken(String email, String refreshToken){
         return this.userRepository.findByEmailAndRefreshToken(email, refreshToken);
+    }
+    public UserDTO userToUserDTO(User user){
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setFullname(user.getFullname());
+        userDTO.setUsername(user.getUsername());
+        Profile p = user.getProfile();
+        if (p!=null)
+            userDTO.setAvatar(p.getAvatar());
+        return userDTO;
     }
 }

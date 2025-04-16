@@ -11,14 +11,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    public UserDTO(User user){
-        setId(user.getId());
-        setFullname(user.getFullname());
-        setEmail(user.getEmail());
-        setUsername(user.getUsername());
-    }
     private int id;
     private String email;
     private String username;
     private String fullname;
+    private String avatar;
 }

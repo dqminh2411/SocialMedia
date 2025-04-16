@@ -48,6 +48,12 @@ public class User {
     @OneToMany(mappedBy = "creator" , cascade = CascadeType.ALL, orphanRemoval = true)
     List<Comment> comments;
 
+    @OneToMany(mappedBy = "followingUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Follow> followings;
+
+    @OneToMany(mappedBy = "followedUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Follow> followers;
+
     @PrePersist
     public void prePersist() {
         this.setCreatedAt(Instant.now());

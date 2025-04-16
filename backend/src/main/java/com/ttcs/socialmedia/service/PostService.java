@@ -3,11 +3,15 @@ package com.ttcs.socialmedia.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttcs.socialmedia.domain.*;
+import com.ttcs.socialmedia.domain.dto.CommentDTO;
 import com.ttcs.socialmedia.domain.dto.NewPostDTO;
 import com.ttcs.socialmedia.domain.dto.PostDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.*;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +38,8 @@ public class PostService {
     private final HashtagRepository hashtagRepository;
     private final PostHashtagsRepository postHashtagsRepository;
     private final ObjectMapper objectMapper;
+    private final UserService userService;
+    private final CommentService commentService;
 
     public PostDTO createPost(String newPostJson, List<MultipartFile> medias) throws URISyntaxException, IOException {
         Post post = new Post();
@@ -197,4 +203,47 @@ public class PostService {
         postDTO.setFirstMediaName(mediaList.isEmpty() ? null : mediaList.get(0));
         return postDTO;
     }
+
+    public List<PostDTO> getUserPostPage(int userId, int pageNo) {
+        final int pageSize = 20;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        User user = new User();
+        user.setId(userId);
+        Page<Post> posts = postRepository.findByCreatorOrderByCreatedAtDesc(user, pageable);
+        if (posts.isEmpty())
+            return new ArrayList<>();
+        return posts.stream().map(this::postToDTO).collect(Collectors.toList());
+    }
+
+    public int getPostCountByUser(int userId) {
+        User user = new User();
+        user.setId(userId);
+        return postRepository.countByCreator(user);
+    }
+
+    public List<UserDTO> getLikePage(int postId, int pageNo) {
+        final int pageSize = 20;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Post post = postRepository.findById(postId);
+        List<LikePost> likePosts = post.getLikePosts();
+        if (likePosts.isEmpty())
+            return new ArrayList<>();
+        return likePosts.stream().map(lp -> userService.userToUserDTO(lp.getUser())).collect(Collectors.toList());
+    }
+
+    public void likePost(int postId, String email) {
+        Post post = postRepository.findById(postId);
+        if (post == null) {
+            throw new RuntimeException("Post not found");
+        }
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        LikePost likePost = new LikePost();
+        likePost.setPost(post);
+        likePost.setUser(user);
+        likePostRepository.save(likePost);
+    }
+
 }

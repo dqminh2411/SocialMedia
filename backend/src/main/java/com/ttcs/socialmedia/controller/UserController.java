@@ -55,4 +55,5 @@ public class UserController {
     public ResProfileDTO updateProfile(@RequestParam("profile_id") int profileId, @RequestParam(name="avatar",required = false) MultipartFile avatarFile, @RequestParam(name="bio",required = false) String bio){
         return this.profileService.update(profileId,avatarFile,bio);
     }
+
 }

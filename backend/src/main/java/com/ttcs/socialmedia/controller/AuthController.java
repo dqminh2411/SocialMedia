@@ -49,7 +49,7 @@ public class AuthController {
 
             // get user info
             User user = this.userService.getUserByEmail(loginUser.getEmail());
-            UserDTO userDTO = new UserDTO(user.getId(), user.getEmail(),user.getUsername(), user.getFullname());
+            UserDTO userDTO = userService.userToUserDTO(user);
             resLoginDTO.setUserDTO(userDTO);
 
             // create access token
@@ -73,7 +73,7 @@ public class AuthController {
         String email = SecurityUtil.getCurrentUserLogin().isPresent()? SecurityUtil.getCurrentUserLogin().get() : "";
         if(!email.isEmpty()){
             User user = this.userService.getUserByEmail(email);
-            UserDTO userLogin = new UserDTO(user.getId(), user.getEmail(),user.getUsername(), user.getFullname());
+            UserDTO userLogin = userService.userToUserDTO(user);
             return ResponseEntity.ok().body(userLogin);
         }
         return null;
@@ -100,7 +100,7 @@ public class AuthController {
 
         // create resLoginDTO,
 
-        UserDTO userLogin = new UserDTO(user.getId(), user.getEmail(), user.getUsername(), user.getFullname());
+        UserDTO userLogin = userService.userToUserDTO(user);
         ResLoginDTO resLoginDTO = new ResLoginDTO();
         resLoginDTO.setUserDTO(userLogin);
 

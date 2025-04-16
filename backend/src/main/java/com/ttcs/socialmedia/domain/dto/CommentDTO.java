@@ -12,6 +12,7 @@ public class CommentDTO {
     private String content;
     private UserDTO userDTO;
     private int likes;
+    private int parentId;
+    private int postId;
     private Instant createdAt;
-    private String taggedUsername;
 }
