@@ -54,6 +54,12 @@ public class User {
     @OneToMany(mappedBy = "followedUser", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Follow> followers;
 
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Notification> receivedNotifications;
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Notification> sentNotifications;
+
     @PrePersist
     public void prePersist() {
         this.setCreatedAt(Instant.now());

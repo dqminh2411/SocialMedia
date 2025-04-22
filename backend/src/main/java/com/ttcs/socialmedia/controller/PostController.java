@@ -1,14 +1,10 @@
 package com.ttcs.socialmedia.controller;
 
-import com.ttcs.socialmedia.domain.Comment;
-import com.ttcs.socialmedia.domain.dto.CommentDTO;
-import com.ttcs.socialmedia.domain.dto.NewPostDTO;
 import com.ttcs.socialmedia.domain.dto.PostDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.CommentService;
 import com.ttcs.socialmedia.service.PostService;
 import com.ttcs.socialmedia.util.SecurityUtil;
-
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

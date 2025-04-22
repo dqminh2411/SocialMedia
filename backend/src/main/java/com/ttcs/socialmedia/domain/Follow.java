@@ -1,9 +1,9 @@
 package com.ttcs.socialmedia.domain;
 
+import com.ttcs.socialmedia.util.constants.FollowStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CollectionIdJdbcTypeCode;
 
 import java.time.Instant;
 
@@ -24,6 +24,13 @@ public class Follow {
     @JoinColumn(name="followed_user_id")
     private User followedUser;
 
+    @Enumerated(EnumType.STRING)
+    private FollowStatus status;
     private Instant followAt;
 
+    @PrePersist
+    protected void onCreate() {
+        setFollowAt(Instant.now());
+        setStatus(FollowStatus.PENDING);
+    }
 }

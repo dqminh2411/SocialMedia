@@ -1,6 +1,5 @@
 package com.ttcs.socialmedia.domain.dto;
 
-import com.ttcs.socialmedia.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

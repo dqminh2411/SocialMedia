@@ -1,7 +1,6 @@
 package com.ttcs.socialmedia.domain;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PostDTO {
+public class FollowDTO {
     private int id;
-    private String firstMediaName;
-    private int likes;
-    private int comments;
+    private int followingUserId;
+    private int followedUserId;
 }

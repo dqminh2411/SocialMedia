@@ -19,12 +19,12 @@ public class ProfileController {
         return profileService.getProfileById(id);
     }
 
-    @GetMapping("/{id}/follower")
+    @GetMapping("/{id}/followers")
     public List<UserDTO> getFollowerPage(@PathVariable("id") int profileId, @RequestParam("pageNo") int pageNo){
         return profileService.getFollowerPage(profileId, pageNo-1);
     }
 
-    @GetMapping("/{id}/following")
+    @GetMapping("/{id}/followings")
     public List<UserDTO> getFollowingPage(@PathVariable("id") int profileId, @RequestParam("pageNo") int pageNo){
         return profileService.getFollowingPage(profileId, pageNo-1);
     }

@@ -3,7 +3,6 @@ package com.ttcs.socialmedia.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttcs.socialmedia.domain.*;
-import com.ttcs.socialmedia.domain.dto.CommentDTO;
 import com.ttcs.socialmedia.domain.dto.NewPostDTO;
 import com.ttcs.socialmedia.domain.dto.PostDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
@@ -20,9 +19,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service

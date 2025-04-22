@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,11 +38,11 @@ public class SecurityConfiguration {
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
-        http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults()).authorizeHttpRequests(
-                        authz -> authz.requestMatchers("/", "/auth/login", "/users/signup","/auth/refresh", "/storage/**").permitAll().anyRequest().authenticated())
+        http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults()).authorizeHttpRequests(
+                        authz -> authz.requestMatchers("/", "/auth/login", "/users/signup","/auth/refresh", "/storage/**", "/ws").permitAll().anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(customAuthenticationEntryPoint))
                 //.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()).accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
-                .formLogin(form -> form.disable()) // allow everyone to acesss login page
+                .formLogin(AbstractHttpConfigurer::disable) // allow everyone to acesss login page
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// change
         // default
         // session

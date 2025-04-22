@@ -2,10 +2,8 @@ package com.ttcs.socialmedia.service;
 
 import com.ttcs.socialmedia.domain.Profile;
 import com.ttcs.socialmedia.domain.User;
-import com.ttcs.socialmedia.domain.dto.ResSignupDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
-import com.ttcs.socialmedia.repository.ProfileRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.constants.Role;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;

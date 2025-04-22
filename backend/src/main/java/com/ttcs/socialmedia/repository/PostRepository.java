@@ -2,7 +2,6 @@ package com.ttcs.socialmedia.repository;
 
 import com.ttcs.socialmedia.domain.Post;
 import com.ttcs.socialmedia.domain.User;
-import com.ttcs.socialmedia.domain.dto.PostDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

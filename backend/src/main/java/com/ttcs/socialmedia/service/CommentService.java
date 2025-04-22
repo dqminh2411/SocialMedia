@@ -8,7 +8,6 @@ import com.ttcs.socialmedia.repository.CommentRepository;
 import com.ttcs.socialmedia.repository.LikeCommentRepository;
 import com.ttcs.socialmedia.repository.PostRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
-
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -103,5 +103,20 @@ public class CommentService {
         comment.setCreator(user);
         comment = commentRepository.save(comment);
         return commentToCommentDTO(comment);
+    }
+    public CommentDTO updateComment(int commentId, CommentDTO commentDTO){
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        Comment comment = commentOptional.isPresent()? commentOptional.get() : null;
+        if (comment == null) return null;
+        comment.setContent(commentDTO.getContent());
+        comment = commentRepository.save(comment);
+        return commentToCommentDTO(comment);
+    }
+    public void deleteComment(int commentId){
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        if (commentOptional.isPresent()) {
+            Comment comment = commentOptional.get();
+            commentRepository.delete(comment);
+        }
     }
 }
