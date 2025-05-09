@@ -102,7 +102,8 @@ body {
     height: 30px;
 }
 
-.or-divider {
+.orDivider {
+    position: relative;
     display: flex;
     align-items: center;
     text-align: center;
@@ -112,8 +113,8 @@ body {
 
 }
 
-.or-divider::before,
-.or-divider::after {
+.orDivider::before,
+.orDivider::after {
     content: "";
     flex: 1;
     border-bottom: 1px solid black;
@@ -124,11 +125,11 @@ body {
 
 }
 
-.or-divider::before {
+.orDivider::before {
     margin-right: 10px;
 }
 
-.or-divider::after {
+.orDivider::after {
     margin-left: 10px;
 }
 

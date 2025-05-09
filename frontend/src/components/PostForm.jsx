@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import EmojiPicker from 'emoji-picker-react'; // You'll need to install this package
-import '../assets/css/PostForm.css';
+import '../assets/css/PostForm.module.css';
 
 const PostForm = ({ post = null, onSubmit }) => {
     // Using a ref for the editable div instead of a textarea

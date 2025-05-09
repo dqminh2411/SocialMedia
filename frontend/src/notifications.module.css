@@ -1,0 +1,42 @@
+.body {
+    display: flex;
+  }
+  .part1 {
+    width: 30%;
+    display: flex;
+    position: fixed;
+    gap: 50px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100vh;
+  }
+  
+  .part11 {
+    flex-direction: column;
+    position: relative;
+    width: 10%;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .part12 {
+    position: relative;
+    width: 20%;
+  }
+  .part2 {
+    text-align: center;
+  
+    width: 70%;
+    flex-direction: column;
+    justify-content: center;
+    justify-items: center;
+  }
+  .text {
+    position: relative;
+    text-align: center;
+    vertical-align: middle;
+    left: 500px;
+    top: 250px;
+  }
+  

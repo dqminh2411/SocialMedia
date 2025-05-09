@@ -12,8 +12,8 @@ import { BsMessenger, BsCameraVideo } from "react-icons/bs";
 import { PiNotePencilBold } from "react-icons/pi";
 import { FiUser } from "react-icons/fi";
 import { IoMdPaperPlane } from "react-icons/io";
-import "../public/notifications.css";
-function notifications() {
+import "./notifications.module.css";
+function Notifications() {
   return (
     <>
       <div className="part1">
@@ -49,4 +49,4 @@ function notifications() {
     </>
   );
 }
-export default notifications;
+export default Notifications;
