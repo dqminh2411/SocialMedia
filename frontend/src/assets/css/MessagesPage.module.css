@@ -1,0 +1,162 @@
+/* MessagesPage.module.css */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.mainContent {
+    width: 80%;
+    margin-left: 20%;
+    /* Account for the sidebar */
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.messagesContainer {
+    width: 100%;
+    max-width: 935px;
+    height: 85vh;
+    display: flex;
+    background-color: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.conversationList {
+    width: 35%;
+    border-right: 1px solid #dbdbdb;
+    overflow-y: auto;
+}
+
+.conversationHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+.conversationHeader h2 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.newMessageBtn {
+    background: none;
+    border: none;
+    color: #0095f6;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.conversations {
+    display: flex;
+    flex-direction: column;
+}
+
+.conversationItem {
+    display: flex;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.conversationItem:hover {
+    background-color: #fafafa;
+}
+
+.conversationItem.unread {
+    background-color: #efefef;
+}
+
+.avatar {
+    width: 56px;
+    height: 56px;
+    margin-right: 12px;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.conversationInfo {
+    flex: 1;
+}
+
+.conversationMeta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.time {
+    color: #8e8e8e;
+    font-size: 12px;
+}
+
+.lastMessage {
+    color: #8e8e8e;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chatArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.noConversation {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.noConversationContent {
+    text-align: center;
+    padding: 24px;
+}
+
+.iconPlaceholder {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.noConversationContent h3 {
+    font-size: 22px;
+    font-weight: 300;
+    margin-bottom: 8px;
+}
+
+.noConversationContent p {
+    color: #8e8e8e;
+    margin-bottom: 24px;
+}
+
+.sendMessageBtn {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sendMessageBtn:hover {
+    background-color: #0085e6;
+}

@@ -1,0 +1,139 @@
+/* ProfilePage.module.css */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.mainContent {
+    width: 80%;
+    margin-left: 20%;
+    /* Account for the sidebar */
+    padding: 40px 20px;
+}
+
+.profileHeader {
+    display: flex;
+    margin-bottom: 44px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dbdbdb;
+}
+
+.profilePicture {
+    width: 150px;
+    height: 150px;
+    margin-right: 100px;
+}
+
+.profilePicture img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profileInfo {
+    flex: 1;
+}
+
+.profileInfo h1 {
+    font-size: 28px;
+    font-weight: 300;
+    margin-bottom: 20px;
+}
+
+.stats {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.stat {
+    margin-right: 40px;
+    font-size: 16px;
+}
+
+.statNumber {
+    font-weight: 600;
+}
+
+.bio {
+    margin-bottom: 20px;
+}
+
+.fullName {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.editProfileBtn {
+    background-color: transparent;
+    border: 1px solid #dbdbdb;
+    color: #262626;
+    border-radius: 4px;
+    padding: 5px 9px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.editProfileBtn:hover {
+    background-color: #fafafa;
+}
+
+.profileTabs {
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #dbdbdb;
+    margin-bottom: 20px;
+}
+
+.tabButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #8e8e8e;
+    font-weight: 600;
+    border-top: 1px solid transparent;
+    margin-top: -1px;
+}
+
+.tabButton.active {
+    color: #262626;
+    border-top: 1px solid #262626;
+}
+
+.postsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .profileHeader {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profilePicture {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .stats {
+        justify-content: center;
+    }
+
+    .postsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

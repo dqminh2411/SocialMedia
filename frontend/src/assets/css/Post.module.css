@@ -1,0 +1,59 @@
+/* Post.module.css */
+.post {
+    margin-bottom: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+
+.postUser {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.imgContainer img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.icon {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin: 10px 0;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.leftIcon {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.icon img {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.icon .icon2 {
+    padding-right: 10%;
+}
+
+.comment {
+    color: #8e8e8e;
+    cursor: pointer;
+}

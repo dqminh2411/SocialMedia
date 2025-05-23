@@ -9,6 +9,9 @@ const PostForm = ({ post = null, onSubmit }) => {
     const fileInputRef = useRef(null);
     const linkDialogRef = useRef(null);
 
+    // State for current image in slideshow
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
     // State for form data
     const [formData, setFormData] = useState({
         content: post?.content || '',
@@ -18,15 +21,17 @@ const PostForm = ({ post = null, onSubmit }) => {
 
     // State for UI control
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    /* Temporarily disabled mention and hashtag features
     const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
     const [showHashtagSuggestions, setShowHashtagSuggestions] = useState(false);
     const [mentionQuery, setMentionQuery] = useState('');
     const [hashtagQuery, setHashtagQuery] = useState('');
+    */
     const [showLinkDialog, setShowLinkDialog] = useState(false);
     const [linkData, setLinkData] = useState({ url: '', text: '' });
-    //const [selectionRange, setSelectionRange] = useState(null);
 
-    // Mock data for suggestions
+    // Mock data for suggestions - commented out temporarily
+    /*
     const mockUsers = [
         { id: 1, username: 'johndoe', fullName: 'John Doe', avatar: 'https://via.placeholder.com/50' },
         { id: 2, username: 'janedoe', fullName: 'Jane Doe', avatar: 'https://via.placeholder.com/50' },
@@ -47,7 +52,8 @@ const PostForm = ({ post = null, onSubmit }) => {
 
     const filteredHashtags = mockHashtags.filter(tag =>
         tag.name.toLowerCase().includes(hashtagQuery.toLowerCase())
-    );    // Initialize the editor content
+    );
+    */// Initialize the editor content
     useEffect(() => {
         if (editorRef.current && post?.content) {
             editorRef.current.innerHTML = post.content;
@@ -121,6 +127,7 @@ const PostForm = ({ post = null, onSubmit }) => {
             return prev;
         });
 
+        /* Temporarily disabled mention and hashtag features
         // Get the current text at cursor position
         const selection = window.getSelection();
         if (selection.rangeCount > 0) {
@@ -155,10 +162,11 @@ const PostForm = ({ post = null, onSubmit }) => {
             } else {
                 setShowHashtagSuggestions(false);
             }
-
-            // Save the range after any content change
-            saveRange();
         }
+        */
+
+        // Save the range after any content change
+        saveRange();
     };
 
     const handleContentClick = (e) => {
@@ -233,20 +241,23 @@ const PostForm = ({ post = null, onSubmit }) => {
         // Close emoji picker and update content state
         setShowEmojiPicker(false);
         handleContentChange();
-    };    // Handle mention selection
+    };    // Handle mention selection - temporarily commented out
+    /*
     const handleMentionSelect = (username) => {
         if (!savedRangeRef.current) return;
-
+        
         // Focus the editor if it's not already focused
         editorRef.current.focus();
-
+        
         // Insert mention with proper structure and a space after it
         replaceTextBeforeCursor(/@\w*$/, `<span class="${styles.mention}">@${username}</span>&nbsp;`);
         setShowMentionSuggestions(false);
-
+        
         // Ensure the editor keeps focus
         editorRef.current.focus();
-    };// Handle hashtag selection
+    };
+
+    // Handle hashtag selection - temporarily commented out
     const handleHashtagSelect = (hashtag) => {
         if (!savedRangeRef.current) return;
 
@@ -259,7 +270,8 @@ const PostForm = ({ post = null, onSubmit }) => {
 
         // Ensure the editor keeps focus
         editorRef.current.focus();
-    };    // Replace text before cursor with formatted HTML
+    };
+    */// Replace text before cursor with formatted HTML
     const replaceTextBeforeCursor = (regex, html) => {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) return;
@@ -470,50 +482,147 @@ const PostForm = ({ post = null, onSubmit }) => {
     return (
         <div className={styles['post-form-container']}>
             <form onSubmit={handleSubmit}>
-                <div className={styles['form-group']}>                    <div className={styles['editor-toolbar']}>
-                    <button
-                        type="button"
-                        className={styles['toolbar-button']}
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        title="Insert Emoji"
-                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
-                    >
-                        😀
-                    </button>
-                    <button
-                        type="button"
-                        className={styles['toolbar-button']}
-                        onClick={openLinkDialog}
-                        title="Insert Link"
-                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
-                    >
-                        🔗
-                    </button>
-                    <button
-                        type="button"
-                        className={styles['toolbar-button']}
-                        onClick={() => {
-                            // Insert @ at cursor position and trigger mention suggestions
-                            insertTextAtCursor('@');
-                        }}
-                        title="Mention Someone"
-                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
-                    >
-                        @
-                    </button>
-                    <button
-                        type="button"
-                        className={styles['toolbar-button']}
-                        onClick={() => {
-                            // Insert # at cursor position and trigger hashtag suggestions
-                            insertTextAtCursor('#');
-                        }}
-                        title="Add Hashtag"
-                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
-                    >
-                        #
-                    </button>
-                </div>
+                <div className={styles['form-group']}>                    {/* Media controls and preview moved above the editor */}
+                    <div className={styles['media-controls']}>
+                        <button
+                            type="button"
+                            className={styles['media-button']}
+                            onClick={() => fileInputRef.current.click()}
+                        >
+                            Add Photos/Videos
+                        </button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            accept="image/*,video/*"
+                            multiple
+                            style={{ display: 'none' }}
+                        />
+                    </div>
+
+                    {/* Media preview as slideshow */}
+                    {(formData.images.length > 0 || formData.videos.length > 0) && (
+                        <div className={styles['slideshow-container']}>
+                            {/* Images slideshow */}
+                            {formData.images.length > 0 && (
+                                <div className={styles['slideshow']}>
+                                    <div className={styles['slide']}>
+                                        <img
+                                            src={formData.images[currentImageIndex].url}
+                                            alt="Preview"
+                                            className={styles['slide-media']}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={styles['remove-media']}
+                                            onClick={() => removeMedia('images', formData.images[currentImageIndex].id)}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+
+                                    {/* Navigation arrows */}
+                                    {formData.images.length > 1 && (
+                                        <>
+                                            <button
+                                                className={`${styles['nav-button']} ${styles['prev']}`}
+                                                onClick={() => setCurrentImageIndex(prev =>
+                                                    prev === 0 ? formData.images.length - 1 : prev - 1
+                                                )}
+                                            >
+                                                ❮
+                                            </button>
+                                            <button
+                                                className={`${styles['nav-button']} ${styles['next']}`}
+                                                onClick={() => setCurrentImageIndex(prev =>
+                                                    prev === formData.images.length - 1 ? 0 : prev + 1
+                                                )}
+                                            >
+                                                ❯
+                                            </button>
+
+                                            {/* Dots/indicators */}
+                                            <div className={styles['dots-container']}>
+                                                {formData.images.map((_, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className={`${styles.dot} ${index === currentImageIndex ? styles.active : ''}`}
+                                                        onClick={() => setCurrentImageIndex(index)}
+                                                    ></span>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Videos */}
+                            {formData.videos.length > 0 && formData.images.length === 0 && (
+                                <div className={styles['videos-container']}>
+                                    {formData.videos.map(video => (
+                                        <div key={video.id} className={styles['media-item']}>
+                                            <video src={video.url} className={styles['media-thumbnail']} controls />
+                                            <button
+                                                type="button"
+                                                className={styles['remove-media']}
+                                                onClick={() => removeMedia('videos', video.id)}
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className={styles['editor-toolbar']}>
+                        <button
+                            type="button"
+                            className={styles['toolbar-button']}
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                            title="Insert Emoji"
+                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                        >
+                            😀
+                        </button>
+                        <button
+                            type="button"
+                            className={styles['toolbar-button']}
+                            onClick={openLinkDialog}
+                            title="Insert Link"
+                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                        >
+                            🔗
+                        </button>
+                        {/* Temporarily disabled mention and hashtag buttons 
+                        <button
+                            type="button"
+                            className={styles['toolbar-button']}
+                            onClick={() => {
+                                // Insert @ at cursor position and trigger mention suggestions
+                                insertTextAtCursor('@');
+                            }}
+                            title="Mention Someone"
+                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                        >
+                            @
+                        </button>
+                        <button
+                            type="button"
+                            className={styles['toolbar-button']}
+                            onClick={() => {
+                                // Insert # at cursor position and trigger hashtag suggestions
+                                insertTextAtCursor('#');
+                            }}
+                            title="Add Hashtag"
+                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                        >
+                            #
+                        </button>
+                        */}
+                    </div>
                     <div className={styles['rich-editor-container']}>                        <div
                         ref={editorRef}
                         className={styles['rich-editor']}
@@ -567,7 +676,8 @@ const PostForm = ({ post = null, onSubmit }) => {
                                     </div>
                                 </div>
                             </div>
-                        )}                        {showMentionSuggestions && (
+                        )}                        {/* Temporarily disabled mention suggestions UI
+                        {showMentionSuggestions && (
                             <div className={styles['suggestions-container']}>
                                 <div className={styles['suggestions-header']}>
                                     <strong>Mention a user</strong>
@@ -600,7 +710,10 @@ const PostForm = ({ post = null, onSubmit }) => {
                                     </div>
                                 )}
                             </div>
-                        )}                        {/* Hashtag suggestions */}
+                        )}
+                        */}
+
+                        {/* Temporarily disabled hashtag suggestions UI
                         {showHashtagSuggestions && (
                             <div className={styles['suggestions-container']}>
                                 <div className={styles['suggestions-header']}>
@@ -642,68 +755,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                                 )}
                             </div>
                         )}
-                    </div>
-
-                    <div className={styles['form-group']}>
-                        <div className={styles['media-controls']}>
-                            <button
-                                type="button"
-                                className={styles['media-button']}
-                                onClick={() => fileInputRef.current.click()}
-                            >
-                                Add Photos/Videos
-                            </button>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                accept="image/*,video/*"
-                                multiple
-                                style={{ display: 'none' }}
-                            />
-                        </div>
-
-                        {/* Media preview */}
-                        {(formData.images.length > 0 || formData.videos.length > 0) && (
-                            <div className={styles['media-preview']}>
-                                {/* Images */}
-                                {formData.images.length > 0 && (
-                                    <div className={styles['images-container']}>
-                                        {formData.images.map(image => (
-                                            <div key={image.id} className={styles['media-item']}>
-                                                <img src={image.url} alt="Preview" className={styles['media-thumbnail']} />
-                                                <button
-                                                    type="button"
-                                                    className={styles['remove-media']}
-                                                    onClick={() => removeMedia('images', image.id)}
-                                                >
-                                                    ×
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Videos */}
-                                {formData.videos.length > 0 && (
-                                    <div className={styles['videos-container']}>
-                                        {formData.videos.map(video => (
-                                            <div key={video.id} className={styles['media-item']}>
-                                                <video src={video.url} className={styles['media-thumbnail']} controls />
-                                                <button
-                                                    type="button"
-                                                    className={styles['remove-media']}
-                                                    onClick={() => removeMedia('videos', video.id)}
-                                                >
-                                                    ×
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                        */}</div>
 
                     <div className={styles['form-actions']}>
                         <button type="submit" className={styles['submit-button']}>

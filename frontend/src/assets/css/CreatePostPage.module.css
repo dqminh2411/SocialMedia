@@ -1,0 +1,27 @@
+/* CreatePostPage.module.css */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.mainContent {
+    width: 80%;
+    margin-left: 20%;
+    /* Account for the sidebar */
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.createPostContainer {
+    width: 100%;
+    max-width: 700px;
+}
+
+.title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #262626;
+}

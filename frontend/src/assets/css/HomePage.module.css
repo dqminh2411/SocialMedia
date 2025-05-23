@@ -1,0 +1,26 @@
+/* HomePage.module.css */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.mainContent {
+    width: 50%;
+    margin-left: 22%;
+    /* To account for the fixed sidebar */
+    padding: 20px;
+}
+
+.postList {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.rightPanel {
+    width: 28%;
+    padding: 20px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}

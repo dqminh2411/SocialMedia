@@ -1,0 +1,47 @@
+/* FriendSuggestion.module.css */
+.listFriend {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.listFriend:hover {
+    background-color: #f8f9fa;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.userInfo {
+    flex: 1;
+    margin-left: 10px;
+}
+
+.userInfo p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.button {
+    background-color: rgb(22, 97, 168);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.button:hover {
+    background-color: rgb(16, 73, 126);
+}

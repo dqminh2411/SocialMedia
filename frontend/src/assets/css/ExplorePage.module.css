@@ -1,0 +1,116 @@
+/* ExplorePage.module.css */
+.container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.mainContent {
+    width: 80%;
+    margin-left: 20%;
+    /* Account for the sidebar */
+    padding: 40px 20px;
+}
+
+.exploreGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    max-width: 935px;
+    margin: 0 auto;
+}
+
+.exploreTabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.tabButton {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    margin: 0 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #262626;
+    transition: background-color 0.2s;
+}
+
+.tabButton:hover {
+    background-color: #efefef;
+}
+
+.tabButton.active {
+    font-weight: 600;
+    background-color: #efefef;
+}
+
+.exploreItem {
+    position: relative;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.exploreItem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.exploreItem:hover img {
+    transform: scale(1.05);
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.exploreItem:hover .overlay {
+    opacity: 1;
+}
+
+.stats {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: 600;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+}
+
+.stat svg {
+    margin-right: 6px;
+}
+
+@media (max-width: 768px) {
+    .exploreGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .exploreGrid {
+        grid-template-columns: 1fr;
+    }
+}
