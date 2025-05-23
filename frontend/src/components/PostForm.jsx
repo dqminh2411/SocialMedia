@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import EmojiPicker from 'emoji-picker-react'; // You'll need to install this package
-import '../assets/css/PostForm.module.css';
+import styles from '../assets/css/PostForm.module.css';
 
 const PostForm = ({ post = null, onSubmit }) => {
     // Using a ref for the editable div instead of a textarea
@@ -47,14 +47,39 @@ const PostForm = ({ post = null, onSubmit }) => {
 
     const filteredHashtags = mockHashtags.filter(tag =>
         tag.name.toLowerCase().includes(hashtagQuery.toLowerCase())
-    );
-
-    // Initialize the editor content
+    );    // Initialize the editor content
     useEffect(() => {
         if (editorRef.current && post?.content) {
             editorRef.current.innerHTML = post.content;
+            // Set initial state
+            setFormData(prev => ({ ...prev, content: post.content }));
         }
     }, [post]);
+
+    // Function to fetch user suggestions (in a real app, this would be an API call)
+    const fetchUserSuggestions = (query) => {
+        // Simulate API delay
+        setTimeout(() => {
+            // Filter users based on query
+            const filtered = mockUsers.filter(user =>
+                user.username.toLowerCase().includes(query.toLowerCase()) ||
+                user.fullName.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredUsers(filtered);
+        }, 100);
+    };
+
+    // Function to fetch hashtag suggestions (in a real app, this would be an API call)
+    const fetchHashtagSuggestions = (query) => {
+        // Simulate API delay
+        setTimeout(() => {
+            // Filter hashtags based on query
+            const filtered = mockHashtags.filter(tag =>
+                tag.name.toLowerCase().includes(query.toLowerCase())
+            );
+            setFilteredHashtags(filtered);
+        }, 100);
+    };
 
     // Save the current selection range when opening link dialog
     // const saveSelection = () => {
@@ -83,13 +108,18 @@ const PostForm = ({ post = null, onSubmit }) => {
         if (selection && selection.rangeCount > 0) {
             savedRangeRef.current = selection.getRangeAt(0).cloneRange();
         }
-    }
-    // Monitor content changes in the editable div
+    }    // Monitor content changes in the editable div
     const handleContentChange = () => {
         if (!editorRef.current) return;
 
         const content = editorRef.current.innerHTML;
-        setFormData(prev => ({ ...prev, content }));
+        setFormData(prev => {
+            // Only update if content has actually changed to avoid unnecessary re-renders
+            if (prev.content !== content) {
+                return { ...prev, content };
+            }
+            return prev;
+        });
 
         // Get the current text at cursor position
         const selection = window.getSelection();
@@ -103,9 +133,12 @@ const PostForm = ({ post = null, onSubmit }) => {
             // Check for @ mentions
             const mentionMatch = /@(\w*)$/.exec(textBeforeCaret);
             if (mentionMatch) {
-                setMentionQuery(mentionMatch[1]);
+                const query = mentionMatch[1];
+                setMentionQuery(query);
                 setShowMentionSuggestions(true);
                 setShowHashtagSuggestions(false);
+                // Fetch user suggestions
+                fetchUserSuggestions(query);
             } else {
                 setShowMentionSuggestions(false);
             }
@@ -113,12 +146,18 @@ const PostForm = ({ post = null, onSubmit }) => {
             // Check for # hashtags
             const hashtagMatch = /#(\w*)$/.exec(textBeforeCaret);
             if (hashtagMatch) {
-                setHashtagQuery(hashtagMatch[1]);
+                const query = hashtagMatch[1];
+                setHashtagQuery(query);
                 setShowHashtagSuggestions(true);
                 setShowMentionSuggestions(false);
+                // Fetch hashtag suggestions
+                fetchHashtagSuggestions(query);
             } else {
                 setShowHashtagSuggestions(false);
             }
+
+            // Save the range after any content change
+            saveRange();
         }
     };
 
@@ -131,6 +170,40 @@ const PostForm = ({ post = null, onSubmit }) => {
         }
 
     }
+
+    // Function to insert text at cursor position
+    const insertTextAtCursor = (text) => {
+        if (!editorRef.current) return;
+
+        // Focus the editor
+        editorRef.current.focus();
+
+        // Get current selection
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            // Get the range
+            const range = selection.getRangeAt(0);
+
+            // Delete any selected text
+            range.deleteContents();
+
+            // Insert the text
+            const textNode = document.createTextNode(text);
+            range.insertNode(textNode);
+
+            // Move cursor to the end of the inserted text
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Trigger content change to update suggestions
+            handleContentChange();
+
+            // Save the range for further operations
+            saveRange();
+        }
+    };
 
     // Handle emoji selection
     const handleEmojiClick = (emojiObject) => {
@@ -160,22 +233,33 @@ const PostForm = ({ post = null, onSubmit }) => {
         // Close emoji picker and update content state
         setShowEmojiPicker(false);
         handleContentChange();
-
-    };
-
-    // Handle mention selection
+    };    // Handle mention selection
     const handleMentionSelect = (username) => {
-        replaceTextBeforeCursor(/@\w*$/, `<span class="mention">@${username}</span>&nbsp;`);
+        if (!savedRangeRef.current) return;
+
+        // Focus the editor if it's not already focused
+        editorRef.current.focus();
+
+        // Insert mention with proper structure and a space after it
+        replaceTextBeforeCursor(/@\w*$/, `<span class="${styles.mention}">@${username}</span>&nbsp;`);
         setShowMentionSuggestions(false);
-    };
 
-    // Handle hashtag selection
+        // Ensure the editor keeps focus
+        editorRef.current.focus();
+    };// Handle hashtag selection
     const handleHashtagSelect = (hashtag) => {
-        replaceTextBeforeCursor(/#\w*$/, `<span class="hashtag">#${hashtag}</span>&nbsp;`);
-        setShowHashtagSuggestions(false);
-    };
+        if (!savedRangeRef.current) return;
 
-    // Replace text before cursor with formatted HTML
+        // Focus the editor if it's not already focused
+        editorRef.current.focus();
+
+        // Insert hashtag with proper structure
+        replaceTextBeforeCursor(/#\w*$/, `<span class="${styles.hashtag}">#${hashtag}</span>`);
+        setShowHashtagSuggestions(false);
+
+        // Ensure the editor keeps focus
+        editorRef.current.focus();
+    };    // Replace text before cursor with formatted HTML
     const replaceTextBeforeCursor = (regex, html) => {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) return;
@@ -194,16 +278,12 @@ const PostForm = ({ post = null, onSubmit }) => {
         const deleteCount = lastMatch[0].length;
         const tempRange = range.cloneRange();
 
-        // Move the range back by the number of characters to delete
-        for (let i = 0; i < deleteCount; i++) {
-            tempRange.setStart(range.endContainer, Math.max(0, range.endOffset - 1));
-            tempRange.setEnd(range.endContainer, range.endOffset);
+        // Move the range back to the end of the last match
+        tempRange.setStart(range.endContainer, range.endOffset - deleteCount);
+        tempRange.setEnd(range.endContainer, range.endOffset);
 
-            if (tempRange.toString().length > 0) {
-                // Delete one character at a time
-                tempRange.deleteContents();
-            }
-        }
+        // Delete the last match
+        tempRange.deleteContents();
 
         // Insert the HTML
         const tempDiv = document.createElement('div');
@@ -254,11 +334,10 @@ const PostForm = ({ post = null, onSubmit }) => {
             const selection = window.getSelection();
             selection.addRange(savedRangeRef.current)
             if (selection.rangeCount > 0) {
-                const range = savedRangeRef.current;
-                range.deleteContents();
+                const range = savedRangeRef.current; range.deleteContents();
 
                 const linkText = linkData.text || linkData.url;
-                const linkHtml = `<a href="${linkData.url}" class="url" target="_blank">${linkText}</a>`;
+                const linkHtml = `<a href="${linkData.url}" class="${styles.url}" target="_blank">${linkText}</a>`;
 
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = linkHtml;
@@ -348,10 +427,9 @@ const PostForm = ({ post = null, onSubmit }) => {
                         fragment.appendChild(document.createTextNode(part));
                     }
                 } else {
-                    // URL
-                    const link = document.createElement('a');
+                    // URL                    const link = document.createElement('a');
                     link.href = part;
-                    link.className = 'url';
+                    link.className = styles.url;
                     link.target = '_blank';
                     link.textContent = part;
                     fragment.appendChild(link);
@@ -374,17 +452,15 @@ const PostForm = ({ post = null, onSubmit }) => {
         e.preventDefault();
 
         // Get the content from the editor
-        const content = editorRef.current.innerHTML;
-
-        // Process form data
+        const content = editorRef.current.innerHTML;        // Process form data
         const processedData = {
             ...formData,
             content,
             // Extract mentions from content by parsing HTML
-            mentions: Array.from(editorRef.current.querySelectorAll('.mention'))
+            mentions: Array.from(editorRef.current.querySelectorAll(`.${styles.mention}`))
                 .map(el => el.textContent.slice(1)), // Remove @ symbol
             // Extract hashtags from content by parsing HTML
-            hashtags: Array.from(editorRef.current.querySelectorAll('.hashtag'))
+            hashtags: Array.from(editorRef.current.querySelectorAll(`.${styles.hashtag}`))
                 .map(el => el.textContent.slice(1)), // Remove # symbol
         };
 
@@ -392,182 +468,248 @@ const PostForm = ({ post = null, onSubmit }) => {
     };
 
     return (
-        <div className="post-form-container">
+        <div className={styles['post-form-container']}>
             <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <div className="editor-toolbar">
-                        <button
-                            type="button"
-                            className="toolbar-button"
-                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        >
-                            😊
-                        </button>
-                        <button
-                            type="button"
-                            className="toolbar-button"
-                            onClick={openLinkDialog}
-                        >
-                            🔗
-                        </button>
-                    </div>
-
-                    <div className="rich-editor-container">
-                        <div
-                            ref={editorRef}
-                            className="rich-editor"
-                            contentEditable={true}
-                            onInput={handleContentChange}
-                            onPaste={handlePaste}
-                            onClick={handleContentClick}
-                            onFocus={saveRange}
-                            onKeyUp={saveRange}
-                            onMouseUp={saveRange}
-                            data-placeholder="What's on your mind?"
-                        />
-
+                <div className={styles['form-group']}>                    <div className={styles['editor-toolbar']}>
+                    <button
+                        type="button"
+                        className={styles['toolbar-button']}
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        title="Insert Emoji"
+                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                    >
+                        😀
+                    </button>
+                    <button
+                        type="button"
+                        className={styles['toolbar-button']}
+                        onClick={openLinkDialog}
+                        title="Insert Link"
+                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                    >
+                        🔗
+                    </button>
+                    <button
+                        type="button"
+                        className={styles['toolbar-button']}
+                        onClick={() => {
+                            // Insert @ at cursor position and trigger mention suggestions
+                            insertTextAtCursor('@');
+                        }}
+                        title="Mention Someone"
+                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                    >
+                        @
+                    </button>
+                    <button
+                        type="button"
+                        className={styles['toolbar-button']}
+                        onClick={() => {
+                            // Insert # at cursor position and trigger hashtag suggestions
+                            insertTextAtCursor('#');
+                        }}
+                        title="Add Hashtag"
+                        onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                    >
+                        #
+                    </button>
+                </div>
+                    <div className={styles['rich-editor-container']}>                        <div
+                        ref={editorRef}
+                        className={styles['rich-editor']}
+                        contentEditable
+                        data-placeholder="What's on your mind?"
+                        onInput={handleContentChange}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                e.preventDefault();
+                                handleSubmit(e);
+                            }
+                        }}
+                        onPaste={handlePaste}
+                        onClick={handleContentClick}
+                    />
                         {showEmojiPicker && (
-                            <div className="emoji-picker-container">
+                            <div className={styles['emoji-picker-container']}>
                                 <EmojiPicker onEmojiClick={handleEmojiClick} />
                             </div>
                         )}
 
-                        {/* Link dialog */}
                         {showLinkDialog && (
-                            <div className="link-dialog" ref={linkDialogRef}>
-                                <div className="link-dialog-content">
+                            <div className={styles['link-dialog']} ref={linkDialogRef}>
+                                <div className={styles['link-dialog-content']}>
                                     <h3>Insert Link</h3>
-                                    <div className="link-form-group">
-                                        <label>URL</label>
+                                    <div className={styles['link-form-group']}>
+                                        <label htmlFor="linkUrl">URL:</label>
                                         <input
-                                            type="text"
+                                            type="url"
+                                            id="linkUrl"
                                             value={linkData.url}
-                                            onChange={(e) => setLinkData(prev => ({ ...prev, url: e.target.value }))}
-                                            placeholder="https://example.com"
+                                            onChange={(e) => setLinkData({ ...linkData, url: e.target.value })}
                                         />
                                     </div>
-                                    <div className="link-form-group">
-                                        <label>Text</label>
+                                    <div className={styles['link-form-group']}>
+                                        <label htmlFor="linkText">Text to display:</label>
                                         <input
                                             type="text"
+                                            id="linkText"
                                             value={linkData.text}
-                                            onChange={(e) => setLinkData(prev => ({ ...prev, text: e.target.value }))}
-                                            placeholder="Link text"
+                                            onChange={(e) => setLinkData({ ...linkData, text: e.target.value })}
                                         />
                                     </div>
-                                    <div className="link-dialog-actions">
-                                        <button type="button" onClick={() => setShowLinkDialog(false)}>Cancel</button>
-                                        <button type="button" onClick={insertLink}>Insert</button>
+                                    <div className={styles['link-dialog-actions']}>
+                                        <button type="button" onClick={() => setShowLinkDialog(false)}>
+                                            Cancel
+                                        </button>
+                                        <button type="button" onClick={insertLink}>
+                                            Insert
+                                        </button>
                                     </div>
                                 </div>
+                            </div>
+                        )}                        {showMentionSuggestions && (
+                            <div className={styles['suggestions-container']}>
+                                <div className={styles['suggestions-header']}>
+                                    <strong>Mention a user</strong>
+                                    <button
+                                        onClick={() => setShowMentionSuggestions(false)}
+                                        className={styles['close-suggestions']}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                                {filteredUsers.length > 0 ? (
+                                    <ul className={styles['suggestions-list']}>
+                                        {filteredUsers.map(user => (
+                                            <li
+                                                key={user.id}
+                                                className={styles['suggestion-item']}
+                                                onClick={() => handleMentionSelect(user.username)}
+                                            >
+                                                <img src={user.avatar} alt={user.username} className={styles['suggestion-avatar']} />
+                                                <div className={styles['suggestion-info']}>
+                                                    <span className={styles['suggestion-name']}>{user.fullName}</span>
+                                                    <span className={styles['suggestion-username']}>@{user.username}</span>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <div className={styles['no-suggestions']}>
+                                        No users found. Keep typing...
+                                    </div>
+                                )}
+                            </div>
+                        )}                        {/* Hashtag suggestions */}
+                        {showHashtagSuggestions && (
+                            <div className={styles['suggestions-container']}>
+                                <div className={styles['suggestions-header']}>
+                                    <strong>Select a hashtag</strong>
+                                    <button
+                                        onClick={() => setShowHashtagSuggestions(false)}
+                                        className={styles['close-suggestions']}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                                {filteredHashtags.length > 0 ? (
+                                    <ul className={styles['suggestions-list']}>
+                                        {filteredHashtags.map(tag => (
+                                            <li
+                                                key={tag.id}
+                                                className={styles['suggestion-item']}
+                                                onClick={() => handleHashtagSelect(tag.name)}
+                                            >
+                                                <span className={styles['suggestion-hashtag']}>#{tag.name}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <div className={styles['no-suggestions']}>
+                                        <p>No hashtags found. Keep typing...</p>
+                                        <button
+                                            className={styles['create-hashtag']}
+                                            onClick={() => {
+                                                // Create a new hashtag with the current query
+                                                if (hashtagQuery) {
+                                                    handleHashtagSelect(hashtagQuery);
+                                                }
+                                            }}
+                                        >
+                                            Create #{hashtagQuery}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
 
-                    {/* Mention suggestions */}
-                    {showMentionSuggestions && filteredUsers.length > 0 && (
-                        <div className="suggestions-container">
-                            <ul className="suggestions-list">
-                                {filteredUsers.map(user => (
-                                    <li
-                                        key={user.id}
-                                        className="suggestion-item"
-                                        onClick={() => handleMentionSelect(user.username)}
-                                    >
-                                        <img src={user.avatar} alt={user.username} className="suggestion-avatar" />
-                                        <div className="suggestion-info">
-                                            <span className="suggestion-name">{user.fullName}</span>
-                                            <span className="suggestion-username">@{user.username}</span>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                    <div className={styles['form-group']}>
+                        <div className={styles['media-controls']}>
+                            <button
+                                type="button"
+                                className={styles['media-button']}
+                                onClick={() => fileInputRef.current.click()}
+                            >
+                                Add Photos/Videos
+                            </button>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept="image/*,video/*"
+                                multiple
+                                style={{ display: 'none' }}
+                            />
                         </div>
-                    )}
 
-                    {/* Hashtag suggestions */}
-                    {showHashtagSuggestions && filteredHashtags.length > 0 && (
-                        <div className="suggestions-container">
-                            <ul className="suggestions-list">
-                                {filteredHashtags.map(tag => (
-                                    <li
-                                        key={tag.id}
-                                        className="suggestion-item"
-                                        onClick={() => handleHashtagSelect(tag.name)}
-                                    >
-                                        <span className="suggestion-hashtag">#{tag.name}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </div>
+                        {/* Media preview */}
+                        {(formData.images.length > 0 || formData.videos.length > 0) && (
+                            <div className={styles['media-preview']}>
+                                {/* Images */}
+                                {formData.images.length > 0 && (
+                                    <div className={styles['images-container']}>
+                                        {formData.images.map(image => (
+                                            <div key={image.id} className={styles['media-item']}>
+                                                <img src={image.url} alt="Preview" className={styles['media-thumbnail']} />
+                                                <button
+                                                    type="button"
+                                                    className={styles['remove-media']}
+                                                    onClick={() => removeMedia('images', image.id)}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
 
-                <div className="form-group">
-                    <div className="media-controls">
-                        <button
-                            type="button"
-                            className="media-button"
-                            onClick={() => fileInputRef.current.click()}
-                        >
-                            Add Photos/Videos
-                        </button>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            accept="image/*,video/*"
-                            multiple
-                            style={{ display: 'none' }}
-                        />
+                                {/* Videos */}
+                                {formData.videos.length > 0 && (
+                                    <div className={styles['videos-container']}>
+                                        {formData.videos.map(video => (
+                                            <div key={video.id} className={styles['media-item']}>
+                                                <video src={video.url} className={styles['media-thumbnail']} controls />
+                                                <button
+                                                    type="button"
+                                                    className={styles['remove-media']}
+                                                    onClick={() => removeMedia('videos', video.id)}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
-                    {/* Media preview */}
-                    {(formData.images.length > 0 || formData.videos.length > 0) && (
-                        <div className="media-preview">
-                            {/* Images */}
-                            {formData.images.length > 0 && (
-                                <div className="images-container">
-                                    {formData.images.map(image => (
-                                        <div key={image.id} className="media-item">
-                                            <img src={image.url} alt="Preview" className="media-thumbnail" />
-                                            <button
-                                                type="button"
-                                                className="remove-media"
-                                                onClick={() => removeMedia('images', image.id)}
-                                            >
-                                                ×
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Videos */}
-                            {formData.videos.length > 0 && (
-                                <div className="videos-container">
-                                    {formData.videos.map(video => (
-                                        <div key={video.id} className="media-item">
-                                            <video src={video.url} className="media-thumbnail" controls />
-                                            <button
-                                                type="button"
-                                                className="remove-media"
-                                                onClick={() => removeMedia('videos', video.id)}
-                                            >
-                                                ×
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <div className="form-actions">
-                    <button type="submit" className="submit-button">
-                        {post ? 'Update Post' : 'Create Post'}
-                    </button>
+                    <div className={styles['form-actions']}>
+                        <button type="submit" className={styles['submit-button']}>
+                            {post ? 'Update Post' : 'Create Post'}
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

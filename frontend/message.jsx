@@ -7,7 +7,7 @@ import { PiNotePencilBold } from "react-icons/pi";
 import { FiUser } from "react-icons/fi";
 import { IoMdPaperPlane } from "react-icons/io";
 
-import "../message.css"; 
+import "../../../message.css";
 export default function InstagramMessengerUI() {
   return (
     <div style={{ display: "flex", height: "100vh" }}>

@@ -12,26 +12,26 @@ import Notification from "./pages/test/notification.jsx";
 import Notifications from "./notifications.jsx";
 
 function App() {
-    const isLoggedIn = !!localStorage.getItem("user");
+    // const isLoggedIn = !!localStorage.getItem("user");
+
+    // return (
+    //     <Router>
+    //         <Routes>
+    //             <Route path="/login" element={<Login />} />
+    //             <Route
+    //                 path="/websocket"
+    //                 element={isLoggedIn ? <WebSocketTest /> : <Navigate to="/login" />}
+    //             />
+    //             <Route path="*" element={<Navigate to={isLoggedIn ? "/websocket" : "/login"} />} />
+    //         </Routes>
+    //     </Router>
+    // );
 
     return (
-        <Router>
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route
-                    path="/websocket"
-                    element={isLoggedIn ? <WebSocketTest /> : <Navigate to="/login" />}
-                />
-                <Route path="*" element={<Navigate to={isLoggedIn ? "/websocket" : "/login"} />} />
-            </Routes>
-        </Router>
+        <>
+            <PostPage />
+        </>
     );
-
-    // return(
-    //     <>
-    //         <Notifications/>
-    //     </>
-    // );
 
 }
 
