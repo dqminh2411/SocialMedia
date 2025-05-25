@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from './pages/auth/login.jsx'
 import WebSocketTest from "./pages/test/WebSocketTest.jsx";
 import PostForm from "./components/PostForm.jsx";
@@ -16,29 +16,19 @@ import MessagesPage from "./pages/MessagesPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 import CreatePostPage from "./pages/CreatePostPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import PostDetailPage from "./pages/PostDetailPage.jsx";
 
 // Import global styles
 import './assets/css/Global.css';
 
-function App() {
-    // const isLoggedIn = !!localStorage.getItem("user");
-
-    // return (
-    //     <Router>
-    //         <Routes>
-    //             <Route path="/login" element={<Login />} />
-    //             <Route
-    //                 path="/websocket"
-    //                 element={isLoggedIn ? <WebSocketTest /> : <Navigate to="/login" />}
-    //             />
-    //             <Route path="*" element={<Navigate to={isLoggedIn ? "/websocket" : "/login"} />} />
-    //         </Routes>
-    //     </Router>
-    // );
+// We need to create this component to handle the modal routing logic
+const AppRoutes = () => {
+    const location = useLocation();
+    const background = location.state?.background;
 
     return (
-        <Router>
-            <Routes>
+        <>
+            <Routes location={background || location}>
                 {/* New UI Routes */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/search" element={<SearchPage />} />
@@ -47,6 +37,7 @@ function App() {
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/create" element={<CreatePostPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/post/:postId" element={<PostDetailPage />} />
 
                 {/* Legacy Routes */}
                 <Route path="/post" element={<PostPage />} />
@@ -55,6 +46,21 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/websocket" element={<WebSocketTest />} />
             </Routes>
+
+            {/* Show the modal when we have a background location */}
+            {background && (
+                <Routes>
+                    <Route path="/post/:postId" element={<PostDetailPage />} />
+                </Routes>
+            )}
+        </>
+    );
+};
+
+function App() {
+    return (
+        <Router>
+            <AppRoutes />
         </Router>
     );
 }

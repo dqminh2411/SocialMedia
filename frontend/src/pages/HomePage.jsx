@@ -27,19 +27,19 @@ const HomePage = () => {
         <div className={styles.container}>
             <Sidebar />
 
-            <div className={styles.mainContent}>
-                <div className={styles.postList}>
-                    {posts.map(post => (
-                        <Post
-                            key={post.id}
-                            username={post.username}
-                            userAvatar={post.userAvatar}
-                            image={post.image}
-                            likes={post.likes}
-                            caption={post.caption}
-                        />
-                    ))}
-                </div>
+            <div className={styles.mainContent}>                <div className={styles.postList}>
+                {posts.map(post => (
+                    <Post
+                        key={post.id}
+                        id={post.id}
+                        username={post.username}
+                        userAvatar={post.userAvatar}
+                        image={post.image}
+                        likes={post.likes}
+                        caption={post.caption}
+                    />
+                ))}
+            </div>
             </div>
 
             <div className={styles.rightPanel}>
