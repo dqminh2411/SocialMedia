@@ -1,0 +1,30 @@
+/* Auth Pages Common Styles */
+
+/* Force all links to be clickable */
+a {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Force all buttons to be clickable */
+button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* Force CSS modules to be recognized */
+[class*='module_'] {
+    all: initial;
+}
+
+/* Fix specific issues with signup module */
+.signup_form__module {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.signup_dangki__module,
+.signup_dangnhap__module {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}

@@ -51,3 +51,24 @@
     width: 24px;
     height: 24px;
 }
+
+.logoutButton {
+    background-color: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 15px;
+    flex: 1;
+}
+
+.logoutButton:hover {
+    background: #e4e6eb;
+    cursor: pointer;
+}
+
+.logoutSection {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}

@@ -6,5 +6,15 @@ export default defineConfig({
   plugins: [react()],
   define: {
     global: 'window'
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+      scopeBehaviour: 'local'
+    }
+  },
+  server: {
+    // 👇 This is the key line
+    historyApiFallback: true
   }
 })

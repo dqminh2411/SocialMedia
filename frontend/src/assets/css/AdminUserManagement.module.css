@@ -1,0 +1,371 @@
+/* src/assets/css/AdminUserManagement.module.css */
+.userManagementContainer {
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.searchForm {
+    display: flex;
+    align-items: center;
+}
+
+.searchInput {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 250px;
+}
+
+.searchButton {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.searchButton:hover {
+    background-color: #0074cc;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.usersTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.usersTable th,
+.usersTable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.usersTable th {
+    background-color: #f7f9fc;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+.usersTable tr:last-child td {
+    border-bottom: none;
+}
+
+.usersTable tr:hover {
+    background-color: #f9f9f9;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge.admin {
+    background-color: rgba(233, 30, 99, 0.1);
+    color: #e91e63;
+}
+
+.badge.user {
+    background-color: rgba(0, 149, 246, 0.1);
+    color: #0095f6;
+}
+
+.badge.moderator {
+    background-color: rgba(126, 87, 194, 0.1);
+    color: #7e57c2;
+}
+
+.badge.active {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4caf50;
+}
+
+.badge.inactive {
+    background-color: rgba(158, 158, 158, 0.1);
+    color: #9e9e9e;
+}
+
+.badge.suspended {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+.badge.banned {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.editButton,
+.deleteButton {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.editButton {
+    color: #0095f6;
+}
+
+.editButton:hover {
+    background-color: rgba(0, 149, 246, 0.1);
+}
+
+.deleteButton {
+    color: #f44336;
+}
+
+.deleteButton:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pageButton {
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.pageButton:hover:not(:disabled) {
+    background-color: #f5f5f5;
+}
+
+.pageButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.pageInfo {
+    margin: 0 15px;
+    font-size: 14px;
+    color: #666;
+}
+
+.noDataMessage {
+    text-align: center;
+    color: #666;
+    padding: 30px;
+}
+
+.loadingContainer,
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-left-color: #0095f6;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.errorMessage {
+    color: #f44336;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.retryButton {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+}
+
+.closeButton:hover {
+    color: #f44336;
+}
+
+.editForm {
+    padding: 20px;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.formGroup input,
+.formGroup select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.formGroup input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.cancelButton,
+.saveButton {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.cancelButton {
+    background-color: transparent;
+    border: 1px solid #ddd;
+    color: #666;
+}
+
+.cancelButton:hover {
+    background-color: #f5f5f5;
+}
+
+.saveButton {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+}
+
+.saveButton:hover {
+    background-color: #0074cc;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .searchForm {
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .searchInput {
+        width: 100%;
+    }
+}

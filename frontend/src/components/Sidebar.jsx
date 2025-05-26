@@ -11,8 +11,18 @@ import notificationsIcon from '../assets/images/notifications.png';
 import createIcon from '../assets/images/create.png';
 import profileIcon from '../assets/images/profile.png';
 import moreIcon from '../assets/images/More.png';
-
+import logoutIcon from '../assets/images/logout-icon.png';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 const Sidebar = () => {
+    const navigate = useNavigate();
+    const { currentUser, logout } = useAuth();
+
+    const handleLogout = () => {
+        console.log('Logging out user:', currentUser?.email);
+        logout();
+        navigate('/login');
+    };
     return (
         <div className={styles.sidebar}>
             <h2 className={styles.title}>Instargram</h2>
@@ -65,6 +75,17 @@ const Sidebar = () => {
                         <span>More</span>
                     </Link>
                 </li>
+                {currentUser && (
+                    <li>
+                        <div className={styles.logoutSection}>
+                            <img src={logoutIcon} alt="Logout" className={styles.icon} />
+                            <button onClick={handleLogout} className={styles.logoutButton}>
+                                Logout
+                            </button>
+                        </div>
+
+                    </li>
+                )}
             </ul>
         </div>
     );

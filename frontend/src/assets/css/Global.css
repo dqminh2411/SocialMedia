@@ -19,6 +19,16 @@ button {
     cursor: pointer;
 }
 
+/* Make sure links inside CSS modules work properly */
+a[href] {
+    cursor: pointer;
+}
+
+/* Ensure CSS modules are loaded properly */
+[class^="module_"] {
+    display: block;
+}
+
 img {
     max-width: 100%;
 }
