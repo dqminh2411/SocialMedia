@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import EmojiPicker from 'emoji-picker-react'; // You'll need to install this package
 import styles from '../assets/css/PostForm.module.css';
+import postService from '../services/post.service';
+import authService from '../services/auth.service';
 
 const PostForm = ({ post = null, onSubmit }) => {
     // Using a ref for the editable div instead of a textarea
@@ -10,9 +12,7 @@ const PostForm = ({ post = null, onSubmit }) => {
     const linkDialogRef = useRef(null);
 
     // State for current image in slideshow
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-    // State for form data
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);    // State for form data
     const [formData, setFormData] = useState({
         content: post?.content || '',
         images: post?.images || [],
@@ -21,6 +21,9 @@ const PostForm = ({ post = null, onSubmit }) => {
 
     // State for UI control
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
     /* Temporarily disabled mention and hashtag features
     const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
     const [showHashtagSuggestions, setShowHashtagSuggestions] = useState(false);
@@ -457,26 +460,90 @@ const PostForm = ({ post = null, onSubmit }) => {
         }
 
         handleContentChange();
-    };
-
-    // Handle form submission
+    };    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
         // Get the content from the editor
-        const content = editorRef.current.innerHTML;        // Process form data
-        const processedData = {
-            ...formData,
-            content,
-            // Extract mentions from content by parsing HTML
-            mentions: Array.from(editorRef.current.querySelectorAll(`.${styles.mention}`))
-                .map(el => el.textContent.slice(1)), // Remove @ symbol
-            // Extract hashtags from content by parsing HTML
-            hashtags: Array.from(editorRef.current.querySelectorAll(`.${styles.hashtag}`))
-                .map(el => el.textContent.slice(1)), // Remove # symbol
+        const content = editorRef.current.innerHTML;
+
+        // Validate content
+        if (!content.trim()) {
+            setError("Post content cannot be empty");
+            return;
+        }
+
+        // Reset states
+        setError(null);
+        setIsSubmitting(true);
+        setSuccess(false);
+
+        // Get the current user
+        const currentUser = authService.getCurrentUser();
+
+        if (!currentUser || !currentUser.user) {
+            setError('User not authenticated');
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Extract media files from formData for API call
+        const mediaFiles = [
+            ...formData.images.map(img => img.file),
+            ...formData.videos.map(video => video.file)
+        ];
+
+        // Extract mentions and hashtags from content if needed
+        // Here we could implement extraction logic if needed
+        const mentions = [];
+        const hashtags = [];
+
+        // Prepare data for API
+        const postData = {
+            creatorId: currentUser.user.id,
+            content: content,
+            mentions: mentions,
+            hashtags: hashtags
         };
 
-        onSubmit(processedData);
+        if (post) {
+            // Update existing post
+            postService.updatePost(post.id, postData, mediaFiles)
+                .then(response => {
+                    console.log('Post updated successfully:', response);
+                    setSuccess(true);
+                    setIsSubmitting(false);
+                    if (onSubmit) onSubmit(response);
+                })
+                .catch(error => {
+                    console.error('Error updating post:', error);
+                    setError('Failed to update post. Please try again.');
+                    setIsSubmitting(false);
+                });
+        } else {
+            // Create new post
+            postService.createPost(postData, mediaFiles)
+                .then(response => {
+                    console.log('Post created successfully:', response);
+                    setSuccess(true);
+                    setIsSubmitting(false);
+
+                    if (onSubmit) onSubmit(response);
+
+                    // Clear form after successful submission
+                    editorRef.current.innerHTML = '';
+                    setFormData({
+                        content: '',
+                        images: [],
+                        videos: []
+                    });
+                })
+                .catch(error => {
+                    console.error('Error creating post:', error);
+                    setError('Failed to create post. Please try again.');
+                    setIsSubmitting(false);
+                });
+        }
     };
 
     return (
@@ -520,12 +587,11 @@ const PostForm = ({ post = null, onSubmit }) => {
                                         >
                                             ×
                                         </button>
-                                    </div>
-
-                                    {/* Navigation arrows */}
+                                    </div>                                    {/* Navigation arrows */}
                                     {formData.images.length > 1 && (
                                         <>
                                             <button
+                                                type="button"
                                                 className={`${styles['nav-button']} ${styles['prev']}`}
                                                 onClick={() => setCurrentImageIndex(prev =>
                                                     prev === 0 ? formData.images.length - 1 : prev - 1
@@ -534,22 +600,22 @@ const PostForm = ({ post = null, onSubmit }) => {
                                                 ❮
                                             </button>
                                             <button
+                                                type="button"
                                                 className={`${styles['nav-button']} ${styles['next']}`}
                                                 onClick={() => setCurrentImageIndex(prev =>
                                                     prev === formData.images.length - 1 ? 0 : prev + 1
                                                 )}
                                             >
                                                 ❯
-                                            </button>
-
-                                            {/* Dots/indicators */}
+                                            </button>                                            {/* Dots/indicators */}
                                             <div className={styles['dots-container']}>
                                                 {formData.images.map((_, index) => (
-                                                    <span
+                                                    <button
+                                                        type="button"
                                                         key={index}
                                                         className={`${styles.dot} ${index === currentImageIndex ? styles.active : ''}`}
                                                         onClick={() => setCurrentImageIndex(index)}
-                                                    ></span>
+                                                    ></button>
                                                 ))}
                                             </div>
                                         </>
@@ -755,11 +821,18 @@ const PostForm = ({ post = null, onSubmit }) => {
                                 )}
                             </div>
                         )}
-                        */}</div>
-
+                        */}                    </div>
+                    {error && <div className={styles.errorMessage}>{error}</div>}
+                    {success && <div className={styles.successMessage}>
+                        {post ? 'Post updated successfully!' : 'Post created successfully!'}
+                    </div>}
                     <div className={styles['form-actions']}>
-                        <button type="submit" className={styles['submit-button']}>
-                            {post ? 'Update Post' : 'Create Post'}
+                        <button
+                            type="submit"
+                            className={styles['submit-button']}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? 'Submitting...' : post ? 'Update Post' : 'Create Post'}
                         </button>
                     </div>
                 </div>

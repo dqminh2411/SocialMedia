@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
     Post findById(int id);
-    Page<Post> findByCreatorOrderByCreatedAtDesc(User user, Pageable pageable);
+
+    Page<Post> findByCreator(User user, Pageable pageable);
+
     int countByCreator(User user);
 }

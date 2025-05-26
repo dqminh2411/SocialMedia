@@ -28,3 +28,13 @@ button {
     cursor: pointer !important;
     pointer-events: auto !important;
 }
+
+/* Common success message styling */
+.signup_successMessage__module,
+.login_successMessage__module {
+    z-index: 100 !important;
+    position: relative !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+}

@@ -3,14 +3,14 @@ package com.ttcs.socialmedia.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttcs.socialmedia.domain.*;
-import com.ttcs.socialmedia.domain.dto.NewPostDTO;
-import com.ttcs.socialmedia.domain.dto.PostDTO;
-import com.ttcs.socialmedia.domain.dto.UserDTO;
+import com.ttcs.socialmedia.domain.dto.*;
 import com.ttcs.socialmedia.repository.*;
+import com.ttcs.socialmedia.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +37,14 @@ public class PostService {
     private final ObjectMapper objectMapper;
     private final UserService userService;
     private final CommentService commentService;
+
+    public PostDTO getPostById(int postId) {
+        Post post = postRepository.findById(postId);
+        if (post == null) {
+            throw new RuntimeException("Post not found");
+        }
+        return postToDTO(post);
+    }
 
     public PostDTO createPost(String newPostJson, List<MultipartFile> medias) throws URISyntaxException, IOException {
         Post post = new Post();
@@ -201,12 +209,63 @@ public class PostService {
         return postDTO;
     }
 
+    public DetailPostDTO postToDetailDTO(Post post) {
+        DetailPostDTO detailPostDTO = new DetailPostDTO();
+        detailPostDTO.setId(post.getId());
+        detailPostDTO.setContent(post.getContent());
+        detailPostDTO.setCreator(userService.userToUserDTO(post.getCreator()));
+        detailPostDTO.setLikes(likePostRepository.countByPost(post));
+        // Count comments
+        detailPostDTO.setCommentsCount(post.getComments().size());
+        detailPostDTO.setCreatedAt(post.getCreatedAt());
+        detailPostDTO.setUpdatedAt(post.getUpdatedAt());
+
+        // Convert post media
+        List<PostMedia> postMediaList = post.getPostMedias();
+        List<PostMediaDTO> mediaList = postMediaList.stream().map(media -> {
+            PostMediaDTO mediaDTO = new PostMediaDTO();
+            mediaDTO.setId(media.getId());
+            mediaDTO.setFileName(media.getFileName());
+            mediaDTO.setPosition(media.getPosition());
+            return mediaDTO;
+        }).collect(Collectors.toList());
+        detailPostDTO.setMedia(mediaList);
+
+        // Convert hashtags
+        List<HashTagDTO> hashtagList = post.getPostHashtags().stream().map(postHashtag -> {
+            Hashtag hashtag = postHashtag.getHashtag();
+            return new HashTagDTO(hashtag);
+        }).collect(Collectors.toList());
+        detailPostDTO.setHashtags(hashtagList);
+
+        // Convert mentions
+        List<UserDTO> mentionsList = post.getPostMentions().stream()
+                .map(mention -> userService.userToUserDTO(mention.getUser()))
+                .collect(Collectors.toList());
+        detailPostDTO.setMentions(mentionsList);
+
+        // Get first page of comments
+        List<CommentDTO> comments = commentService.getCommentPage(post.getId(), 0);
+        detailPostDTO.setComments(comments);
+
+        // Check if current user liked the post
+        String currentUserEmail = com.ttcs.socialmedia.util.SecurityUtil.getCurrentUserLogin().orElse(null);
+        if (currentUserEmail != null) {
+            User currentUser = userRepository.findByEmail(currentUserEmail);
+            boolean liked = post.getLikePosts().stream()
+                    .anyMatch(like -> like.getUser().getId() == currentUser.getId());
+            detailPostDTO.setLikedByCurrentUser(liked);
+        }
+
+        return detailPostDTO;
+    }
+
     public List<PostDTO> getUserPostPage(int userId, int pageNo) {
         final int pageSize = 20;
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
         User user = new User();
         user.setId(userId);
-        Page<Post> posts = postRepository.findByCreatorOrderByCreatedAtDesc(user, pageable);
+        Page<Post> posts = postRepository.findByCreator(user, pageable);
         if (posts.isEmpty())
             return new ArrayList<>();
         return posts.stream().map(this::postToDTO).collect(Collectors.toList());
@@ -241,6 +300,14 @@ public class PostService {
         likePost.setPost(post);
         likePost.setUser(user);
         likePostRepository.save(likePost);
+    }
+
+    public DetailPostDTO getPostDetailById(int postId) {
+        Post post = postRepository.findById(postId);
+        if (post == null) {
+            throw new RuntimeException("Post not found");
+        }
+        return postToDetailDTO(post);
     }
 
 }

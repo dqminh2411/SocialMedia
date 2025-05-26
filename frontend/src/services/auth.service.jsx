@@ -15,7 +15,7 @@ class AuthService {
                 console.log('Login API response:', response.data);
                 if (response.data.data) {
                     const userData = {
-                        email,
+                        user: response.data.data.userDTO,
                         accessToken: response.data.data.accessToken
                     };
                     console.log('Storing user data:', userData);
@@ -32,11 +32,12 @@ class AuthService {
         localStorage.removeItem('user');
     }
 
-    signup(fullname, email, password) {
+    signup(formData) {
         return axios.post('http://localhost:8080/users/signup', {
-            fullname,
-            email,
-            password
+            fullname: formData.fullname,
+            email: formData.email,
+            password: formData.password,
+            rePassword: formData.rePassword
         });
     }
     getCurrentUser() {

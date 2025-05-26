@@ -60,15 +60,25 @@
     cursor: pointer;
     margin-left: 15px;
     flex: 1;
+    text-align: start;
 }
 
-.logoutButton:hover {
-    background: #e4e6eb;
-    cursor: pointer;
-}
+
 
 .logoutSection {
     display: flex;
-    justify-content: start;
     align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 10px;
+    transition: background 0.3s;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-decoration: none;
+}
+
+.logoutSection:hover {
+    background: #e4e6eb;
+    cursor: pointer;
 }

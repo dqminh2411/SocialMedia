@@ -27,33 +27,41 @@ public class ProfileService {
     private final PostService postService;
     private final FollowRepository followRepository;
 
-    public ProfileService(ProfileRepository profileRepository, FileService fileService, UserService userService, PostService postService, FollowRepository followRepository) {
+    public ProfileService(ProfileRepository profileRepository, FileService fileService, UserService userService,
+            PostService postService, FollowRepository followRepository) {
         this.profileRepository = profileRepository;
         this.fileService = fileService;
         this.userService = userService;
         this.postService = postService;
         this.followRepository = followRepository;
     }
-    public ResProfileDTO getProfileById(int id){
-         Profile profile = profileRepository.findById(id);
-         return profileToResProfileDTO(profile);
+
+    public ResProfileDTO getProfileByUserId(int id) {
+        User user = new User();
+        user.setId(id);
+        Profile profile = profileRepository.findByUser(user);
+        return profileToResProfileDTO(profile);
     }
+
     public ResProfileDTO update(int id, MultipartFile avatarFile, String bio) {
-        Profile profile = this.profileRepository.findById(id);
+        User user = new User();
+        user.setId(id);
+        Profile profile = this.profileRepository.findByUser(user);
         final String directoryName = "avatars";
-        if(profile != null) {
-            String avatarFileName="";
-            if(avatarFile!=null){
+        if (profile != null) {
+            String avatarFileName = "";
+            if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
                     this.fileService.createDirectory(directoryName);
-                    avatarFileName = this.fileService.save(avatarFile,directoryName);
-                    this.fileService.deleteFile(profile.getAvatar(),directoryName);
+                    avatarFileName = this.fileService.save(avatarFile, directoryName);
+                    if (profile.getAvatar() != null && !profile.getAvatar().isEmpty()) {
+                        this.fileService.deleteFile(profile.getAvatar(), directoryName);
+                    }
+                    profile.setAvatar(avatarFileName);
                 } catch (URISyntaxException | IOException e) {
                     throw new RuntimeException(e);
                 }
             }
-
-            profile.setAvatar(avatarFileName);
             profile.setBio(bio);
             profile = this.profileRepository.save(profile);
 
@@ -62,6 +70,7 @@ public class ProfileService {
         }
         return null;
     }
+
     public ResProfileDTO profileToResProfileDTO(Profile profile) {
         ResProfileDTO resProfileDTO = new ResProfileDTO();
         resProfileDTO.setId(profile.getId());
@@ -69,32 +78,39 @@ public class ProfileService {
         resProfileDTO.setUpdateAt(profile.getUpdatedAt());
         User user = profile.getUser();
         resProfileDTO.setUserDTO(userService.userToUserDTO(user));
-        resProfileDTO.setPosts(postService.getUserPostPage(user.getId(),0));
+        resProfileDTO.setPosts(postService.getUserPostPage(user.getId(), 0));
         resProfileDTO.setTotalPostCount(postService.getPostCountByUser(user.getId()));
         resProfileDTO.setTotalFollowingCount(followRepository.countByFollowingUser(user));
         resProfileDTO.setTotalFollowerCount(followRepository.countByFollowedUser(user));
         return resProfileDTO;
     }
 
-    public List<UserDTO> getFollowerPage(int id, int pageNo){
+    public List<UserDTO> getFollowerPage(int id, int pageNo) {
         final int pageSize = 20;
-        Pageable pageable = PageRequest.of(pageNo,pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
         Profile p = profileRepository.findById(id);
-        if(p==null) return null;
+        if (p == null)
+            return null;
         User user = p.getUser();
-        Page<Follow> follows = followRepository.findByFollowedUser(user,pageable);
-        if (follows.isEmpty()) return new ArrayList<>();
-        return follows.getContent().stream().map(follow -> userService.userToUserDTO(follow.getFollowingUser())).collect(Collectors.toList());
+        Page<Follow> follows = followRepository.findByFollowedUser(user, pageable);
+        if (follows.isEmpty())
+            return new ArrayList<>();
+        return follows.getContent().stream().map(follow -> userService.userToUserDTO(follow.getFollowingUser()))
+                .collect(Collectors.toList());
     }
-    public List<UserDTO> getFollowingPage(int id, int pageNo){
+
+    public List<UserDTO> getFollowingPage(int id, int pageNo) {
         final int pageSize = 20;
-        Pageable pageable = PageRequest.of(pageNo,pageSize);
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
         Profile p = profileRepository.findById(id);
-        if(p==null) return null;
+        if (p == null)
+            return null;
         User user = p.getUser();
-        Page<Follow> follows = followRepository.findByFollowingUser(user,pageable);
-        if (follows.isEmpty()) return new ArrayList<>();
-        return follows.getContent().stream().map(follow -> userService.userToUserDTO(follow.getFollowedUser())).collect(Collectors.toList());
+        Page<Follow> follows = followRepository.findByFollowingUser(user, pageable);
+        if (follows.isEmpty())
+            return new ArrayList<>();
+        return follows.getContent().stream().map(follow -> userService.userToUserDTO(follow.getFollowedUser()))
+                .collect(Collectors.toList());
     }
 
 }

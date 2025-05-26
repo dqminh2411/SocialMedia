@@ -98,11 +98,15 @@ export const defaultStyles = {
         fontSize: '14px',
         marginTop: '10px',
         textAlign: 'center',
-    },
-    successMessage: {
+    }, successMessage: {
         color: '#00a400',
         fontSize: '14px',
         marginTop: '10px',
         textAlign: 'center',
+        padding: '10px',
+        backgroundColor: 'rgba(0, 164, 0, 0.1)',
+        borderRadius: '4px',
+        borderLeft: '4px solid #00a400',
+        animation: 'fadeIn 0.5s'
     }
 };

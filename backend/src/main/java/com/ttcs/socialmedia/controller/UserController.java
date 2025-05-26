@@ -18,13 +18,15 @@ public class UserController {
     private final UserService userService;
 
     private final ProfileService profileService;
-    public UserController(UserService userService,ProfileService profileService) {
+
+    public UserController(UserService userService, ProfileService profileService) {
         this.userService = userService;
         this.profileService = profileService;
     }
-    @PostMapping(value="/signup")
+
+    @PostMapping(value = "/signup")
     public RestResponse<Object> signup(@Valid @RequestBody SignupDTO signupDTO) throws InvalidSignupException {
-        if(signupDTO!=null){
+        if (signupDTO != null) {
             this.userService.createUser(signupDTO);
             RestResponse<Object> resp = new RestResponse<>();
             resp.setMessage("Đăng kí tài khoản thành công");
@@ -33,6 +35,7 @@ public class UserController {
         }
         return null;
     }
+
     @GetMapping("/test")
     public RestResponse<Object> test() {
         RestResponse<Object> resp = new RestResponse<>();
@@ -40,9 +43,12 @@ public class UserController {
         resp.setMessage("testok");
         return resp;
     }
-    @PostMapping("/profile/update")
-    public ResProfileDTO updateProfile(@RequestParam("profile_id") int profileId, @RequestParam(name="avatar",required = false) MultipartFile avatarFile, @RequestParam(name="bio",required = false) String bio){
-        return this.profileService.update(profileId,avatarFile,bio);
+
+    @PutMapping("/profile/update")
+    public ResProfileDTO updateProfile(@RequestParam("userId") int userId,
+            @RequestParam(name = "avatar", required = false) MultipartFile avatarFile,
+            @RequestParam(name = "bio", required = false) String bio) {
+        return this.profileService.update(userId, avatarFile, bio);
     }
 
 }

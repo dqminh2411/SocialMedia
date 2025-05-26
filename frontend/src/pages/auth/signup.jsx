@@ -64,8 +64,8 @@ const SignUp = () => {
             return;
         }
 
-        if (formData.password.length < 6) {
-            setError('Mật khẩu phải có ít nhất 6 ký tự');
+        if (formData.password.length < 8) {
+            setError('Mật khẩu phải có ít nhất 8 ký tự');
             setLoading(false);
             return;
         }
@@ -73,15 +73,23 @@ const SignUp = () => {
             setError('Mật khẩu không khớp');
             setLoading(false);
             return;
-        }
-
-        try {
+        } try {
             const response = await AuthService.signup(formData);
 
             setSuccess('Đăng ký thành công! Chuyển hướng đến trang đăng nhập...');
 
+            // Scroll to the success message if it's not visible
+            setTimeout(() => {
+                const successElement = document.querySelector(`.${styles.successMessage}`);
+                if (successElement) {
+                    successElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
 
-            navigate('/login')
+            // Show success message for 3 seconds before redirecting
+            setTimeout(() => {
+                navigate('/login?from=signup');
+            }, 1500);
 
         } catch (err) {
             setError('Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại.');
@@ -152,7 +160,7 @@ const SignUp = () => {
                     />
 
                     <input
-                        type="text"
+                        type="password"
                         name="password"
                         className={styles.formInput}
                         style={combinedStyles.formInput}

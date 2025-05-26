@@ -1,0 +1,166 @@
+/* Loading and Error styles */
+.loading-container,
+.error-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.error-container p {
+    color: #ed4956;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.error-container button {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.error-container button:hover {
+    background-color: #0085e0;
+}
+
+/* Hashtags styling */
+.hashtags {
+    margin-top: 10px;
+}
+
+.hashtag {
+    color: #0095f6;
+    margin-right: 8px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.hashtag:hover {
+    text-decoration: underline;
+}
+
+/* Stats styling */
+.stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.likes {
+    font-weight: 600;
+}
+
+.no-media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: #f5f5f5;
+    color: #8e8e8e;
+    font-size: 14px;
+}
+
+/* Media Slider Styles */
+.media-content {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-height: 90vh;
+    transition: opacity 0.3s ease;
+}
+
+.media-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    transition: background-color 0.2s;
+    opacity: 0.7;
+}
+
+.media-nav-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+}
+
+.media-nav-button:first-of-type {
+    left: 10px;
+}
+
+.media-nav-button:nth-of-type(2) {
+    right: 10px;
+}
+
+.media-dots {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.media-dot {
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.media-dot.active {
+    color: white;
+}
+
+.media-dot:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Post Content HTML Styling */
+.post-content-html {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #262626;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.post-content-html div {
+    margin-bottom: 10px;
+}
+
+.post-content-html a {
+    color: #0095f6;
+    text-decoration: none;
+}
+
+.post-content-html a:hover {
+    text-decoration: underline;
+}
+
+.post-content-html img,
+.post-content-html video {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 4px;
+}

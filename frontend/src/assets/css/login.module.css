@@ -151,6 +151,38 @@
     font-size: 14px;
     margin-top: 10px;
     text-align: center;
+    padding: 10px;
+    background-color: rgba(0, 164, 0, 0.1);
+    border-radius: 4px;
+    border-left: 4px solid #00a400;
+    animation: fadeIn 0.5s, pulse 2s infinite;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 164, 0, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 5px rgba(0, 164, 0, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 164, 0, 0);
+    }
 }
 
 .p3 {
@@ -183,10 +215,11 @@
     margin-top: 8px;
     font-size: 14px;
 }
-    float: left;
-    color: black;
-    text-align: center;
-}
+
+/* float: left;
+color: black;
+text-align: center;
+} */
 
 
 
@@ -242,7 +275,7 @@
     align-items: center;
     text-align: center;
     color: black;
-    width: 500px;
+    width: 100%;
     margin: 10px;
 
 }
@@ -276,6 +309,6 @@ a {
     text-decoration: none;
 }
 
-.errMsg{
-    color:red;
+.errMsg {
+    color: red;
 }

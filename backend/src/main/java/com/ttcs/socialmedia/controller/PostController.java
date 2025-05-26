@@ -1,5 +1,6 @@
 package com.ttcs.socialmedia.controller;
 
+import com.ttcs.socialmedia.domain.dto.DetailPostDTO;
 import com.ttcs.socialmedia.domain.dto.PostDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.CommentService;
@@ -21,9 +22,15 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
 
+    @GetMapping("/{id}")
+    public DetailPostDTO getPostById(@PathVariable("id") int postId) {
+        return this.postService.getPostDetailById(postId);
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PostDTO createPost(@RequestPart("postText") String newPostJson,
             @RequestPart(value = "media") List<MultipartFile> media) throws URISyntaxException, IOException {
+
         return this.postService.createPost(newPostJson, media);
     }
 
