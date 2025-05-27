@@ -3,6 +3,20 @@ import styles from '../assets/css/MessagesPage.module.css';
 import Sidebar from '../components/Sidebar';
 
 const MessagesPage = () => {
+
+    function handleComment() {
+        const [comment, setcomment] = useState("");
+        const api = fetch("ws://localhost:8080/ws", {
+            method: "POST",
+            header: {
+                "content-type": "application/json"
+            },
+            body: { comment }
+        })
+            .then(data => console.log(data))
+            .then(res => res.json())
+    }
+
     // Mock data for conversations
     const conversations = [
         {
@@ -73,7 +87,12 @@ const MessagesPage = () => {
                                 </div>
                                 <h3>Your Messages</h3>
                                 <p>Send private messages to a friend or group</p>
-                                <button className={styles.sendMessageBtn}>Send Message</button>
+                                <input
+                                    type="text"
+                                    placeholder="nhập tin nhắn"
+                                    onChange={(e) => setcomment(e.target.value)}
+                                />
+                                <button className={styles.sendMessageBtn} onClick={handleComment}>Send Message</button>
                             </div>
                         </div>
                     </div>
