@@ -133,7 +133,15 @@ class PostService {
                 return response.data.data;
             });
     }
-
+    getExplorePosts(pageNo) {
+        return axios.get(
+            API_URL + 'posts/explore?pageNo=' + pageNo,
+            { headers: authHeader() }
+        )
+            .then(response => {
+                return response.data.data;
+            });
+    }
 }
 
 export default new PostService();

@@ -1,0 +1,30 @@
+.comment-form-container {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    z-index: 10;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #efefef;
+}
+
+.post-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ensure the comment list doesn't exceed available space */
+.comments-list {
+    max-height: none;
+    /* Remove any max-height */
+}
+
+/* Ensure the comment form is always visible */
+.comment-form {
+    padding-bottom: 20px;
+}
+
+/* Add padding to post-content to ensure no content is hidden behind sticky comment form */
+.post-content {
+    padding-bottom: 80px;
+}

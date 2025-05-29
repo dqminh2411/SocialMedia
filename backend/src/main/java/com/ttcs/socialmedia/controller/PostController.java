@@ -59,4 +59,10 @@ public class PostController {
         this.postService.likePost(postId, email);
     }
 
+    @GetMapping("/explore")
+    public List<PostDTO> getPostsFromUnfollowedUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return postService.getPostsFromUnfollowedUsers(page, size);
+    }
 }

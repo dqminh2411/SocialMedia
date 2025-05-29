@@ -16,7 +16,7 @@ public class CommentController {
 
     @GetMapping("")
     public List<CommentDTO> getCommentPage(@RequestParam("postId") int postId, @RequestParam("pageNo") int pageNo) {
-        return commentService.getCommentPage(postId, pageNo-1);
+        return commentService.getCommentPage(postId, pageNo - 1);
     }
 
     // create an api to add a comment
@@ -25,18 +25,21 @@ public class CommentController {
         String email = SecurityUtil.getCurrentUserLogin().get();
         return this.commentService.addComment(commentDTO, email);
     }
+
     @PutMapping("/{commentId}")
     public CommentDTO updateComment(@PathVariable int commentId, @RequestBody CommentDTO commentDTO) {
         return commentService.updateComment(commentId, commentDTO);
     }
+
     @DeleteMapping("/{commentId}")
     public void deleteComment(@PathVariable int commentId) {
         commentService.deleteComment(commentId);
     }
 
     @GetMapping("/{commentId}/replies")
-    public List<CommentDTO> getRepliesPage(@PathVariable int commentId, @RequestParam("pageNo") int pageNo) {
-        return commentService.getRepliesByCommentId(commentId, pageNo-1);
+    public List<CommentDTO> getRepliesPage(@PathVariable int commentId,
+            @RequestParam(name = "pageNo", defaultValue = "1") int pageNo) {
+        return commentService.getRepliesByCommentId(commentId, pageNo - 1);
     }
 
     // create api to add replies to comment
@@ -45,4 +48,17 @@ public class CommentController {
         return commentService.addReply(commentId, commentDTO);
     }
 
+    // Like/unlike a comment
+    @PostMapping("/{commentId}/like")
+    public void likeComment(@PathVariable int commentId) {
+        String email = SecurityUtil.getCurrentUserLogin().get();
+        commentService.likeComment(commentId, email);
+    }
+
+    // Check if a comment is liked by the current user
+    @GetMapping("/{commentId}/is-liked")
+    public boolean isCommentLiked(@PathVariable int commentId) {
+        String email = SecurityUtil.getCurrentUserLogin().get();
+        return commentService.isCommentLikedByUser(commentId, email);
+    }
 }

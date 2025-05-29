@@ -1,6 +1,7 @@
 package com.ttcs.socialmedia.service;
 
 import com.ttcs.socialmedia.domain.Comment;
+import com.ttcs.socialmedia.domain.LikeComment;
 import com.ttcs.socialmedia.domain.Post;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.CommentDTO;
@@ -50,6 +51,17 @@ public class CommentService {
             commentDTO.setParentId(parentId);
         }
         commentDTO.setLikes(likeCommentRepository.countByComment(comment));
+
+        // Check if current user liked this comment
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElse(null);
+        if (currentUserEmail != null) {
+            User currentUser = userService.getUserByEmail(currentUserEmail);
+            if (currentUser != null) {
+                LikeComment likeComment = likeCommentRepository.findByCommentAndUser(comment, currentUser);
+                commentDTO.setLikedByCurrentUser(likeComment != null);
+            }
+        }
+
         return commentDTO;
     }
 
@@ -64,12 +76,11 @@ public class CommentService {
         if (comments.isEmpty())
             return new ArrayList<>();
         return comments.stream().map(this::commentToCommentDTO).collect(Collectors.toList());
-    }
+    } // create add reply method to add reply to comment
 
-    // create add reply method to add reply to comment
     public CommentDTO addReply(int commentId, CommentDTO commentDTO) {
-        Comment parentComment = commentRepository.findById(commentDTO.getParentId()) == null ? null
-                : commentRepository.findById(commentDTO.getParentId()).get();
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        Comment parentComment = commentOptional.orElse(null);
         if (parentComment == null) {
             throw new RuntimeException("Parent comment not found");
         }
@@ -104,19 +115,65 @@ public class CommentService {
         comment = commentRepository.save(comment);
         return commentToCommentDTO(comment);
     }
-    public CommentDTO updateComment(int commentId, CommentDTO commentDTO){
+
+    public CommentDTO updateComment(int commentId, CommentDTO commentDTO) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
-        Comment comment = commentOptional.isPresent()? commentOptional.get() : null;
-        if (comment == null) return null;
+        Comment comment = commentOptional.isPresent() ? commentOptional.get() : null;
+        if (comment == null)
+            return null;
         comment.setContent(commentDTO.getContent());
         comment = commentRepository.save(comment);
         return commentToCommentDTO(comment);
     }
-    public void deleteComment(int commentId){
+
+    public void deleteComment(int commentId) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         if (commentOptional.isPresent()) {
             Comment comment = commentOptional.get();
             commentRepository.delete(comment);
         }
+    }
+
+    public void likeComment(int commentId, String email) {
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        Comment comment = commentOptional.orElse(null);
+        if (comment == null) {
+            throw new RuntimeException("Comment not found");
+        }
+
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        // Check if user already liked the comment
+        LikeComment existingLike = likeCommentRepository.findByCommentAndUser(comment, user);
+
+        if (existingLike != null) {
+            // Unlike comment
+            likeCommentRepository.delete(existingLike);
+        } else {
+            // Like comment
+            LikeComment likeComment = new LikeComment();
+            likeComment.setComment(comment);
+            likeComment.setUser(user);
+            likeCommentRepository.save(likeComment);
+        }
+    }
+
+    public boolean isCommentLikedByUser(int commentId, String email) {
+        Optional<Comment> commentOptional = commentRepository.findById(commentId);
+        Comment comment = commentOptional.orElse(null);
+        if (comment == null) {
+            return false;
+        }
+
+        User user = userService.getUserByEmail(email);
+        if (user == null) {
+            return false;
+        }
+
+        LikeComment existingLike = likeCommentRepository.findByCommentAndUser(comment, user);
+        return existingLike != null;
     }
 }

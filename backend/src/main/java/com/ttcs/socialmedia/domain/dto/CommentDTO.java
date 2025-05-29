@@ -15,4 +15,5 @@ public class CommentDTO {
     private int parentId;
     private int postId;
     private Instant createdAt;
+    private boolean likedByCurrentUser;
 }

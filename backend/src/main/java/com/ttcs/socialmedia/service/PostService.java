@@ -204,6 +204,7 @@ public class PostService {
         PostDTO postDTO = new PostDTO();
         postDTO.setId(post.getId());
         postDTO.setLikes(likePostRepository.countByPost(post));
+        postDTO.setComments(commentRepository.countByPost(post));
         List<String> mediaList = postMediaRepository.findFileNamesByPostOrderByPositionAsc(post);
         postDTO.setFirstMediaName(mediaList.isEmpty() ? null : mediaList.get(0));
         return postDTO;
@@ -296,10 +297,20 @@ public class PostService {
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-        LikePost likePost = new LikePost();
-        likePost.setPost(post);
-        likePost.setUser(user);
-        likePostRepository.save(likePost);
+
+        // Check if the user already liked the post
+        LikePost existingLike = likePostRepository.findByPostAndUser(post, user);
+
+        if (existingLike != null) {
+            // User already liked the post, so unlike it
+            likePostRepository.delete(existingLike);
+        } else {
+            // User hasn't liked the post yet, so like it
+            LikePost likePost = new LikePost();
+            likePost.setPost(post);
+            likePost.setUser(user);
+            likePostRepository.save(likePost);
+        }
     }
 
     public DetailPostDTO getPostDetailById(int postId) {
@@ -308,6 +319,22 @@ public class PostService {
             throw new RuntimeException("Post not found");
         }
         return postToDetailDTO(post);
+    }
+
+    public List<PostDTO> getPostsFromUnfollowedUsers(int page, int size) {
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+        User currentUser = userRepository.findByEmail(email);
+        if (currentUser == null) {
+            throw new RuntimeException("Current user not found");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<Post> posts = postRepository.findPostsFromUnfollowedUsers(currentUser.getId(), pageable);
+
+        return posts.stream()
+                .map(this::postToDTO)
+                .collect(Collectors.toList());
     }
 
 }

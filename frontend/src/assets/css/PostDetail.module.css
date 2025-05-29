@@ -200,6 +200,7 @@
     flex-direction: column;
     height: 90vh;
     max-width: 400px;
+    /* Ensure the content is scrollable */
     overflow-y: auto;
 }
 
@@ -226,8 +227,9 @@
     font-size: 14px;
     color: #333;
     line-height: 1.6;
-    flex-grow: 1;
-    overflow-y: auto;
+    flex-grow: 0;
+    /* Changed from 1 to prevent stretching */
+    /* Removed overflow-y to prevent nested scrollbars */
     margin-bottom: 15px;
 }
 
@@ -241,6 +243,8 @@
 }
 
 .post-footer {
+    display: flex;
+    flex-direction: column;
     margin-top: auto;
     border-top: 1px solid #efefef;
     padding-top: 10px;
@@ -254,8 +258,7 @@
 }
 
 .comments-section {
-    max-height: 200px;
-    overflow-y: auto;
+    /* Remove scrolling from this element */
     margin-bottom: 15px;
     padding-right: 5px;
 }

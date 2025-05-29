@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name="posts")
+@Table(name = "posts")
 @Getter
 @Setter
 public class Post {
@@ -21,9 +21,11 @@ public class Post {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name="creator_id")
+    @JoinColumn(name = "creator_id")
     private User creator;
 
+    private int likesCount;
+    private int commentsCount;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")

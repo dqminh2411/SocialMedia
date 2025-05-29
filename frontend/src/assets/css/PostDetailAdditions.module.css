@@ -164,3 +164,265 @@
     margin: 10px 0;
     border-radius: 4px;
 }
+
+/* Like button styles */
+.like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: transform 0.2s;
+    font-size: 24px;
+}
+
+.like-button:hover {
+    transform: scale(1.1);
+}
+
+.liked {
+    color: #ed4956;
+}
+
+.not-liked {
+    color: #262626;
+}
+
+.like-section {
+    margin-bottom: 10px;
+}
+
+/* Comment Section Styles */
+.comments-heading {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #efefef;
+    padding-bottom: 8px;
+}
+
+.comments-list {
+    /* Removed max-height and overflow-y to prevent nested scrollbars */
+    padding-right: 10px;
+}
+
+.comment-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #efefef;
+    position: relative;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.comment-username {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Style for the current user's comments */
+.user-comment {
+    position: relative;
+}
+
+.comment-content {
+    font-size: 14px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.comment-like-btn,
+.comment-reply-btn,
+.comment-edit-btn,
+.comment-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #8e8e8e;
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
+
+.comment-like-btn span,
+.comment-reply-btn span,
+.comment-edit-btn span,
+.comment-delete-btn span {
+    margin-left: 4px;
+}
+
+.comment-liked {
+    color: #ed4956;
+}
+
+.comment-time {
+    font-size: 11px;
+    color: #8e8e8e;
+    margin-top: 4px;
+}
+
+.no-comments {
+    color: #8e8e8e;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.replies-container {
+    margin-left: 20px;
+    margin-top: 8px;
+    border-left: 1px solid #efefef;
+    padding-left: 12px;
+}
+
+.reply-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #efefef;
+}
+
+.reply-item:last-child {
+    border-bottom: none;
+}
+
+.toggle-replies-btn {
+    background: none;
+    border: none;
+    color: #8e8e8e;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    padding: 0;
+}
+
+.load-more-btn {
+    background: none;
+    border: none;
+    color: #0095f6;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 16px auto;
+    display: block;
+}
+
+.comment-form-container {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    z-index: 10;
+}
+
+.comment-form {
+    margin-top: 16px;
+    border-top: 1px solid #efefef;
+    padding-top: 16px;
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    z-index: 5;
+    padding-bottom: 10px;
+}
+
+.reply-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.reply-header span {
+    color: #8e8e8e;
+}
+
+.cancel-reply-btn {
+    background: none;
+    border: none;
+    color: #0095f6;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.comment-input {
+    width: 100%;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 14px;
+    resize: none;
+    min-height: 60px;
+}
+
+.post-comment-btn {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin-top: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    float: right;
+}
+
+.post-comment-btn:disabled {
+    background-color: #b2dffc;
+    cursor: not-allowed;
+}
+
+.comment-edit-form {
+    margin-bottom: 8px;
+}
+
+.comment-edit-input {
+    width: 100%;
+    border: 1px solid #dbdbdb;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    resize: none;
+    min-height: 60px;
+}
+
+.comment-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.edit-save-btn {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.edit-cancel-btn {
+    background-color: #efefef;
+    color: #262626;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+}
