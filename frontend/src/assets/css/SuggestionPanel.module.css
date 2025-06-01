@@ -39,3 +39,18 @@
 .suggestionList::-webkit-scrollbar-thumb:hover {
     background: #a3a3a3;
 }
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.seeAllButton {
+    background-color: transparent;
+    border: none;
+    color: #0095f6;
+    font-weight: 600;
+    cursor: pointer;
+}

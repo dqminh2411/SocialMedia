@@ -108,7 +108,7 @@ class PostService {
             { headers: authHeader() }
         )
             .then(response => {
-                return response.data;
+                return response.data.data;
             });
     }
 
@@ -136,6 +136,25 @@ class PostService {
     getExplorePosts(pageNo) {
         return axios.get(
             API_URL + 'posts/explore?pageNo=' + pageNo,
+            { headers: authHeader() }
+        )
+            .then(response => {
+                return response.data.data;
+            });
+    }
+    getHomePosts(pageNo = 0) {
+        return axios.get(
+            API_URL + 'posts/home?pageNo=' + pageNo,
+            { headers: authHeader() }
+        )
+            .then(response => {
+                return response.data.data;
+            }
+            )
+    }
+    getNewHomePosts(pageNo = 0) {
+        return axios.get(
+            API_URL + 'posts/new-home?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {

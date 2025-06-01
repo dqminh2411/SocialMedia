@@ -3,10 +3,14 @@ package com.ttcs.socialmedia.controller;
 import com.ttcs.socialmedia.domain.RestResponse;
 import com.ttcs.socialmedia.domain.dto.ResProfileDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
+import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.ProfileService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,4 +55,9 @@ public class UserController {
         return this.profileService.update(userId, avatarFile, bio);
     }
 
+    @GetMapping("/suggestions")
+    public List<UserDTO> getSuggestions(@RequestParam("userId") int userId,
+            @RequestParam(name = "pageNo", defaultValue = "0") int pageNo) {
+        return this.userService.getSuggestions(userId, pageNo);
+    }
 }

@@ -1,52 +1,104 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import styles from '../assets/css/NotificationsPage.module.css';
 import Sidebar from '../components/Sidebar';
-
+import NotificationService from '../services/notification.service.jsx';
+import AuthService from '../services/auth.service.jsx';
+import { formatDistanceToNow } from 'date-fns';
+import { useNotifications } from '../context/NotificationContext.jsx';
 const NotificationsPage = () => {
     // Mock data for notifications
-    const notifications = [
-        {
-            id: 1,
-            type: 'like',
-            username: 'hoangminhtrong04',
-            avatar: '../assets/images/anh1.png',
-            content: 'liked your photo',
-            time: '2h',
-            postImage: '../assets/images/pexels-m-venter-792254-1659438.jpg'
-        },
-        {
-            id: 2,
-            type: 'follow',
-            username: 'qingzhong04',
-            avatar: '../assets/images/anh2.png',
-            content: 'started following you',
-            time: '1d'
-        },
-        {
-            id: 3,
-            type: 'comment',
-            username: 'qingzhong05',
-            avatar: '../assets/images/anh3.png',
-            content: 'commented: "Great shot!"',
-            time: '3d',
-            postImage: '../assets/images/pexels-m-venter-792254-1659438.jpg'
-        },
-        {
-            id: 4,
-            type: 'mention',
-            username: 'qingzhong06',
-            avatar: '../assets/images/anh4.png',
-            content: 'mentioned you in a comment',
-            time: '5d'
-        }
-    ];
+    // const [notifications, setNotifications] = useState([]);
+    // const [isOpen, setIsOpen] = useState(false);
+    // const [unreadCount, setUnreadCount] = useState(0);
+    const currentUser = AuthService.getCurrentUser();
+    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
+    const DEFAULT_AVATAR = 'default.png';
+    const {
+        notifications,
+        unreadCount,
+        markAsRead,
+        markAllAsRead,
+        acceptFollowRequest,
+        rejectFollowRequest
+    } = useNotifications();
 
+    const [readingNotification, setReadingNotification] = useState(null);
+
+    const handleNotificationClick = async (notification) => {
+        // Mark as read if not already
+        if (!notification.read) {
+            setReadingNotification(notification.id);
+
+            try {
+                await markAsRead(notification.id);
+
+                // After animation completes, reset the reading state
+                setTimeout(() => {
+                    setReadingNotification(null);
+                }, 1000);
+            } catch (error) {
+                console.error("Error marking notification as read:", error);
+                setReadingNotification(null);
+            }
+        }
+    };
+
+    // const handleAcceptFollow = async (notification) => {
+    //     try {
+    //         await NotificationService.acceptFollowRequest(notification.id);
+
+    //         // Update local state
+    //         setNotifications(prev =>
+    //             prev.map(n => n.id === notification.id ? { ...n, read: true, accepted: true } : n)
+    //         );
+    //         setUnreadCount(prevCount => prevCount - 1);
+    //     } catch (error) {
+    //         console.error("Error accepting follow request:", error);
+    //     }
+    // };
+
+    // const handleRejectFollow = async (notification) => {
+    //     try {
+    //         await NotificationService.rejectFollowRequest(notification.id);
+
+    //         // Update local state
+    //         setNotifications(prev =>
+    //             prev.map(n => n.id === notification.id ? { ...n, read: true, rejected: true } : n)
+    //         );
+    //         setUnreadCount(prevCount => prevCount - 1);
+    //     } catch (error) {
+    //         console.error("Error rejecting follow request:", error);
+    //     }
+    // };
+
+    // const markAllAsRead = async () => {
+    //     try {
+    //         await NotificationService.markAllAsRead();
+
+    //         // Update local state
+    //         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    //         setUnreadCount(0);
+    //     } catch (error) {
+    //         console.error("Error marking all notifications as read:", error);
+    //     }
+    // };
     return (
         <div className={styles.container}>
             <Sidebar />
             <div className={styles.mainContent}>
                 <div className={styles.notificationsContainer}>
-                    <h2 className={styles.title}>Notifications</h2>
+                    <div className={styles.headerRow}>
+                        <h2 className={styles.title}>Notifications</h2>
+                        {unreadCount > 0 && (
+                            <button
+                                className={styles.markAllReadBtn}
+                                onClick={markAllAsRead}
+                            >
+                                Mark all as read
+                            </button>
+                        )}
+                    </div>
 
                     <div className={styles.notificationTabs}>
                         <button className={`${styles.tabButton} ${styles.active}`}>All</button>
@@ -57,27 +109,58 @@ const NotificationsPage = () => {
                     </div>
 
                     <div className={styles.notificationsList}>
-                        {notifications.map(notification => (
-                            <div key={notification.id} className={styles.notificationItem}>
-                                <div className={styles.avatar}>
-                                    <img src={notification.avatar} alt={notification.username} />
-                                </div>
+                        {notifications.length === 0 ? (
+                            <p className={styles.noNotifications}>No notifications yet</p>
+                        ) : (notifications.map(notification => (
+                            <div
+                                key={notification.id}
+                                className={`${styles.notificationItem} 
+                                              ${!notification.read ? styles.unread : ''} 
+                                              ${readingNotification === notification.id ? styles.reading : ''}`}
+                                onClick={() => handleNotificationClick(notification)}
+                            >
                                 <div className={styles.notificationContent}>
-                                    <p>
-                                        <span className={styles.username}>{notification.username}</span>
-                                        {' '}
-                                        {notification.content}
-                                        {' '}
-                                        <span className={styles.time}>{notification.time}</span>
-                                    </p>
+                                    <img
+                                        src={notification.sender?.avatar
+                                            ? AVATAR_URL + notification.sender.avatar
+                                            : AVATAR_URL + DEFAULT_AVATAR}
+                                        alt={notification.sender?.username || "User"}
+                                        className={styles.avatar}
+                                    />
+
+                                    <div className={styles.notificationDetails}>
+                                        <p className={styles.notificationText}>{notification.content}</p>
+                                        <span className={styles.time}>
+                                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                                        </span>
+                                    </div>
                                 </div>
-                                {notification.postImage && (
-                                    <div className={styles.postThumbnail}>
-                                        <img src={notification.postImage} alt="Post thumbnail" />
+
+                                {notification.type === 'FOLLOW_REQUEST' && !notification.accepted && !notification.rejected && (
+                                    <div className={styles.actionButtons}>
+                                        <button
+                                            className={styles.acceptBtn}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                acceptFollowRequest(notification.id);
+                                            }}
+                                        >
+                                            Accept
+                                        </button>
+                                        <button
+                                            className={styles.rejectBtn}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                rejectFollowRequest(notification.id);
+                                            }}
+                                        >
+                                            Reject
+                                        </button>
                                     </div>
                                 )}
                             </div>
-                        ))}
+                        ))
+                        )}
                     </div>
                 </div>
             </div>

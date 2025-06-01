@@ -1,45 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from '../assets/css/SuggestionPanel.module.css';
 import FriendSuggestion from './FriendSuggestion';
-
-// Import profile images
-import profile1 from '../assets/images/anh1.png';
-import profile2 from '../assets/images/anh2.png';
-import profile3 from '../assets/images/anh3.png';
-import profile4 from '../assets/images/anh4.png';
-import profile5 from '../assets/images/anh5.png';
-import profile6 from '../assets/images/anh6.png';
-import profile7 from '../assets/images/anh7.png';
-import profile8 from '../assets/images/anh8.png';
-import profile9 from '../assets/images/anh9.png';
-import profile10 from '../assets/images/anh10.png';
-
+import UserService from '../services/user.service';
+import NotificationService from '../services/notification.service';
+import AuthService from '../services/auth.service.jsx';
 const SuggestionPanel = () => {
-    const suggestions = [
-        { id: 1, username: 'hoangminhtrong04', avatar: profile1 },
-        { id: 2, username: 'qingzhong04', avatar: profile2 },
-        { id: 3, username: 'qingzhong05', avatar: profile3 },
-        { id: 4, username: 'qingzhong06', avatar: profile4 },
-        { id: 5, username: 'qingzhong07', avatar: profile5 },
-        { id: 6, username: 'qingzhong08', avatar: profile6 },
-        { id: 7, username: 'qingzhong09', avatar: profile7 },
-        { id: 8, username: 'qingzhong00', avatar: profile8 },
-        { id: 9, username: 'thanhtung04', avatar: profile9 },
-        { id: 10, username: 'quyhoang36', avatar: profile10 },
-    ];
+    const [suggestions, setSuggestions] = useState([]);
+    const [sentRequests, setSentRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const currentUser = AuthService.getCurrentUser();
+    useEffect(() => {
+        // Fetch both suggestions and sent follow requests
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+
+                // Get suggestions
+                const suggestionsData = await UserService.getSuggestedUsers(currentUser.user.id);
+
+                // Get sent follow requests
+                const sentRequestsData = await NotificationService.getSentFollowRequests();
+
+                // Extract recipient IDs from sent requests
+                const sentRequestIds = sentRequestsData.map(request => request.recipientId);
+                setSentRequests(sentRequestIds);
+
+                // Filter suggestions to exclude users who already received follow requests
+                const filteredSuggestions = suggestionsData.filter(
+                    suggestion => !sentRequestIds.includes(suggestion.id)
+                );
+
+                setSuggestions(filteredSuggestions);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+                setError("Failed to load suggestions");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    // Update suggestions when a new follow request is sent
+    const handleFollowRequestSent = (userId) => {
+        // Add to sent requests
+        setSentRequests(prev => [...prev, userId]);
+
+        // Remove from suggestions
+        setSuggestions(prev => prev.filter(suggestion => suggestion.id !== userId));
+    };
+
+    if (loading) {
+        return <div className={styles.loading}>Loading suggestions...</div>;
+    }
+
+    if (error) {
+        return <div className={styles.error}>{error}</div>;
+    }
 
     return (
-        <div className={styles.suggestionPanel}>
-            <h3 className={styles.title}>Suggested for you</h3>
-            <ul className={styles.suggestionList}>
-                {suggestions.map(suggestion => (
-                    <FriendSuggestion
-                        key={suggestion.id}
-                        username={suggestion.username}
-                        avatar={suggestion.avatar}
-                    />
-                ))}
-            </ul>
+        <div className={styles.suggestionsPanel}>
+            <div className={styles.header}>
+                <h3>Suggested for you</h3>
+                <button className={styles.seeAllButton}>See All</button>
+            </div>
+            {suggestions.length === 0 ? (
+                <p className={styles.noSuggestions}>No suggestions available</p>
+            ) : (
+                <ul className={styles.suggestionsList}>
+                    {suggestions.map(suggestion => (
+                        <FriendSuggestion
+                            key={suggestion.id}
+                            id={suggestion.id}
+                            username={suggestion.username}
+                            avatar={suggestion.avatar}
+                            onFollowRequestSent={() => handleFollowRequestSent(suggestion.id)}
+                        />
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };

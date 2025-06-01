@@ -51,15 +51,7 @@ const AdminLayout = ({ children }) => {
                         Post Management
                     </NavLink>
 
-                    <NavLink
-                        to="/admin/statistics"
-                        className={({ isActive }) =>
-                            isActive ? `${styles.navItem} ${styles.active}` : styles.navItem
-                        }
-                    >
-                        <i className="fas fa-chart-bar"></i>
-                        Statistics
-                    </NavLink>
+
                 </nav>
 
                 <div className={styles.sidebarFooter}>

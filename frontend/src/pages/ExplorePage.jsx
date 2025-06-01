@@ -26,7 +26,7 @@ const ExplorePage = () => {
             try {
                 setLoading(true);
                 const data = await PostService.getExplorePosts(0);
-                setExplorePosts(data || []);
+                setExplorePosts(data.posts || []);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching explore posts:", err);

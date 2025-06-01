@@ -27,6 +27,89 @@
     border-radius: 50%;
 }
 
+/* New media container styles */
+.mediaContainer {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 1 / 1;
+    background-color: #f0f0f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+}
+
+.mediaNavButton {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s, transform 0.2s;
+    opacity: 0.8;
+}
+
+.mediaNavButton:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-50%) scale(1.1);
+    opacity: 1;
+}
+
+.prevButton {
+    left: 10px;
+}
+
+.nextButton {
+    right: 10px;
+}
+
+.mediaDots {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    z-index: 2;
+}
+
+.mediaDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.activeDot {
+    background-color: white;
+    transform: scale(1.2);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Keeping the original image container style for compatibility */
 .imgContainer img {
     width: 100%;
     height: auto;
@@ -63,4 +146,21 @@
 .comment {
     color: #8e8e8e;
     cursor: pointer;
+}
+
+.liked {
+    color: #ed4956;
+}
+
+.not-liked {
+    color: #262626;
+}
+
+.like-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: transform 0.2s;
+    font-size: 24px;
 }

@@ -128,14 +128,13 @@ const SignUp = () => {
     return (
         <div className={styles.container} style={combinedStyles.container}>
             <div className={styles.part1} style={combinedStyles.part1}>
-                <h1 className={styles.title} style={combinedStyles.title}>Insta</h1>
+                <h1 className={styles.title} style={combinedStyles.title}>Outstagram</h1>
                 <p className={styles.subtitle} style={combinedStyles.subtitle}>
-                    Đăng ký để xem ảnh và video từ<br />
-                    bạn bè.
+                    Sign up to see your friends' photos and videos
                 </p>
 
                 <div className={styles.orDivider} style={combinedStyles.orDivider}>
-                    <span>Hoặc</span>
+                    <span>Or</span>
                 </div>
 
                 <form className={styles.form} style={combinedStyles.form} onSubmit={handleSubmit}>
@@ -144,7 +143,7 @@ const SignUp = () => {
                         name="fullname"
                         className={styles.formInput}
                         style={combinedStyles.formInput}
-                        placeholder="Họ và tên"
+                        placeholder="Full Name"
                         value={formData.fullname}
                         onChange={handleChange}
                     />
@@ -164,7 +163,7 @@ const SignUp = () => {
                         name="password"
                         className={styles.formInput}
                         style={combinedStyles.formInput}
-                        placeholder="Mật khẩu"
+                        placeholder="Password"
                         value={formData.password}
                         onChange={handleChange}
                     />
@@ -174,7 +173,7 @@ const SignUp = () => {
                         name="rePassword"
                         className={styles.formInput}
                         style={combinedStyles.formInput}
-                        placeholder="Nhập lại mật khẩu"
+                        placeholder="Confirm Password"
                         value={formData.rePassword}
                         onChange={handleChange}
                     />
@@ -187,19 +186,18 @@ const SignUp = () => {
                     disabled={loading}
                     onClick={handleSignupClick}
                 >
-                    {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                    {loading ? 'Signing up...' : 'Sign up'}
                 </button>
 
                 {error && <div className={styles.errorMessage} style={combinedStyles.errorMessage}>{error}</div>}
                 {success && <div className={styles.successMessage} style={combinedStyles.successMessage}>{success}</div>}
 
                 <p className={styles.termsText} style={combinedStyles.termsText}>
-                    Bằng cách đăng ký, bạn đồng ý với Điều khoản,<br />
-                    Chính sách dữ liệu và Chính sách cookie của<br />
-                    chúng tôi.
+                    By signing up, you agree to our Terms,<br />
+                    Data Policy and Cookie Policy.
                 </p>
                 <p>
-                    Bạn có tài khoản? {' '}
+                    Don't have an account? {' '}
                     {/* Use both Link and onClick for better resilience */}
                     <Link
                         to="/login"
@@ -207,7 +205,7 @@ const SignUp = () => {
                         style={combinedStyles.dangnhap}
                         onClick={handleLoginClick}
                     >
-                        Đăng nhập
+                        Login
                     </Link>
                 </p>
             </div>

@@ -3,6 +3,16 @@ import React, { useState, useEffect } from 'react';
 import AdminService from '../../services/admin.service';
 import AdminLayout from '../../components/admin/AdminLayout';
 import styles from '../../assets/css/AdminUserManagement.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faEdit,
+    faTrash,
+    faSearch,
+    faChevronLeft,
+    faChevronRight,
+    faTimes,
+    faSpinner
+} from '@fortawesome/free-solid-svg-icons';
 
 const UserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -144,14 +154,14 @@ const UserManagement = () => {
                             className={styles.searchInput}
                         />
                         <button type="submit" className={styles.searchButton}>
-                            <i className="fas fa-search"></i>
+                            <FontAwesomeIcon icon={faSearch} />
                         </button>
                     </form>
                 </div>
 
                 {loading ? (
                     <div className={styles.loadingContainer}>
-                        <div className={styles.spinner}></div>
+                        <FontAwesomeIcon icon={faSpinner} spin className={styles.spinner} />
                         <p>Loading users...</p>
                     </div>
                 ) : error ? (
@@ -175,7 +185,7 @@ const UserManagement = () => {
                                         <th>Email</th>
                                         <th>Full Name</th>
                                         <th>Role</th>
-                                        <th>Status</th>
+
                                         <th>Created At</th>
                                         <th>Actions</th>
                                     </tr>
@@ -193,24 +203,20 @@ const UserManagement = () => {
                                                         {user.role || 'USER'}
                                                     </span>
                                                 </td>
-                                                <td>
-                                                    <span className={`${styles.badge} ${styles[user.status?.toLowerCase() || 'active']}`}>
-                                                        {user.status || 'ACTIVE'}
-                                                    </span>
-                                                </td>
+
                                                 <td>{formatDate(user.createdAt)}</td>
                                                 <td className={styles.actions}>
                                                     <button
                                                         className={styles.editButton}
                                                         onClick={() => handleEditClick(user)}
                                                     >
-                                                        <i className="fas fa-edit"></i>
+                                                        <FontAwesomeIcon icon={faEdit} />
                                                     </button>
                                                     <button
                                                         className={styles.deleteButton}
                                                         onClick={() => handleDeleteClick(user.id)}
                                                     >
-                                                        <i className="fas fa-trash"></i>
+                                                        <FontAwesomeIcon icon={faTrash} />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -232,7 +238,7 @@ const UserManagement = () => {
                                 disabled={page === 0}
                                 onClick={() => handlePageChange(page - 1)}
                             >
-                                <i className="fas fa-chevron-left"></i>
+                                <FontAwesomeIcon icon={faChevronLeft} />
                             </button>
 
                             <span className={styles.pageInfo}>
@@ -244,7 +250,7 @@ const UserManagement = () => {
                                 disabled={page >= totalPages - 1}
                                 onClick={() => handlePageChange(page + 1)}
                             >
-                                <i className="fas fa-chevron-right"></i>
+                                <FontAwesomeIcon icon={faChevronRight} />
                             </button>
                         </div>
                     </>
@@ -261,7 +267,7 @@ const UserManagement = () => {
                                 className={styles.closeButton}
                                 onClick={() => setShowEditModal(false)}
                             >
-                                <i className="fas fa-times"></i>
+                                <FontAwesomeIcon icon={faTimes} />
                             </button>
                         </div>
 
@@ -314,7 +320,7 @@ const UserManagement = () => {
                                 </select>
                             </div>
 
-                            <div className={styles.formGroup}>
+                            {/* <div className={styles.formGroup}>
                                 <label htmlFor="status">Status</label>
                                 <select
                                     id="status"
@@ -327,7 +333,7 @@ const UserManagement = () => {
                                     <option value="SUSPENDED">Suspended</option>
                                     <option value="BANNED">Banned</option>
                                 </select>
-                            </div>
+                            </div> */}
 
                             <div className={styles.formActions}>
                                 <button

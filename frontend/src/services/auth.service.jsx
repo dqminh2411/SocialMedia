@@ -48,7 +48,7 @@ class AuthService {
                 return null;
             }
             const user = JSON.parse(userStr);
-            console.log('Current user from localStorage:', user);
+            //console.log('Current user from localStorage:', user);
             return user;
         } catch (error) {
             console.error('Error getting current user:', error);

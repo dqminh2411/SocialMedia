@@ -40,7 +40,7 @@ class AdminService {
                 return null;
             }
             const admin = JSON.parse(adminStr);
-            console.log('Current admin from localStorage:', admin);
+            //console.log('Current admin from localStorage:', admin);
             return admin;
         } catch (error) {
             console.error('Error getting current admin:', error);

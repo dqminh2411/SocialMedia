@@ -46,7 +46,7 @@ const Login = () => {
         // If came from signup page with success param
         const params = new URLSearchParams(location.search);
         if (params.get('from') === 'signup') {
-            setSuccess('Đăng ký thành công! Vui lòng đăng nhập với tài khoản mới của bạn.');
+            setSuccess('Successful signup! You can now log in with your email and password.');
 
             // Scroll to the success message if it's not visible
             setTimeout(() => {
@@ -135,10 +135,9 @@ const Login = () => {
     return (
         <div className={styles.container} style={combinedStyles.container}>
             <div className={styles.part1} style={combinedStyles.part1}>
-                <h1 className={styles.title} style={combinedStyles.title}>Insta</h1>
+                <h1 className={styles.title} style={combinedStyles.title}>Outstagram</h1>
                 <p className={styles.subtitle} style={combinedStyles.subtitle}>
-                    Đăng nhập để xem ảnh và video từ<br />
-                    bạn bè.
+                    Login to see your friends' photos and videos.
                 </p>
 
                 <form className={styles.form} style={combinedStyles.form} onSubmit={handleSubmit}>
@@ -157,7 +156,7 @@ const Login = () => {
                         name="password"
                         className={styles.formInput}
                         style={combinedStyles.formInput}
-                        placeholder="Mật khẩu"
+                        placeholder="Password"
                         value={formData.password}
                         onChange={handleChange}
                     />
@@ -170,21 +169,21 @@ const Login = () => {
                     disabled={loading}
                     onClick={handleLoginClick}
                 >
-                    {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                    {loading ? 'Logging in...' : 'Login'}
                 </button>
 
                 {error && <div className={styles.errorMessage} style={combinedStyles.errorMessage}>{error}</div>}
                 {success && <div className={styles.successMessage} style={combinedStyles.successMessage}>{success}</div>}
 
                 <div className={styles.orDivider} style={combinedStyles.orDivider}>
-                    <span>Hoặc</span>
+                    <span>Or</span>
                 </div>
 
                 {/* <p className={styles.p3} style={{ margin: '15px 0', cursor: 'pointer', color: '#00376b', fontSize: '14px' }}>
                     Quên mật khẩu?
                 </p> */}
                 <p>
-                    Chưa có tài khoản? {' '}
+                    <span>Don't have an account? </span>
                     {/* Use both Link and onClick for better resilience */}
                     <Link
                         to="/signup"
@@ -192,7 +191,7 @@ const Login = () => {
                         style={combinedStyles.dangnhap}
                         onClick={handleSignupClick}
                     >
-                        Đăng ký
+                        Sign up
                     </Link>
                 </p>
             </div>

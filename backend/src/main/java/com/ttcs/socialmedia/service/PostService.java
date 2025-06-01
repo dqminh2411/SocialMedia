@@ -46,6 +46,18 @@ public class PostService {
         return postToDTO(post);
     }
 
+    public Page<Post> getHomePosts(int page) {
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+        User currentUser = userRepository.findByEmail(email);
+        if (currentUser == null) {
+            throw new RuntimeException("Current user not found");
+        }
+        return postRepository.findPostsFromFollowedUsers(currentUser.getId(), pageable);
+    }
+
     public PostDTO createPost(String newPostJson, List<MultipartFile> medias) throws URISyntaxException, IOException {
         Post post = new Post();
         // convert newPostJson to newPostDto
@@ -321,7 +333,7 @@ public class PostService {
         return postToDetailDTO(post);
     }
 
-    public List<PostDTO> getPostsFromUnfollowedUsers(int page, int size) {
+    public Page<Post> getPostsFromUnfollowedUsers(int page, int size) {
         String email = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
         User currentUser = userRepository.findByEmail(email);
@@ -330,11 +342,9 @@ public class PostService {
         }
 
         Pageable pageable = PageRequest.of(page, size);
-        List<Post> posts = postRepository.findPostsFromUnfollowedUsers(currentUser.getId(), pageable);
+        Page<Post> posts = postRepository.findPostsFromUnfollowedUsers(currentUser.getId(), pageable);
 
-        return posts.stream()
-                .map(this::postToDTO)
-                .collect(Collectors.toList());
+        return posts;
     }
 
 }

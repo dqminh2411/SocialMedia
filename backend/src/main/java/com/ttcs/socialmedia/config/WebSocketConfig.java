@@ -26,21 +26,25 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @AllArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final CustomUserDetailsService userDetailsService;
-    //private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    // private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private JwtDecoder jwtDecoder;
-    //private JwtHandshakeInterceptor jwtHandshakeInterceptor;
+
+    // private JwtHandshakeInterceptor jwtHandshakeInterceptor;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic"); // Server-to-client, broadcast
+        config.enableSimpleBroker("/topic");// .setHeartbeatValue(new long[] { 4000, 4000 }); // Server-to-client,
+                                            // broadcast
         // , "/queue", "/user/queue/specific-user"
         config.setApplicationDestinationPrefixes("/app"); // Client-to-server
+        config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        //registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS(); // Entry point for client
+        // registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS(); // Entry
+        // point for client
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
-                //.addInterceptors(jwtHandshakeInterceptor);
+        // .addInterceptors(jwtHandshakeInterceptor);
     }
 
     @Override
@@ -48,20 +52,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(new ChannelInterceptor() {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                StompHeaderAccessor accessor =
-                        MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                if (accessor == null) throw new RuntimeException("no StompHeaderAccessor");
+                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+                if (accessor == null)
+                    throw new RuntimeException("no StompHeaderAccessor");
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
                     String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
-                    if (authorizationHeader==null) throw new RuntimeException("no Authorization header");
+                    if (authorizationHeader == null)
+                        throw new RuntimeException("no Authorization header");
                     String token = authorizationHeader.substring(7);
 
                     // authentication code
                     Jwt jwt = jwtDecoder.decode(token);
-                    String username= jwt.getSubject();
+                    String username = jwt.getSubject();
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
                     accessor.setUser(usernamePasswordAuthenticationToken);
@@ -73,4 +79,3 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         });
     }
 }
-

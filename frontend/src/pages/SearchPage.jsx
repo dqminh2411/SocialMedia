@@ -11,21 +11,21 @@ const SearchPage = () => {
     const mockUsers = [
         {
             id: 1,
-            username: 'hoangminhtrong04',
-            fullName: 'Hoang Minh Trong',
-            avatar: '../assets/images/anh1.png'
+            username: 'user1',
+            fullName: 'NGuyen Anh',
+            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg'
         },
         {
             id: 2,
-            username: 'qingzhong04',
-            fullName: 'Qing Zhong',
-            avatar: '../assets/images/anh2.png'
+            username: 'user2',
+            fullName: 'Tran B',
+            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg'
         },
         {
             id: 3,
-            username: 'thanhtung04',
+            username: 'user3',
             fullName: 'Thanh Tung',
-            avatar: '../assets/images/anh9.png'
+            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg'
         }
     ];
 
@@ -35,16 +35,16 @@ const SearchPage = () => {
             name: 'photography',
             postsCount: '2.3M posts'
         },
-        {
-            id: 2,
-            name: 'travel',
-            postsCount: '4.8M posts'
-        },
-        {
-            id: 3,
-            name: 'food',
-            postsCount: '3.1M posts'
-        }
+        // {
+        //     id: 2,
+        //     name: 'travel',
+        //     postsCount: '4.8M posts'
+        // },
+        // {
+        //     id: 3,
+        //     name: 'food',
+        //     postsCount: '3.1M posts'
+        // }
     ];
 
     const handleSearch = (e) => {

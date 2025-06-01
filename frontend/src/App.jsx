@@ -7,13 +7,13 @@ import PostForm from "./components/PostForm.jsx";
 import PostPage from "./components/PostPage.jsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import InstagramMessengerUI from './pages/chat/message.jsx';
-import Notifications from "./notifications.jsx";
+
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminProtectedRoute from "./components/AdminProtectedRoute.jsx";
-import Navbar from "./components/Navbar.jsx";
+
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { AdminProvider } from "./context/AdminContext.jsx";
-import AuthStatus from "./components/AuthStatus.jsx";
+
 
 // Import our new pages
 import HomePage from "./pages/HomePage.jsx";
@@ -30,10 +30,11 @@ import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import UserManagement from "./pages/admin/UserManagement.jsx";
 import PostManagement from "./pages/admin/PostManagement.jsx";
-import Statistics from "./pages/admin/Statistics.jsx";
+
 
 // Import global styles
 import './assets/css/Global.css';
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 
 // We need to create this component to handle the modal routing logic
 const AppRoutes = () => {
@@ -42,7 +43,7 @@ const AppRoutes = () => {
 
     return (
         <>
-            <AuthStatus />
+
             <Routes location={background || location}>
                 {/* Auth Routes */}
                 <Route path="/login" element={<Login />} />
@@ -101,11 +102,7 @@ const AppRoutes = () => {
                         <InstagramMessengerUI />
                     </ProtectedRoute>
                 } />
-                <Route path="/old-notifications" element={
-                    <ProtectedRoute>
-                        <Notifications />
-                    </ProtectedRoute>
-                } />
+
                 <Route path="/websocket" element={
                     <ProtectedRoute>
                         <WebSocketTest />
@@ -129,11 +126,7 @@ const AppRoutes = () => {
                         <PostManagement />
                     </AdminProtectedRoute>
                 } />
-                <Route path="/admin/statistics" element={
-                    <AdminProtectedRoute>
-                        <Statistics />
-                    </AdminProtectedRoute>
-                } />
+
 
                 {/* Default route - redirect to login */}
                 <Route path="*" element={<Navigate to="/login" />} />
@@ -158,7 +151,9 @@ function App() {
         <Router>
             <AuthProvider>
                 <AdminProvider>
-                    <AppRoutes />
+                    <NotificationProvider>
+                        <AppRoutes />
+                    </NotificationProvider>
                 </AdminProvider>
             </AuthProvider>
         </Router>

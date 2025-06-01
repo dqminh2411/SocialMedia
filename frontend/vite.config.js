@@ -14,7 +14,6 @@ export default defineConfig({
     }
   },
   server: {
-    // 👇 This is the key line
     historyApiFallback: true
   }
 })

@@ -70,12 +70,13 @@ const Dashboard = () => {
 
     // This is a placeholder for the actual data that will come from your API
     // You should replace this with actual data processing from the API responses
+    // For the Line chart (User Growth)
     const userChartData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [1, 2, 3, 4, 5],
         datasets: [
             {
                 label: 'New Users',
-                data: [65, 59, 80, 81, 56, 55],
+                data: [0, 0, 0, 0, 10],
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
                 tension: 0.1
@@ -83,12 +84,42 @@ const Dashboard = () => {
         ]
     };
 
+    // Line chart options with axis labels
+    const userChartOptions = {
+        responsive: true,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Months (2025)',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    padding: { top: 10 }
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Number of Users',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    padding: { right: 10 }
+                }
+            }
+        }
+    };
+
+    // For the Bar chart (Post Creation)
     const postChartData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: [1, 2, 3, 4, 5],
         datasets: [
             {
                 label: 'New Posts',
-                data: [28, 48, 40, 19, 86, 27],
+                data: [0, 0, 0, 0, 20],
                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
                 borderColor: 'rgb(54, 162, 235)',
                 borderWidth: 1
@@ -96,26 +127,55 @@ const Dashboard = () => {
         ]
     };
 
-    const activityChartData = {
-        labels: ['Likes', 'Comments', 'Shares'],
-        datasets: [
-            {
-                label: 'User Activity',
-                data: [300, 150, 100],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1
+    // Bar chart options with axis labels
+    const postChartOptions = {
+        responsive: true,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Months (2025)',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    padding: { top: 10 }
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'Number of Posts ',
+                    font: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    padding: { right: 10 }
+                }
             }
-        ]
+        }
     };
+
+    // const activityChartData = {
+    //     labels: ['Likes', 'Comments', 'Shares'],
+    //     datasets: [
+    //         {
+    //             label: 'User Activity',
+    //             data: [300, 150, 100],
+    //             backgroundColor: [
+    //                 'rgba(255, 99, 132, 0.5)',
+    //                 'rgba(54, 162, 235, 0.5)',
+    //                 'rgba(255, 206, 86, 0.5)'
+    //             ],
+    //             borderColor: [
+    //                 'rgba(255, 99, 132, 1)',
+    //                 'rgba(54, 162, 235, 1)',
+    //                 'rgba(255, 206, 86, 1)'
+    //             ],
+    //             borderWidth: 1
+    //         }
+    //     ]
+    // };
 
     const handlePeriodChange = (e) => {
         setPeriod(e.target.value);
@@ -154,7 +214,8 @@ const Dashboard = () => {
                 <div className={styles.dashboardHeader}>
                     <h1 className={styles.dashboardTitle}>Dashboard</h1>
 
-                    <div className={styles.periodSelector}>
+
+                    {/* <div className={styles.periodSelector}>
                         <label htmlFor="period">Time Period:</label>
                         <select
                             id="period"
@@ -166,9 +227,9 @@ const Dashboard = () => {
                             <option value="month">Last Month</option>
                             <option value="year">Last Year</option>
                         </select>
-                    </div>
+                    </div> */}
                 </div>
-
+                <div className={styles.todayDate}>Today: {new Date().toLocaleDateString()}</div>
                 <div className={styles.statsCards}>
                     <div className={styles.statCard}>
                         <div className={styles.statIconContainer}>
@@ -176,8 +237,8 @@ const Dashboard = () => {
                         </div>
                         <div className={styles.statInfo}>
                             <h3>Total Users</h3>
-                            <p className={styles.statValue}>1,245</p>
-                            <p className={`${styles.statChange} ${styles.positive}`}>+12.5%</p>
+                            <p className={styles.statValue}>10</p>
+                            {/* <p className={`${styles.statChange} ${styles.positive}`}>+12.5%</p> */}
                         </div>
                     </div>
 
@@ -187,8 +248,8 @@ const Dashboard = () => {
                         </div>
                         <div className={styles.statInfo}>
                             <h3>Total Posts</h3>
-                            <p className={styles.statValue}>8,732</p>
-                            <p className={`${styles.statChange} ${styles.positive}`}>+8.2%</p>
+                            <p className={styles.statValue}>20</p>
+                            {/* <p className={`${styles.statChange} ${styles.positive}`}>+8.2%</p> */}
                         </div>
                     </div>
 
@@ -198,8 +259,8 @@ const Dashboard = () => {
                         </div>
                         <div className={styles.statInfo}>
                             <h3>Likes</h3>
-                            <p className={styles.statValue}>45,289</p>
-                            <p className={`${styles.statChange} ${styles.positive}`}>+15.7%</p>
+                            <p className={styles.statValue}>24</p>
+                            {/* <p className={`${styles.statChange} ${styles.positive}`}>+15.7%</p> */}
                         </div>
                     </div>
 
@@ -209,34 +270,33 @@ const Dashboard = () => {
                         </div>
                         <div className={styles.statInfo}>
                             <h3>Comments</h3>
-                            <p className={styles.statValue}>12,456</p>
-                            <p className={`${styles.statChange} ${styles.negative}`}>-3.2%</p>
+                            <p className={styles.statValue}>20</p>
+                            {/* <p className={`${styles.statChange} ${styles.negative}`}>-3.2%</p> */}
+                        </div>
+                    </div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statIconContainer}>
+                            <i className="fas fa-comment"></i>
+                        </div>
+                        <div className={styles.statInfo}>
+                            <h3>Hashtags</h3>
+                            <p className={styles.statValue}>9</p>
+                            {/* <p className={`${styles.statChange} ${styles.negative}`}>-3.2%</p> */}
+                        </div>
+                    </div>
+                    <div className={styles.statCard}>
+                        <div className={styles.statIconContainer}>
+                            <i className="fas fa-comment"></i>
+                        </div>
+                        <div className={styles.statInfo}>
+                            <h3>Chats</h3>
+                            <p className={styles.statValue}>5</p>
+                            {/* <p className={`${styles.statChange} ${styles.negative}`}>-3.2%</p> */}
                         </div>
                     </div>
                 </div>
 
-                <div className={styles.chartsContainer}>
-                    <div className={styles.chartCard}>
-                        <h3 className={styles.chartTitle}>User Growth</h3>
-                        <div className={styles.chart}>
-                            <Line data={userChartData} />
-                        </div>
-                    </div>
 
-                    <div className={styles.chartCard}>
-                        <h3 className={styles.chartTitle}>Post Creation</h3>
-                        <div className={styles.chart}>
-                            <Bar data={postChartData} />
-                        </div>
-                    </div>
-
-                    <div className={styles.chartCard}>
-                        <h3 className={styles.chartTitle}>User Activity</h3>
-                        <div className={styles.chart}>
-                            <Doughnut data={activityChartData} />
-                        </div>
-                    </div>
-                </div>
             </div>
         </AdminLayout>
     );

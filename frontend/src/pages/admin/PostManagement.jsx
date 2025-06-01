@@ -3,6 +3,17 @@ import React, { useState, useEffect } from 'react';
 import AdminService from '../../services/admin.service';
 import AdminLayout from '../../components/admin/AdminLayout';
 import styles from '../../assets/css/AdminPostManagement.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+    faSearch,
+    faEye,
+    faEdit,
+    faTrash,
+    faChevronLeft,
+    faChevronRight,
+    faTimes,
+    faImage
+} from '@fortawesome/free-solid-svg-icons';
 
 const PostManagement = () => {
     const [posts, setPosts] = useState([]);
@@ -162,7 +173,7 @@ const PostManagement = () => {
                             className={styles.searchInput}
                         />
                         <button type="submit" className={styles.searchButton}>
-                            <i className="fas fa-search"></i>
+                            <FontAwesomeIcon icon={faSearch} />
                         </button>
                     </form>
                 </div>
@@ -189,12 +200,11 @@ const PostManagement = () => {
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Image</th>
-                                        <th>Caption</th>
+
+                                        <th>Content</th>
                                         <th>Author</th>
                                         <th>Likes</th>
                                         <th>Comments</th>
-                                        <th>Status</th>
                                         <th>Created At</th>
                                         <th>Actions</th>
                                     </tr>
@@ -218,14 +228,10 @@ const PostManagement = () => {
                                                     )}
                                                 </td>
                                                 <td>{truncateText(post.caption)}</td>
-                                                <td>{post.author?.username || 'Unknown'}</td>
+                                                <td>{post.author?.username || 'User1'}</td>
                                                 <td>{post.likeCount || 0}</td>
                                                 <td>{post.commentCount || 0}</td>
-                                                <td>
-                                                    <span className={`${styles.badge} ${styles[post.status?.toLowerCase() || 'active']}`}>
-                                                        {post.status || 'ACTIVE'}
-                                                    </span>
-                                                </td>
+
                                                 <td>{formatDate(post.createdAt)}</td>
                                                 <td className={styles.actions}>
                                                     <button
@@ -233,21 +239,21 @@ const PostManagement = () => {
                                                         onClick={() => handleViewClick(post.id)}
                                                         title="View Post"
                                                     >
-                                                        <i className="fas fa-eye"></i>
+                                                        <FontAwesomeIcon icon={faEye} />
                                                     </button>
-                                                    <button
+                                                    {/* <button
                                                         className={styles.editButton}
                                                         onClick={() => handleEditClick(post.id)}
                                                         title="Edit Post"
                                                     >
-                                                        <i className="fas fa-edit"></i>
-                                                    </button>
+                                                        <FontAwesomeIcon icon={faEdit} />
+                                                    </button> */}
                                                     <button
                                                         className={styles.deleteButton}
                                                         onClick={() => handleDeleteClick(post.id)}
                                                         title="Delete Post"
                                                     >
-                                                        <i className="fas fa-trash"></i>
+                                                        <FontAwesomeIcon icon={faTrash} />
                                                     </button>
                                                 </td>
                                             </tr>
@@ -269,7 +275,7 @@ const PostManagement = () => {
                                 disabled={page === 0}
                                 onClick={() => handlePageChange(page - 1)}
                             >
-                                <i className="fas fa-chevron-left"></i>
+                                <FontAwesomeIcon icon={faChevronLeft} />
                             </button>
 
                             <span className={styles.pageInfo}>
@@ -281,7 +287,7 @@ const PostManagement = () => {
                                 disabled={page >= totalPages - 1}
                                 onClick={() => handlePageChange(page + 1)}
                             >
-                                <i className="fas fa-chevron-right"></i>
+                                <FontAwesomeIcon icon={faChevronRight} />
                             </button>
                         </div>
                     </>
@@ -298,7 +304,7 @@ const PostManagement = () => {
                                 className={styles.closeButton}
                                 onClick={() => setShowDetailModal(false)}
                             >
-                                <i className="fas fa-times"></i>
+                                <FontAwesomeIcon icon={faTimes} />
                             </button>
                         </div>
 
@@ -312,7 +318,7 @@ const PostManagement = () => {
                                     />
                                 ) : (
                                     <div className={styles.noImage}>
-                                        <i className="fas fa-image"></i>
+                                        <FontAwesomeIcon icon={faImage} />
                                         <p>No image available</p>
                                     </div>
                                 )}
@@ -363,7 +369,7 @@ const PostManagement = () => {
                                             handleEditClick(selectedPost.id);
                                         }}
                                     >
-                                        <i className="fas fa-edit"></i> Edit Post
+                                        <FontAwesomeIcon icon={faEdit} /> Edit Post
                                     </button>
 
                                     <button
@@ -373,7 +379,7 @@ const PostManagement = () => {
                                             handleDeleteClick(selectedPost.id);
                                         }}
                                     >
-                                        <i className="fas fa-trash"></i> Delete Post
+                                        <FontAwesomeIcon icon={faTrash} /> Delete Post
                                     </button>
                                 </div>
                             </div>
@@ -392,7 +398,7 @@ const PostManagement = () => {
                                 className={styles.closeButton}
                                 onClick={() => setShowEditModal(false)}
                             >
-                                <i className="fas fa-times"></i>
+                                <FontAwesomeIcon icon={faTimes} />
                             </button>
                         </div>
 

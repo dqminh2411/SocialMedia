@@ -47,7 +47,7 @@ function AdminLogin() {
     return (
         <div className={styles.adminLoginContainer}>
             <div className={styles.loginBox}>
-                <h1 className={styles.title}>Admin Portal</h1>
+                <h1 className={styles.title}>Outstagram Admin Login</h1>
                 <form onSubmit={handleLogin}>
                     <div className={styles.inputGroup}>
                         <label htmlFor="username">Username</label>
@@ -76,7 +76,7 @@ function AdminLogin() {
                     {message && <div className={styles.errorMessage}>{message}</div>}
 
                     <button type="submit" className={styles.loginButton}>
-                        Login as Administrator
+                        Login
                     </button>
                 </form>
 

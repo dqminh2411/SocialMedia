@@ -37,11 +37,16 @@ public class SecurityConfiguration {
 
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults()).authorizeHttpRequests(
-                        authz -> authz.requestMatchers("/", "/auth/login", "/users/signup","/auth/refresh", "/storage/**", "/ws").permitAll().anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()).authenticationEntryPoint(customAuthenticationEntryPoint))
-                //.exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()).accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+                authz -> authz.requestMatchers("/", "/auth/login", "/users/signup", "/auth/refresh", "/storage/**",
+                        "/ws", "/actuator/**").permitAll().anyRequest().authenticated())
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))
+                // .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new
+                // BearerTokenAuthenticationEntryPoint()).accessDeniedHandler(new
+                // BearerTokenAccessDeniedHandler()))
                 .formLogin(AbstractHttpConfigurer::disable) // allow everyone to acesss login page
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// change
         // default
@@ -61,7 +66,8 @@ public class SecurityConfiguration {
         byte[] keyBytes = Base64.from(jwtKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
     }
-//
+
+    //
     @Bean
     public JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
@@ -77,8 +83,10 @@ public class SecurityConfiguration {
             }
         };
     }
+
     @Bean
-    // get users' authorities and authentication inside JWT to check at API endpoints
+    // get users' authorities and authentication inside JWT to check at API
+    // endpoints
     // the information is stored in SecurityContextHolder
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();

@@ -129,9 +129,9 @@
     margin-bottom: 20px;
 }
 
-.chartCard:last-child {
+/* .chartCard:last-child {
     grid-column: span 2;
-}
+} */
 
 .chartTitle {
     font-size: 16px;
@@ -179,6 +179,12 @@
     padding: 10px 20px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.todayDate {
+    font-size: 18px;
+    color: black;
+    margin: 10px 0;
 }
 
 @keyframes spin {
