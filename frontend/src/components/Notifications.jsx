@@ -31,7 +31,7 @@ const Notifications = () => {
         fetchNotifications();
 
         // Connect to WebSocket for real-time notifications
-        NotificationService.connect(currentUser.user.email);
+        NotificationService.connect();
 
         // Handle incoming notifications
         const unsubscribe = NotificationService.onMessage(notification => {

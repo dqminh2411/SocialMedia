@@ -32,10 +32,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // private JwtHandshakeInterceptor jwtHandshakeInterceptor;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic");// .setHeartbeatValue(new long[] { 4000, 4000 }); // Server-to-client,
-                                            // broadcast
-        // , "/queue", "/user/queue/specific-user"
-        config.setApplicationDestinationPrefixes("/app"); // Client-to-server
+        config.enableSimpleBroker("/topic", "/chat");
+
+        config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/user");
     }
 
@@ -44,6 +43,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS(); // Entry
         // point for client
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
+        // registry.addEndpoint("/ws/notifications").setAllowedOriginPatterns("*");
+        // registry.addEndpoint("/ws/chat").setAllowedOriginPatterns("*");
         // .addInterceptors(jwtHandshakeInterceptor);
     }
 

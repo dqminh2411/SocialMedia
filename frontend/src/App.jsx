@@ -35,6 +35,7 @@ import PostManagement from "./pages/admin/PostManagement.jsx";
 // Import global styles
 import './assets/css/Global.css';
 import { NotificationProvider } from "./context/NotificationContext.jsx";
+import { ChatProvider } from "./context/ChatContext.jsx";
 
 // We need to create this component to handle the modal routing logic
 const AppRoutes = () => {
@@ -152,7 +153,9 @@ function App() {
             <AuthProvider>
                 <AdminProvider>
                     <NotificationProvider>
-                        <AppRoutes />
+                        <ChatProvider>
+                            <AppRoutes />
+                        </ChatProvider>
                     </NotificationProvider>
                 </AdminProvider>
             </AuthProvider>

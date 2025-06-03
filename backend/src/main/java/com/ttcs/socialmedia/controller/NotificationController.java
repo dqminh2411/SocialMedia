@@ -26,13 +26,6 @@ public class NotificationController {
     private final UserService userService;
     private final NotificationService notificationService;
 
-    @MessageMapping("/chat")
-    public ResponseEntity<?> sendMessage(@RequestBody NotificationDTO noti) {
-        // Send to the topic destination that the frontend is subscribed to
-        simpMessagingTemplate.convertAndSendToUser(noti.getRecipient().getEmail(), "/topic", noti);
-        return ResponseEntity.ok("msg sent");
-    }
-
     @PostMapping("/follow-request")
     public ResponseEntity<?> sendFollowRequest(@RequestBody Map<String, Integer> request) {
         String currentUserEmail = SecurityUtil.getCurrentUserLogin()
@@ -60,10 +53,10 @@ public class NotificationController {
         NotificationDTO notificationDTO = notificationService.convertToDTO(savedNotification);
 
         // Send via WebSocket
-        simpMessagingTemplate.convertAndSendToUser(
-                recipient.getEmail(),
-                "/topic",
-                notificationDTO);
+        // simpMessagingTemplate.convertAndSendToUser(
+        // recipient.getEmail(),
+        // "/topic/notifications",
+        // notificationDTO);
 
         return ResponseEntity.ok(notificationDTO);
     }
@@ -100,14 +93,15 @@ public class NotificationController {
         acceptNotification.setRead(false);
         acceptNotification.setCreatedAt(Instant.now());
 
-        Notification savedAcceptNotification = notificationService.saveNotification(acceptNotification);
+        notificationService.saveNotification(acceptNotification);
 
         // Send notification via WebSocket
-        NotificationDTO acceptNotificationDTO = notificationService.convertToDTO(savedAcceptNotification);
-        simpMessagingTemplate.convertAndSendToUser(
-                notification.getSender().getEmail(),
-                "/topic",
-                acceptNotificationDTO);
+        // NotificationDTO acceptNotificationDTO =
+        // notificationService.convertToDTO(savedAcceptNotification);
+        // simpMessagingTemplate.convertAndSendToUser(
+        // notification.getSender().getEmail(),
+        // "/topic/notifications",
+        // acceptNotificationDTO);
 
         return ResponseEntity.ok().build();
     }
@@ -138,7 +132,7 @@ public class NotificationController {
     @GetMapping("")
     public ResponseEntity<List<NotificationDTO>> getNotifications(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "10") int size) {
 
         String currentUserEmail = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));

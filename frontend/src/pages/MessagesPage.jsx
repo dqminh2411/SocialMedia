@@ -3,218 +3,85 @@ import styles from '../assets/css/MessagesPage.module.css';
 import Sidebar from '../components/Sidebar';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faSmile, faPaperclip, faImage, faInfoCircle, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faSmile, faPaperclip, faImage, faInfoCircle, faArrowLeft, faSearch, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
 import EmojiPicker from 'emoji-picker-react';
+import UserService from '../services/user.service.jsx';
+import AuthService from '../services/auth.service.jsx';
+import { useChat } from '../context/ChatContext.jsx';
 
 const MessagesPage = () => {
     const [message, setMessage] = useState("");
-    const [selectedConversation, setSelectedConversation] = useState(null);
     const messageInputRef = useRef(null);
-    const chatContainerRef = useRef(null); const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const chatContainerRef = useRef(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
+    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
+    const DEFAULT_AVATAR = 'defaultAvatar.jpg';
+    const currentUser = AuthService.getCurrentUser();
 
-    // Mock data for conversations
-    const [conversations, setConversations] = useState([
-        {
-            id: 1,
-            username: 'user1',
-            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg',
-            lastMessage: 'cam on',
-            time: '2h',
-            unread: true,
-            userId: 101
-        },
-        {
-            id: 2,
-            username: 'user2',
-            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg',
-            lastMessage: 'minh cung vay',
-            time: '1d',
-            unread: false,
-            userId: 102
-        },
-        {
-            id: 3,
-            username: 'user3',
-            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg',
-            lastMessage: 'hehe',
-            time: '3d',
-            unread: false,
-            userId: 103
-        }
-    ]);
+    // New chat popup states
+    const [showNewChatPopup, setShowNewChatPopup] = useState(false);
+    const [searchUsername, setSearchUsername] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [searching, setSearching] = useState(false);
+    const [searchError, setSearchError] = useState("");
 
-    // Mock data for messages in a conversation
-    const [mockMessages, setMockMessages] = useState({
-        1: [
-            {
-                id: 1,
-                senderId: 101,
-                recipientId: 999, // Current user ID
-                text: "Hey, how are you?",
-                timestamp: "2023-06-01T10:30:00",
-                read: true
-            },
-            {
-                id: 2,
-                senderId: 999, // Current user ID
-                recipientId: 101,
-                text: "I'm good! Just working on my social media app. How about you?",
-                timestamp: "2023-06-01T10:32:00",
-                read: true
-            },
-            {
-                id: 3,
-                senderId: 101,
-                recipientId: 999,
-                text: "That sounds interesting! I'm just relaxing today. What features are you working on?",
-                timestamp: "2023-06-01T10:35:00",
-                read: true
-            },
-            {
-                id: 4,
-                senderId: 999,
-                recipientId: 101,
-                text: "I'm implementing a real-time chat feature, similar to Instagram's messaging system. It's challenging but fun!",
-                timestamp: "2023-06-01T10:40:00",
-                read: false
-            }
-        ],
-        2: [
-            {
-                id: 1,
-                senderId: 102,
-                recipientId: 999,
-                text: "Xin chao",
-                timestamp: "2025-05-31T15:20:00",
-                read: true
-            },
-            {
-                id: 2,
-                senderId: 999,
-                recipientId: 102,
-                text: "Rat vui duoc gap ban",
-                timestamp: "2025-05-31T16:05:00",
-                read: true
-            },
-            {
-                id: 3,
-                senderId: 102,
-                recipientId: 999,
-                text: "minh cung vay",
-                timestamp: "2025-05-31T16:10:00",
-                read: true
-            }
-        ],
-        3: [
-            {
-                id: 1,
-                senderId: 103,
-                recipientId: 999,
-                text: "Thanks for the info",
-                timestamp: "2023-05-29T09:15:00",
-                read: true
-            },
-            {
-                id: 2,
-                senderId: 999,
-                recipientId: 103,
-                text: "No problem! Let me know if you need anything else.",
-                timestamp: "2023-05-29T09:20:00",
-                read: true
-            }
-        ]
-    });
+    // Get chat context
+    const {
+        chats: conversations,
+        activeChat: selectedConversation,
+        messages,
+        loading,
+        error,
+        getMessages,
+        sendMessage,
+        createChat,
+        setActiveChat
+    } = useChat();
 
-    // Check if device is mobile on window resize
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
 
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
+    // Handle conversation selection
     const handleConversationSelect = (conversationId) => {
-        setSelectedConversation(conversationId);
-
-        // Mark conversation as read (update unread status)
-        setConversations(prevConversations =>
-            prevConversations.map(convo =>
-                convo.id === conversationId
-                    ? { ...convo, unread: false }
-                    : convo
-            )
-        );
-
-        // Mark all messages in this conversation as read
-        setMockMessages(prevMessages => {
-            if (!prevMessages[conversationId]) return prevMessages;
-
-            const updatedMessages = prevMessages[conversationId].map(msg =>
-                msg.senderId !== 999 ? { ...msg, read: true } : msg
-            );
-
-            return {
-                ...prevMessages,
-                [conversationId]: updatedMessages
-            };
-        });
+        // Get messages for this conversation
+        getMessages(conversationId);
     };
 
-    const handleBackToList = () => {
-        setSelectedConversation(null);
-    };
 
+    // Handle sending messages
     const handleSendMessage = (e) => {
         e.preventDefault();
-        if (!message.trim()) return;
+        if (!message.trim() || !selectedConversation) return;
 
-        if (selectedConversation) {
-            // In a real app, you would send this message to the backend
-            const newMessage = {
-                id: mockMessages[selectedConversation].length + 1,
-                senderId: 999, // Current user ID
-                recipientId: conversations.find(c => c.id === selectedConversation).userId,
-                text: message,
-                timestamp: new Date().toISOString(),
-                read: false
-            };
+        // Send message via context
+        sendMessage(selectedConversation, message.trim());
 
-            // Update the mock messages
-            setMockMessages(prevMessages => ({
-                ...prevMessages,
-                [selectedConversation]: [...prevMessages[selectedConversation], newMessage]
-            }));
+        // Clear the input
+        setMessage("");
 
-            // Update the last message in conversation list
-            setConversations(prevConversations =>
-                prevConversations.map(convo =>
-                    convo.id === selectedConversation
-                        ? { ...convo, lastMessage: message, time: 'Just now' }
-                        : convo
-                )
-            );
-
-            // Clear the input
-            setMessage("");
-
-            // Scroll to bottom of chat
-            setTimeout(() => {
-                if (chatContainerRef.current) {
-                    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-                }
-            }, 100);
+        // Adjust textarea height
+        if (messageInputRef.current) {
+            messageInputRef.current.style.height = 'auto';
         }
-    }; const handleKeyDown = (e) => {
+
+        // Scroll to bottom of chat
+        setTimeout(() => {
+            if (chatContainerRef.current) {
+                chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+            }
+        }, 100);
+    };
+
+    // Handle keyboard events
+    const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage(e);
         }
     };
 
+    // Adjust textarea height as user types
     const adjustTextareaHeight = (e) => {
         const textarea = e.target;
         textarea.style.height = 'auto';
@@ -222,6 +89,7 @@ const MessagesPage = () => {
         setMessage(e.target.value);
     };
 
+    // Handle emoji selection
     const handleEmojiClick = (emojiObject) => {
         setMessage(prevMessage => prevMessage + emojiObject.emoji);
         setShowEmojiPicker(false);
@@ -234,27 +102,21 @@ const MessagesPage = () => {
                 messageInputRef.current.style.height = Math.min(messageInputRef.current.scrollHeight, 120) + 'px';
             }, 0);
         }
-    }; const toggleEmojiPicker = () => {
+    };
+
+    // Toggle emoji picker
+    const toggleEmojiPicker = () => {
         setShowEmojiPicker(!showEmojiPicker);
     };
 
-    const handleAttachment = () => {
-        // In a real implementation, this would open a file picker
-        alert('Attachment functionality will be implemented in the future.');
-    };
 
-    const handleImageUpload = () => {
-        // In a real implementation, this would open an image picker
-        alert('Image upload functionality will be implemented in the future.');
-    };
-
-    // Format timestamp
+    // Format timestamp for messages
     const formatMessageTime = (timestamp) => {
         const date = new Date(timestamp);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    // Format date
+    // Format date for message separators
     const formatMessageDate = (timestamp) => {
         const date = new Date(timestamp);
         const today = new Date();
@@ -266,11 +128,84 @@ const MessagesPage = () => {
         } else if (date.toDateString() === yesterday.toDateString()) {
             return 'Yesterday';
         } else {
-            return date.toLocaleDateString(undefined, {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
+            return date.toLocaleDateString();
+        }
+    };
+
+    // Search for users
+    const handleSearchUsers = async (e) => {
+        e.preventDefault();
+        if (!searchUsername.trim()) return;
+
+        setSearching(true);
+        setSearchError("");
+        setSelectedUser(null);
+
+        try {
+            const response = await UserService.searchUsers(searchUsername.trim());
+
+            if (response && response.users) {
+                setSearchResults(response.users);
+            } else {
+                setSearchResults([]);
+            }
+        } catch (error) {
+            console.error("Error searching for users:", error);
+            setSearchError("Failed to search for users. Please try again.");
+            setSearchResults([]);
+        } finally {
+            setSearching(false);
+        }
+    };
+
+    // Select user to chat with
+    const handleSelectUser = (user) => {
+        setSelectedUser(user);
+    };    // Create a new chat with selected user
+    const handleCreateChat = async () => {
+        if (!selectedUser) return;
+
+        try {
+            // Show loading indicator if needed
+            setSearching(true);
+
+            // Create chat via context
+            const newChatId = await createChat(selectedUser.id);
+
+            if (newChatId) {
+                console.log("New chat created with ID:", newChatId);
+                // Chat was created successfully and added to the list in the ChatContext
+
+                // Close the popup
+                setShowNewChatPopup(false);
+
+                // Scroll to bottom of messages when the chat is loaded
+                setTimeout(() => {
+                    if (chatContainerRef.current) {
+                        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                    }
+                }, 300);
+            } else {
+                console.error("Failed to create chat - no chat ID returned");
+                setSearchError("Failed to create conversation. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error creating chat:", error);
+            setSearchError("An error occurred while creating the conversation.");
+        } finally {
+            setSearching(false);
+        }
+    };
+
+    // Toggle new chat popup
+    const toggleNewChatPopup = () => {
+        setShowNewChatPopup(!showNewChatPopup);
+        if (!showNewChatPopup) {
+            // Reset search when opening popup
+            setSearchUsername("");
+            setSearchResults([]);
+            setSelectedUser(null);
+            setSearchError("");
         }
     };
 
@@ -279,7 +214,9 @@ const MessagesPage = () => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
-    }, [selectedConversation, mockMessages]);    // Focus the input when selecting a conversation
+    }, [selectedConversation, messages]);
+
+    // Focus the input when selecting a conversation
     useEffect(() => {
         if (selectedConversation && messageInputRef.current) {
             messageInputRef.current.focus();
@@ -312,42 +249,91 @@ const MessagesPage = () => {
         : null;
 
     // Determine container class for mobile responsive layout
-    const containerClass = `${styles.messagesContainer} ${isMobile && !selectedConversation ? styles.showConversationList : ''
-        }`;
+    // Handle WebSocket message
+    // This is handled directly by the ChatContext now
+    /*
+    const handleNewMessage = (newMessage) => {
+        if (!newMessage || !newMessage.chatId) return;
 
+        const chatId = newMessage.chatId;
+
+        // Update messages if this chat is currently selected
+        setMessages(prevMessages => {
+            if (!prevMessages[chatId]) return prevMessages;
+
+            return {
+                ...prevMessages,
+                [chatId]: [...(prevMessages[chatId] || []), newMessage]
+            };
+        });
+
+        // Update conversation list
+        setConversations(prevConversations => {
+            const updatedConversations = prevConversations.map(convo => {
+                if (convo.id === chatId) {
+                    return {
+                        ...convo,
+                        lastMessage: newMessage.content,
+                        time: "Just now",
+                        // Mark as unread if it's not from current user and not the active conversation
+                        unread: newMessage.senderId !== currentUser.user.id && selectedConversation !== chatId
+                    };
+                }
+                return convo;
+            });
+
+            // Move the updated conversation to the top
+            const convoIndex = updatedConversations.findIndex(c => c.id === chatId);
+            if (convoIndex > 0) {
+                const [convo] = updatedConversations.splice(convoIndex, 1);
+                updatedConversations.unshift(convo);
+            }
+
+            return updatedConversations;
+        });
+
+        // Mark message as read if the chat is currently selected
+        if (selectedConversation === chatId && newMessage.senderId !== currentUser.user.id) {
+            // Implement marking as read
+        }
+    };
+    */
+
+    // Format relative time (e.g., "2h ago", "Just now")
     return (
         <div className={styles.container}>
             <Sidebar />
             <div className={styles.mainContent}>
-                <div className={containerClass}>
+                <div className={styles.messagesContainer}>
                     {/* Left Sidebar - Conversation List */}
                     <div className={styles.conversationList}>
                         <div className={styles.conversationHeader}>
                             <h2>Messages</h2>
-                            <button className={styles.newMessageBtn}>New</button>
+                            <button className={styles.newMessageBtn} onClick={toggleNewChatPopup}>New</button>
                         </div>
 
-                        <div className={styles.conversations}>
-                            {conversations.map(convo => (
-                                <div
-                                    key={convo.id}
-                                    className={`${styles.conversationItem} ${convo.unread ? styles.unread : ''} ${selectedConversation === convo.id ? styles.selected : ''}`}
-                                    onClick={() => handleConversationSelect(convo.id)}
-                                >
-                                    <div className={styles.avatar}>
-                                        <img src={convo.avatar} alt={convo.username} />
+                        <div className={styles.conversations}>                            {conversations.map(convo => (
+                            <div
+                                key={convo.id}
+                                className={`${styles.conversationItem} 
+                                               ${convo.unread ? styles.unread : ''} 
+                                               ${selectedConversation === convo.id ? styles.selected : ''}`}
+                                onClick={() => handleConversationSelect(convo.id)}
+                            >
+                                <div className={styles.avatar}>
+                                    <img src={convo.avatar} alt={convo.username} />
+                                </div>
+                                <div className={styles.conversationInfo}>
+                                    <div className={styles.conversationMeta}>
+                                        <span className={styles.username}>{convo.username}</span>
+                                        <span className={styles.time}>{convo.time}</span>
                                     </div>
-                                    <div className={styles.conversationInfo}>
-                                        <div className={styles.conversationMeta}>
-                                            <span className={styles.username}>{convo.username}</span>
-                                            <span className={styles.time}>{convo.time}</span>
-                                        </div>
-                                        <div className={styles.lastMessage}>
-                                            {convo.lastMessage}
-                                        </div>
+                                    <div className={styles.lastMessage}>
+                                        {convo.lastMessage}
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+                        ))}
                         </div>
                     </div>
 
@@ -358,14 +344,6 @@ const MessagesPage = () => {
                                 {/* Chat Header */}
                                 <div className={styles.chatHeader}>
                                     <div className={styles.recipientInfo}>
-                                        {isMobile && (
-                                            <button
-                                                className={styles.backButton}
-                                                onClick={handleBackToList}
-                                            >
-                                                <FontAwesomeIcon icon={faArrowLeft} />
-                                            </button>
-                                        )}
                                         <img
                                             src={selectedConversationData.avatar}
                                             alt={selectedConversationData.username}
@@ -378,56 +356,57 @@ const MessagesPage = () => {
                                     <button className={styles.viewProfileBtn}>
                                         <FontAwesomeIcon icon={faInfoCircle} />
                                     </button>
-                                </div>
-
-                                {/* Chat Messages */}
+                                </div>                                {/* Chat Messages */}
                                 <div className={styles.messagesWrapper} ref={chatContainerRef}>
-                                    <div className={styles.messages}>
-                                        {mockMessages[selectedConversation].map((message, index) => {
-                                            const isCurrentUser = message.senderId === 999;
-                                            const messageClass = isCurrentUser ? styles.sentMessage : styles.receivedMessage;
-
-                                            // Check if we need to display a date separator
-                                            const showDateSeparator = index === 0 ||
-                                                formatMessageDate(message.timestamp) !==
-                                                formatMessageDate(mockMessages[selectedConversation][index - 1].timestamp);
-
-                                            return (
-                                                <React.Fragment key={message.id}>
-                                                    {showDateSeparator && (
-                                                        <div className={styles.dateSeparator}>
-                                                            <span>{formatMessageDate(message.timestamp)}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className={`${styles.message} ${messageClass}`}>
-                                                        {!isCurrentUser && (
-                                                            <img
-                                                                src={selectedConversationData.avatar}
-                                                                alt={selectedConversationData.username}
-                                                                className={styles.messageAvatar}
-                                                            />
-                                                        )}
-                                                        <div className={styles.messageContent}>
-                                                            <div className={styles.messageText}>
-                                                                {message.text}
-                                                            </div>
-                                                            <div className={styles.messageInfo}>
-                                                                <span className={styles.messageTime}>
-                                                                    {formatMessageTime(message.timestamp)}
-                                                                </span>
-                                                                {isCurrentUser && (
-                                                                    <span className={styles.messageStatus}>
-                                                                        {message.read ? 'Read' : 'Sent'}
-                                                                    </span>
+                                    {loading ? (
+                                        <div className={styles.loadingIndicator}>Loading messages...</div>
+                                    ) : error ? (
+                                        <div className={styles.errorMessage}>{error}</div>
+                                    ) : (
+                                        <div className={styles.messages}>
+                                            {messages[selectedConversation]?.map((message, index) => {
+                                                const isCurrentUser = message.senderId === currentUser.user.id;
+                                                const messageClass = isCurrentUser ? styles.sentMessage : styles.receivedMessage;
+                                                const messageStatus = message.pending ? 'Sending...' : (message.read ? 'Read' : 'Sent');                                                // Check if we need to display a date separator
+                                                const showDateSeparator = index === 0 ||
+                                                    formatMessageDate(message.sentAt) !==
+                                                    formatMessageDate(messages[selectedConversation][index - 1].sentAt); return (
+                                                        <React.Fragment key={message.id || `msg-${selectedConversation}-${index}`}>
+                                                            {showDateSeparator && (
+                                                                <div className={styles.dateSeparator}>
+                                                                    <span>{formatMessageDate(message.sentAt)}</span>
+                                                                </div>
+                                                            )}
+                                                            <div className={`${styles.message} ${messageClass} ${message.pending ? styles.pending : ''}`}>
+                                                                {!isCurrentUser && (
+                                                                    <img
+                                                                        src={selectedConversationData.avatar}
+                                                                        alt={selectedConversationData.username}
+                                                                        className={styles.messageAvatar}
+                                                                    />
                                                                 )}
+                                                                <div className={styles.messageContent}>
+                                                                    <div className={styles.messageText}>
+                                                                        {message.content}
+                                                                    </div>
+                                                                    <div className={styles.messageInfo}>
+                                                                        <span className={styles.messageTime}>
+                                                                            {formatMessageTime(message.sentAt)}
+                                                                        </span>
+                                                                        {isCurrentUser && (
+                                                                            <span className={styles.messageStatus}>
+                                                                                {messageStatus}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                </React.Fragment>
-                                            );
-                                        })}
-                                    </div>
-                                </div>                                {/* Chat Input */}
+                                                        </React.Fragment>
+                                                    );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>{/* Chat Input */}
                                 <div className={styles.chatInputContainer}>
                                     {showEmojiPicker && (
                                         <div className={styles.emojiPickerContainer} ref={emojiPickerRef}>
@@ -442,12 +421,8 @@ const MessagesPage = () => {
                                         <div className={styles.chatInputIcons}>                                            <button className={styles.iconButton} onClick={toggleEmojiPicker}>
                                             <FontAwesomeIcon icon={faSmile} />
                                         </button>
-                                            <button className={styles.iconButton} onClick={handleAttachment}>
-                                                <FontAwesomeIcon icon={faPaperclip} />
-                                            </button>
-                                            <button className={styles.iconButton} onClick={handleImageUpload}>
-                                                <FontAwesomeIcon icon={faImage} />
-                                            </button>
+
+
                                         </div>                                        <textarea
                                             className={styles.chatInput}
                                             placeholder="Message..."
@@ -475,13 +450,109 @@ const MessagesPage = () => {
                                     </div>
                                     <h3>Your Messages</h3>
                                     <p>Send private photos and messages to a friend or group</p>
-                                    <button className={styles.sendMessageBtn}>Send Message</button>
+                                    <button className={styles.sendMessageBtn} onClick={toggleNewChatPopup}>Send Message</button>
                                 </div>
                             </div>
                         )}
+                    </div>                </div>
+            </div>
+
+            {/* New Chat Popup */}
+            {showNewChatPopup && (
+                <div className={styles.newChatPopupOverlay}>
+                    <div className={styles.newChatPopup}>
+                        <div className={styles.newChatHeader}>
+                            <h3>New Message</h3>
+                            <button
+                                className={styles.closePopupBtn}
+                                onClick={toggleNewChatPopup}
+                            >
+                                <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                        </div>
+
+                        <div className={styles.searchContainer}>
+                            <form onSubmit={handleSearchUsers}>
+                                <div className={styles.searchInputWrapper}>
+                                    <input
+                                        type="text"
+                                        className={styles.searchInput}
+                                        placeholder="Search for username..."
+                                        value={searchUsername}
+                                        onChange={(e) => setSearchUsername(e.target.value)}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className={styles.searchButton}
+                                        disabled={searching || !searchUsername.trim()}
+                                    >
+                                        {searching ? (
+                                            <span className={styles.loadingSpinner}></span>
+                                        ) : (
+                                            <FontAwesomeIcon icon={faSearch} />
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div className={styles.searchResultsContainer}>
+                            {searchError && (
+                                <div className={styles.searchError}>
+                                    {searchError}
+                                </div>
+                            )}
+
+                            {searchResults.length > 0 ? (
+                                <div className={styles.searchResults}>
+                                    {searchResults.map(user => (
+                                        <div
+                                            key={user.id}
+                                            className={`${styles.searchResultItem} ${selectedUser && selectedUser.id === user.id ? styles.selected : ''}`}
+                                            onClick={() => handleSelectUser(user)}
+                                        >
+                                            <div className={styles.resultAvatar}>
+                                                <img
+                                                    src={`${AVATAR_URL}${user.avatar || DEFAULT_AVATAR}`}
+                                                    alt={user.username}
+                                                />
+                                            </div>
+                                            <div className={styles.resultInfo}>
+                                                <span className={styles.resultUsername}>{user.username}</span>
+                                                <span className={styles.resultFullName}>{user.fullName || ''}</span>
+                                            </div>
+                                            {selectedUser && selectedUser.id === user.id && (
+                                                <div className={styles.selectedCheck}>
+                                                    <FontAwesomeIcon icon={faCheck} />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : searchUsername && !searching ? (
+                                <div className={styles.noResults}>
+                                    No users found matching "{searchUsername}"
+                                </div>
+                            ) : null}
+                        </div>                        <div className={styles.newChatActions}>
+                            <button
+                                className={styles.createChatBtn}
+                                disabled={!selectedUser || searching}
+                                onClick={handleCreateChat}
+                            >
+                                {searching ? (
+                                    <>
+                                        <span className={styles.loadingSpinner}></span>
+                                        Creating conversation...
+                                    </>
+                                ) : (
+                                    'Start Conversation'
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

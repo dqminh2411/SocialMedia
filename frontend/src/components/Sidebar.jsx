@@ -14,12 +14,14 @@ import logoutIcon from '../assets/images/logout-icon.png';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import { useChat } from '../context/ChatContext';
 
 const Sidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser, logout } = useAuth();
     const { unreadCount } = useNotifications(); // Get unread count from NotificationContext
+    const { unreadCount: unreadChatCount } = useChat(); // Get unread chat count from ChatContext
 
     const handleLogout = () => {
         console.log('Logging out user:', currentUser?.email);
@@ -57,10 +59,14 @@ const Sidebar = () => {
                         <img src={exploreIcon} alt="Explore" className={styles.icon} />
                         <span>Explore</span>
                     </Link>
-                </li>
-                <li>
+                </li>                <li>
                     <Link to="/messages" className={isActive('/messages') ? styles.active : ''}>
-                        <img src={messagesIcon} alt="Messages" className={styles.icon} />
+                        <div className={styles.iconContainer}>
+                            <img src={messagesIcon} alt="Messages" className={styles.icon} />
+                            {unreadChatCount > 0 && (
+                                <span className={styles.notificationBadge}></span>
+                            )}
+                        </div>
                         <span>Messages</span>
                     </Link>
                 </li>
@@ -69,7 +75,7 @@ const Sidebar = () => {
                         <div className={styles.iconContainer}>
                             <img src={notificationsIcon} alt="Notifications" className={styles.icon} />
                             {unreadCount > 0 && (
-                                <span className={styles.notificationBadge}>{unreadCount}</span>
+                                <span className={styles.notificationBadge}></span>
                             )}
                         </div>
                         <span>Notifications</span>

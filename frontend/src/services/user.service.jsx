@@ -6,77 +6,8 @@ const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
 const DEFAULT_AVATAR = 'default.png';
 
 class UserService {
-    // Get user profile by ID
-    getUserProfile(userId) {
-        return axios.get(
-            API_URL + 'users/' + userId,
-            { headers: authHeader() }
-        )
-            .then(response => {
-                return response.data;
-            })
-            .catch(error => {
-                console.error("Error fetching user profile:", error);
-                throw error;
-            });
-    }
 
-    // Get current user profile
-    getCurrentUserProfile() {
-        return axios.get(
-            API_URL + 'users/me',
-            { headers: authHeader() }
-        )
-            .then(response => {
-                return response.data;
-            })
-            .catch(error => {
-                console.error("Error fetching current user profile:", error);
-                throw error;
-            });
-    }
 
-    // Update user profile
-    updateUserProfile(userData) {
-        return axios.put(
-            API_URL + 'users/me',
-            userData,
-            { headers: authHeader() }
-        )
-            .then(response => {
-                return response.data;
-            })
-            .catch(error => {
-                console.error("Error updating user profile:", error);
-                throw error;
-            });
-    }
-
-    // Upload user avatar
-    uploadAvatar(file) {
-        const formData = new FormData();
-        formData.append('avatar', file);
-
-        return axios.post(
-            API_URL + 'users/avatar',
-            formData,
-            {
-                headers: {
-                    ...authHeader(),
-                    'Content-Type': 'multipart/form-data'
-                }
-            }
-        )
-            .then(response => {
-                return response.data;
-            })
-            .catch(error => {
-                console.error("Error uploading avatar:", error);
-                throw error;
-            });
-    }
-
-    // Get user followers
     getUserFollowers(userId, page = 0, size = 20) {
         return axios.get(
             API_URL + 'users/' + userId + '/followers',
@@ -144,16 +75,16 @@ class UserService {
     }
 
     // Search for users
-    searchUsers(query, page = 0, size = 10) {
+    searchUsers(username, page = 1) {
         return axios.get(
-            API_URL + 'users/search',
+            'http://localhost:8080/users/search',
             {
-                params: { query, page, size },
+                params: { username, page },
                 headers: authHeader()
             }
         )
             .then(response => {
-                return response.data;
+                return response.data.data;
             })
             .catch(error => {
                 console.error("Error searching users:", error);

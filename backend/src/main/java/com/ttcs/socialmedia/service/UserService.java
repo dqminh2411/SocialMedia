@@ -107,4 +107,10 @@ public class UserService {
             followRepository.save(follow);
         }
     }
+
+    public Page<User> searchUsersByUsername(String username, int pageNo) {
+        int pageSize = 10;
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        return this.userRepository.findByUsernameContainingIgnoreCase(username, pageable);
+    }
 }

@@ -50,7 +50,7 @@ const SearchPage = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         setHasSearched(true);
-        // In a real app, you would make API calls here
+
     };
 
     return (

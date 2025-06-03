@@ -71,24 +71,11 @@ const ProfilePage = () => {
             // Fetch user posts
             // const postsData = await ProfileService.getUserPosts(userId);
             // setPosts(postsData);
-            setPosts(profileData.posts || []); // Assuming profileData.posts contains the posts array
+            setPosts(profileData.posts || []);
         } catch (err) {
             console.error('Error fetching user profile:', err);
             setError('Failed to load profile. Please try again later.');
 
-            // For development purposes, use mock data when API fails
-            // console.log('Using mock data for development');
-            // setUser({
-            //     username: 'TrungOK',
-            //     fullName: 'Trung Nguyen',
-            //     bio: 'Software Developer | Photography Enthusiast',
-            //     postsCount: 42,
-            //     followersCount: 1024,
-            //     followingCount: 500,
-            //     profilePic: '../assets/images/daidien.png'
-            // });
-
-            // Mock posts data
 
         } finally {
             setLoading(false);
@@ -138,7 +125,8 @@ const ProfilePage = () => {
             ...prev,
             [name]: value
         }));
-    }; const handleAvatarChange = (e) => {
+    };
+    const handleAvatarChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setEditFormData(prev => ({
@@ -161,7 +149,8 @@ const ProfilePage = () => {
             };
             reader.readAsDataURL(file);
         }
-    }; const handleAvatarClick = () => {
+    };
+    const handleAvatarClick = () => {
         fileInputRef.current.click();
     };
 

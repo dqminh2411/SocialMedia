@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("SELECT u FROM User u WHERE u.id NOT IN (SELECT f.followedUser.id FROM Follow f WHERE f.followingUser.id = :userId ) AND u.role != 'ADMIN' AND u.id != :userId")
     Page<User> findUsersNotFollowed(int userId, Pageable page);
+
+    Page<User> findByUsernameContainingIgnoreCase(String username, Pageable pageable);
 }
