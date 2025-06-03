@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from '../assets/css/FriendSuggestion.module.css';
 import NotificationService from '../services/notification.service';
 import AuthService from '../services/auth.service';
+import { Link } from 'react-router-dom';
 
 const FriendSuggestion = ({ id, username, avatar, onFollowRequestSent }) => {
     const [followStatus, setFollowStatus] = useState('notFollowing');
@@ -33,9 +34,11 @@ const FriendSuggestion = ({ id, username, avatar, onFollowRequestSent }) => {
         <li className={styles.suggestionItem}>
             <div className={styles.userInfo}>
                 <img src={avatar ? (AVATAR_URL + avatar) : (AVATAR_URL + DEFAULT_AVATAR)} alt={username} className={styles.avatar} />
-                <div className={styles.userDetails}>
-                    <span className={styles.username}>{username}</span>
-                </div>
+                <Link to={`/profile/un/${username}`} className={styles.userLink}>
+                    <div className={styles.userDetails}>
+                        <span className={styles.username}>{username}</span>
+                    </div>
+                </Link>
             </div>
 
             {followStatus === 'notFollowing' && (

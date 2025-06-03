@@ -88,7 +88,7 @@ const Sidebar = () => {
                     </Link>
                 </li>
                 <li>
-                    <Link to="/profile" className={isActive('/profile') ? styles.active : ''}>
+                    <Link to={`/profile/un/${currentUser?.user.username}`} className={isActive('/profile') ? styles.active : ''}>
                         <img src={profileIcon} alt="Profile" className={styles.icon} />
                         <span>Profile</span>
                     </Link>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import styles from "../assets/css/PostDetail.module.css";
 import additionalStyles from "../assets/css/PostDetailAdditions.module.css";
 import "../assets/css/CommentFormFix.css"; // Import fix for comment form
@@ -412,16 +412,21 @@ const PostDetailPage = () => {
                         </div>
 
                         {/* Right side - Content */}
-                        <div className={styles["post-content"]}>                            <div className={styles["post-header"]}>                                <img
-                            src={postData.creator.avatar ? AVATAR_URL + postData.creator.avatar : AVATAR_URL + DEFAULT_AVATAR}
-                            alt="avatar"
-                            className={styles["avatar"]}
-                            onError={(e) => {
-                                e.target.src = AVATAR_URL + DEFAULT_AVATAR;
-                            }}
-                        />
-                            <span className={styles["username"]}>{postData.creator.username}</span>
-                        </div>
+                        <div className={styles["post-content"]}>
+                            <div className={styles["post-header"]}>                                <img
+                                src={postData.creator.avatar ? AVATAR_URL + postData.creator.avatar : AVATAR_URL + DEFAULT_AVATAR}
+                                alt="avatar"
+                                className={styles["avatar"]}
+                                onError={(e) => {
+                                    e.target.src = AVATAR_URL + DEFAULT_AVATAR;
+                                }}
+                            />
+                                <Link to={`/profile/un/${postData.creator.username}`} className={styles.userLink}>
+                                    <div className={styles.userInfo}>
+                                        <div className={styles.userName}>{postData.creator.username}</div>
+                                    </div>
+                                </Link>
+                            </div>
                             <div>
                                 <hr className={styles["line"]} />
                             </div>                            <div className={styles["post-body"]}>

@@ -43,6 +43,14 @@ public class ProfileService {
         return profileToResProfileDTO(profile);
     }
 
+    public ResProfileDTO getProfileByUsername(String username) {
+        Profile profile = profileRepository.findByUsername(username);
+        if (profile == null) {
+            return null;
+        }
+        return profileToResProfileDTO(profile);
+    }
+
     public ResProfileDTO update(int id, MultipartFile avatarFile, String bio) {
         User user = new User();
         user.setId(id);

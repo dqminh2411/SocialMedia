@@ -80,6 +80,21 @@
     background-color: #fafafa;
 }
 
+.followBtn {
+    background-color: transparent;
+    border: 1px solid #dbdbdb;
+    color: #262626;
+    border-radius: 4px;
+    padding: 5px 9px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.followBtn:hover {
+    background-color: #fafafa;
+}
+
 .profileTabs {
     display: flex;
     justify-content: center;

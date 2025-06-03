@@ -1,56 +1,31 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../assets/css/SearchPage.module.css';
 import Sidebar from '../components/Sidebar';
-
+import UserService from '../services/user.service.jsx';
 const SearchPage = () => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [query, setQuery] = useState('');
     const [activeTab, setActiveTab] = useState('users');
-    const [hasSearched, setHasSearched] = useState(false);
-
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searched, setSearched] = useState(false);
     // Mock data for search results
-    const mockUsers = [
-        {
-            id: 1,
-            username: 'user1',
-            fullName: 'NGuyen Anh',
-            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg'
-        },
-        {
-            id: 2,
-            username: 'user2',
-            fullName: 'Tran B',
-            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg'
-        },
-        {
-            id: 3,
-            username: 'user3',
-            fullName: 'Thanh Tung',
-            avatar: 'http://localhost:8080/storage/avatars/defaultAvatar.jpg'
-        }
-    ];
+    const [tags, setTags] = useState([]);
 
-    const mockTags = [
-        {
-            id: 1,
-            name: 'photography',
-            postsCount: '2.3M posts'
-        },
-        // {
-        //     id: 2,
-        //     name: 'travel',
-        //     postsCount: '4.8M posts'
-        // },
-        // {
-        //     id: 3,
-        //     name: 'food',
-        //     postsCount: '3.1M posts'
-        // }
-    ];
-
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault();
-        setHasSearched(true);
-
+        if (!query.trim()) return;
+        setLoading(true);
+        setSearched(true);
+        try {
+            const response = await UserService.searchUsers(query);
+            setUsers(response.users || []);
+            setTags(response.tags || []);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -63,13 +38,15 @@ const SearchPage = () => {
                             type="text"
                             className={styles.searchInput}
                             placeholder="Search"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
                         />
                         <button type="submit" className={styles.searchButton}>Search</button>
                     </form>
 
-                    {hasSearched && (
+                    {loading && <div className={styles.loadingIndicator}>Loading...</div>}
+
+                    {users.length > 0 && (
                         <>
                             <div className={styles.searchTabs}>
                                 <button
@@ -91,16 +68,18 @@ const SearchPage = () => {
                                     <>
                                         <h3 className={styles.resultsTitle}>Users</h3>
                                         <div className={styles.usersList}>
-                                            {mockUsers.length > 0 ? (
-                                                mockUsers.map(user => (
+                                            {users.length > 0 ? (
+                                                users.map(user => (
                                                     <div key={user.id} className={styles.userItem}>
                                                         <div className={styles.userAvatar}>
-                                                            <img src={user.avatar} alt={user.username} />
+                                                            <img src={UserService.getAvatarUrl(user.avatar)} alt={user.username} />
                                                         </div>
-                                                        <div className={styles.userInfo}>
-                                                            <div className={styles.userName}>{user.username}</div>
-                                                            <div className={styles.userFullName}>{user.fullName}</div>
-                                                        </div>
+                                                        <Link to={`/profile/un/${user.username}`} className={styles.userLink}>
+                                                            <div className={styles.userInfo}>
+                                                                <div className={styles.userName}>{user.username}</div>
+                                                                <div className={styles.userFullName}>{user.fullName}</div>
+                                                            </div>
+                                                        </Link>
                                                     </div>
                                                 ))
                                             ) : (
@@ -117,8 +96,8 @@ const SearchPage = () => {
                                     <>
                                         <h3 className={styles.resultsTitle}>Tags</h3>
                                         <div className={styles.tagsList}>
-                                            {mockTags.length > 0 ? (
-                                                mockTags.map(tag => (
+                                            {tags.length > 0 ? (
+                                                tags.map(tag => (
                                                     <div key={tag.id} className={styles.tagItem}>
                                                         <div className={styles.tagIcon}>#</div>
                                                         <div className={styles.tagInfo}>
@@ -139,8 +118,13 @@ const SearchPage = () => {
                             </div>
                         </>
                     )}
-
-                    {!hasSearched && (
+                    {users.length === 0 && tags.length === 0 && searched && !loading && (
+                        <div className={styles.noResults}>
+                            <h3>No Results Found</h3>
+                            <p>Try searching for a different keyword</p>
+                        </div>
+                    )}
+                    {!searched && (
                         <div className={styles.noResults}>
                             <h3>Search for Users or Tags</h3>
                             <p>Enter a search term to find users and hashtags</p>

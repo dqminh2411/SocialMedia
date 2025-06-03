@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import styles from '../assets/css/ProfilePage.module.css';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
 import ProfileService from '../services/profile.service';
+import UserService from '../services/user.service.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faComment } from '@fortawesome/free-solid-svg-icons';
 
 const ProfilePage = () => {
     const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
     const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
+    const { username } = useParams();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,20 +44,22 @@ const ProfilePage = () => {
         if (currentUser && currentUser.user && currentUser.user.id) {
             fetchUserProfile();
         }
-    }, []);
+    }, [username]);
 
     const fetchUserProfile = async () => {
-        if (!currentUser || !currentUser.user.id) {
-            setError('User not logged in or user ID not available');
+        // if (!currentUser || !currentUser.user.id) {
+        //     setError('User not logged in or user ID not available');
+        //     setLoading(false);
+        //     return;
+        // }
+        const profileUsername = username || currentUser.user.username;
+        if (!profileUsername) {
+            setError('Username not provided');
             setLoading(false);
             return;
         }
-
         try {
-            const userId = currentUser.user.id;
-            console.log('Fetching profile for user ID:', userId);
-
-            const profileData = await ProfileService.getUserProfile(userId);
+            const profileData = await ProfileService.getUserProfileByUsername(profileUsername);
             console.log('Profile data received:', profileData);
 
             setUser({
@@ -65,7 +69,7 @@ const ProfilePage = () => {
                 postsCount: profileData.totalPostCount || 0,
                 followersCount: profileData.totalFollowerCount || 0,
                 followingCount: profileData.totalFollowingCount || 0,
-                avatar: (profileData.userDTO.avatar === 'defaultAvatar.jpg' ? 'http://localhost:8080/storage/defaultAvatar.jpg' : `http://localhost:8080/storage/avatars/${profileData.userDTO.avatar}`)
+                avatar: UserService.getAvatarUrl(profileData.userDTO.avatar)
             });
 
             // Fetch user posts
@@ -295,12 +299,29 @@ const ProfilePage = () => {
                                     <p className={styles.fullName}>{user.fullName}</p>
                                     <p>{user.bio}</p>
                                 </div>
-                                <button
-                                    className={styles.editProfileBtn}
-                                    onClick={handleEditProfileClick}
-                                >
-                                    Edit Profile
-                                </button>
+
+                                {/* Only show Edit button if this is the current user's profile */}
+                                {currentUser && currentUser.user.username === username ? (
+                                    <button
+                                        className={styles.editProfileBtn}
+                                        onClick={handleEditProfileClick}
+                                    >
+                                        Edit Profile
+                                    </button>
+                                ) : (
+                                    // Show Follow/Message button for other users
+                                    <div className={styles.profileActions}>
+                                        <button className={styles.followBtn}>
+                                            Follow
+                                        </button>
+                                        {/* <button 
+                                            className={styles.messageBtn}
+                                            onClick={() => handleMessageUser(user.userId)}
+                                        >
+                                            Message
+                                        </button> */}
+                                    </div>
+                                )}
                             </div>
                         </div>
 

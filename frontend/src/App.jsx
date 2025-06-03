@@ -86,6 +86,11 @@ const AppRoutes = () => {
                         <ProfilePage />
                     </ProtectedRoute>
                 } />
+                <Route path="/profile/un/:username" element={
+                    <ProtectedRoute>
+                        <ProfilePage />
+                    </ProtectedRoute>
+                } />
                 <Route path="/post/:postId" element={
                     <ProtectedRoute>
                         <PostDetailPage />

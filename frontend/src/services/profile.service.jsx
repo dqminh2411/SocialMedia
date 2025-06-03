@@ -12,7 +12,12 @@ class ProfileService {
                 return response.data.data;
             });
     }
-
+    getUserProfileByUsername(username) {
+        return axios.get(API_URL + 'profile/un/' + username, { headers: authHeader() })
+            .then(response => {
+                return response.data.data;
+            });
+    }
     // Update user profile
     updateUserProfile(profileData) {
         return axios.put(

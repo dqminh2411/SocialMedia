@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styles from '../assets/css/Post.module.css';
 
 // Import icons
@@ -114,7 +114,11 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
         <div className={styles.post}>
             <div className={styles.postUser}>
                 <img src={userAvatar ? `${AVATAR_URL}${userAvatar}` : `${AVATAR_URL}${DEFAULT_AVATAR}`} alt={username} className={styles.avatar} />
-                <p>{username}</p>
+                <Link to={`/profile/un/${username}`} className={styles.userLink}>
+                    <div className={styles.userInfo}>
+                        <div className={styles.userName}>{username}</div>
+                    </div>
+                </Link>
             </div>
             <div className={styles.mediaContainer}
                 onTouchStart={(e) => handleTouchStart.current(e)}

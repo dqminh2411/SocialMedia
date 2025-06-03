@@ -349,7 +349,7 @@ const MessagesPage = () => {
                                             alt={selectedConversationData.username}
                                             className={styles.recipientAvatar}
                                         />
-                                        <Link to={`/profile/${selectedConversationData.userId}`} className={styles.recipientUsername}>
+                                        <Link to={`/profile/un/${selectedConversationData.username}`} className={styles.recipientUsername}>
                                             {selectedConversationData.username}
                                         </Link>
                                     </div>

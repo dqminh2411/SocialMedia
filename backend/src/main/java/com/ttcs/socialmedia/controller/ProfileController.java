@@ -19,6 +19,11 @@ public class ProfileController {
         return profileService.getProfileByUserId(userId);
     }
 
+    @GetMapping("/un/{username}")
+    public ResProfileDTO getProfileByUsername(@PathVariable String username) {
+        return profileService.getProfileByUsername(username);
+    }
+
     @GetMapping("/{id}/followers")
     public List<UserDTO> getFollowerPage(@PathVariable("id") int profileId, @RequestParam("pageNo") int pageNo) {
         return profileService.getFollowerPage(profileId, pageNo - 1);
