@@ -434,15 +434,8 @@ const PostDetailPage = () => {
                                     dangerouslySetInnerHTML={{ __html: postData.content }}
                                     className={additionalStyles["post-content-html"]}
                                 />
-                                {postData.hashtags && postData.hashtags.length > 0 && (
-                                    <div className={styles["hashtags"]}>
-                                        {postData.hashtags.map((tag, index) => (
-                                            <span key={index} className={styles["hashtag"]}>
-                                                #{tag.name}
-                                            </span>
-                                        ))}
-                                    </div>
-                                )}                            </div>                            <div className={styles["post-footer"]}>
+                            </div>
+                            <div className={styles["post-footer"]}>
                                 <div className={styles["like-section"]}>
                                     <button
                                         className={additionalStyles["like-button"]}

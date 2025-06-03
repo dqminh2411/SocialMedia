@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from './pages/auth/login.jsx'
 import SignUp from './pages/auth/signup.jsx'
@@ -24,6 +23,7 @@ import NotificationsPage from "./pages/NotificationsPage.jsx";
 import CreatePostPage from "./pages/CreatePostPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import PostDetailPage from "./pages/PostDetailPage.jsx";
+import HashtagPage from "./pages/HashtagPage.jsx";
 
 // Import admin pages
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
@@ -97,21 +97,10 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 } />
 
-                {/* Legacy Routes */}
-                <Route path="/post" element={
-                    <ProtectedRoute>
-                        <PostPage />
-                    </ProtectedRoute>
-                } />
-                <Route path="/message" element={
-                    <ProtectedRoute>
-                        <InstagramMessengerUI />
-                    </ProtectedRoute>
-                } />
 
-                <Route path="/websocket" element={
+                <Route path="/hashtag/:hashtagName" element={
                     <ProtectedRoute>
-                        <WebSocketTest />
+                        <HashtagPage />
                     </ProtectedRoute>
                 } />
 
@@ -146,6 +135,12 @@ const AppRoutes = () => {
                             <PostDetailPage />
                         </ProtectedRoute>
                     } />
+                    {/* Also allow hashtag page to have modal posts */}
+                    {/* <Route path="/hashtag/:hashtagName/post/:postId" element={
+                        <ProtectedRoute>
+                            <PostDetailPage />
+                        </ProtectedRoute>
+                    } /> */}
                 </Routes>
             )}
         </>

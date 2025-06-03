@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import styles from '../assets/css/SearchPage.module.css';
 import Sidebar from '../components/Sidebar';
 import UserService from '../services/user.service.jsx';
+import PostService from '../services/post.service.jsx';
 const SearchPage = () => {
     const [query, setQuery] = useState('');
     const [activeTab, setActiveTab] = useState('users');
@@ -18,13 +19,17 @@ const SearchPage = () => {
         setLoading(true);
         setSearched(true);
         try {
-            const response = await UserService.searchUsers(query);
-            setUsers(response.users || []);
-            setTags(response.tags || []);
+            const responseUsers = await UserService.searchUsers(query);
+            const responseTags = await PostService.searchHashtags(query);
+            setUsers(responseUsers.users ? responseUsers.users : []);
+            setTags(responseTags.hashtags ? responseTags.hashtags : []);
         } catch (error) {
             console.error('Error fetching users:', error);
         } finally {
             setLoading(false);
+
+            console.log(users)
+            console.log(tags)
         }
     };
 
@@ -46,7 +51,7 @@ const SearchPage = () => {
 
                     {loading && <div className={styles.loadingIndicator}>Loading...</div>}
 
-                    {users.length > 0 && (
+                    {(users.length > 0 || tags.length > 0) && (
                         <>
                             <div className={styles.searchTabs}>
                                 <button
@@ -100,10 +105,13 @@ const SearchPage = () => {
                                                 tags.map(tag => (
                                                     <div key={tag.id} className={styles.tagItem}>
                                                         <div className={styles.tagIcon}>#</div>
-                                                        <div className={styles.tagInfo}>
-                                                            <div className={styles.tagName}>#{tag.name}</div>
-                                                            <div className={styles.tagCount}>{tag.postsCount}</div>
-                                                        </div>
+                                                        <Link to={`/hashtag/${tag.name}`} className={styles.tagLink}>
+                                                            <div className={styles.tagInfo}>
+                                                                <div className={styles.tagName}>#{tag.name}</div>
+                                                                {/* <div className={styles.tagCount}>{tag.postsCount}</div> */}
+                                                            </div>
+                                                        </Link>
+
                                                     </div>
                                                 ))
                                             ) : (

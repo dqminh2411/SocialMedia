@@ -113,4 +113,22 @@ public class PostController {
                 "totalElements", postsPage.getTotalElements());
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/hashtag/{hashtag}")
+    public ResponseEntity<?> getHashtagPosts(
+            @PathVariable("hashtag") String hashtag,
+            @RequestParam(name = "pageNo", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+
+        Page<Post> postsPage = postService.getPostsByHashtag(hashtag, page, size);
+        List<PostDTO> postDTOs = postsPage.getContent().stream()
+                .map(post -> postService.postToDTO(post))
+                .toList();
+        Map<String, Object> response = Map.of(
+                "posts", postDTOs,
+                "totalPages", postsPage.getTotalPages(),
+                "currentPage", postsPage.getNumber(),
+                "totalElements", postsPage.getTotalElements());
+        return ResponseEntity.ok(response);
+    }
 }

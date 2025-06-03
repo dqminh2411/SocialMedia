@@ -347,4 +347,12 @@ public class PostService {
         return posts;
     }
 
+    public Page<Post> getPostsByHashtag(String hashtag, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Hashtag ht = hashtagRepository.findByName(hashtag);
+        if (ht == null) {
+            return Page.empty();
+        }
+        return postRepository.findByHashtag(ht, pageable);
+    }
 }

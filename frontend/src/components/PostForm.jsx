@@ -3,6 +3,7 @@ import EmojiPicker from 'emoji-picker-react'; // You'll need to install this pac
 import styles from '../assets/css/PostForm.module.css';
 import postService from '../services/post.service';
 import authService from '../services/auth.service';
+import { set } from 'date-fns';
 
 const PostForm = ({ post = null, onSubmit }) => {
     // Using a ref for the editable div instead of a textarea
@@ -24,39 +25,19 @@ const PostForm = ({ post = null, onSubmit }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    /* Temporarily disabled mention and hashtag features
-    const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
-    const [showHashtagSuggestions, setShowHashtagSuggestions] = useState(false);
-    const [mentionQuery, setMentionQuery] = useState('');
-    const [hashtagQuery, setHashtagQuery] = useState('');
-    */
+
+    const [showHashtagDialog, setShowHashtagDialog] = useState(false);
+    const [hashtagSearch, setHashtagSearch] = useState('');
+    const [hashtagSearchResults, setHashtagSearchResults] = useState([]);
+    const [searching, setSearching] = useState(false);
+    const [searched, setSearched] = useState(false);
+
     const [showLinkDialog, setShowLinkDialog] = useState(false);
     const [linkData, setLinkData] = useState({ url: '', text: '' });
 
-    // Mock data for suggestions - commented out temporarily
-    /*
-    const mockUsers = [
-        { id: 1, username: 'johndoe', fullName: 'John Doe', avatar: 'https://via.placeholder.com/50' },
-        { id: 2, username: 'janedoe', fullName: 'Jane Doe', avatar: 'https://via.placeholder.com/50' },
-        { id: 3, username: 'bobsmith', fullName: 'Bob Smith', avatar: 'https://via.placeholder.com/50' },
-    ];
 
-    const mockHashtags = [
-        { id: 1, name: 'photography' },
-        { id: 2, name: 'travel' },
-        { id: 3, name: 'food' },
-        { id: 4, name: 'fashion' },
-    ];
 
-    // Filtered suggestions based on queries
-    const filteredUsers = mockUsers.filter(user =>
-        user.username.toLowerCase().includes(mentionQuery.toLowerCase())
-    );
-
-    const filteredHashtags = mockHashtags.filter(tag =>
-        tag.name.toLowerCase().includes(hashtagQuery.toLowerCase())
-    );
-    */// Initialize the editor content
+    /// Initialize the editor content
     useEffect(() => {
         if (editorRef.current && post?.content) {
             editorRef.current.innerHTML = post.content;
@@ -65,53 +46,68 @@ const PostForm = ({ post = null, onSubmit }) => {
         }
     }, [post]);
 
-    // Function to fetch user suggestions (in a real app, this would be an API call)
-    const fetchUserSuggestions = (query) => {
-        // Simulate API delay
-        setTimeout(() => {
-            // Filter users based on query
-            const filtered = mockUsers.filter(user =>
-                user.username.toLowerCase().includes(query.toLowerCase()) ||
-                user.fullName.toLowerCase().includes(query.toLowerCase())
-            );
-            setFilteredUsers(filtered);
-        }, 100);
+
+    // Function to search for hashtags
+    const searchHashtags = async (query) => {
+        if (!query.trim()) {
+            return;
+        }
+        setSearching(true);
+        setSearched(true);
+        try {
+            const response = await postService.searchHashtags(query);
+            setHashtagSearchResults(response.hashtags || []);
+            setSearching(false);
+        } catch (error) {
+            console.error('Error searching hashtags:', error);
+        }
+
     };
 
-    // Function to fetch hashtag suggestions (in a real app, this would be an API call)
-    const fetchHashtagSuggestions = (query) => {
-        // Simulate API delay
-        setTimeout(() => {
-            // Filter hashtags based on query
-            const filtered = mockHashtags.filter(tag =>
-                tag.name.toLowerCase().includes(query.toLowerCase())
-            );
-            setFilteredHashtags(filtered);
-        }, 100);
+    // Function to insert a hashtag into the editor as a link
+    const insertHashtag = (hashtag) => {
+        if (!savedRangeRef.current) return;
+
+        // Focus the editor if it's not already focused
+        editorRef.current.focus();
+
+        // Restore the selection
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedRangeRef.current);
+
+        // Create the hashtag link HTML
+        const hashtagLink = `<a href="/hashtag/${hashtag}" class="${styles.hashtag}">#${hashtag}</a>&nbsp;`;
+
+        // Insert the hashtag at the cursor position
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = hashtagLink;
+
+        const fragment = document.createDocumentFragment();
+        while (tempDiv.firstChild) {
+            fragment.appendChild(tempDiv.firstChild);
+        }
+
+        range.insertNode(fragment);
+
+        // Move cursor to the end of the inserted content
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        // Close the hashtag dialog
+        setShowHashtagDialog(false);
+
+        // Update content
+        handleContentChange();
     };
 
-    // Save the current selection range when opening link dialog
-    // const saveSelection = () => {
-    //
-    //     const sel = window.getSelection();
-    //     if (sel && sel.rangeCount > 0) {
-    //         return sel.getRangeAt(0);
-    //     }
-    //
-    //     return null;
-    // };
-    //
-    // // Restore the selection range when inserting a link
-    // const restoreSelection = (range) => {
-    //     if (range && window.getSelection()) {
-    //         const sel = window.getSelection();
-    //         sel.removeAllRanges();
-    //         sel.addRange(range);
-    //     }
-    // };
 
 
-    // save selection range to add emoji
+
     const saveRange = () => {
         const selection = window.getSelection();
         if (selection && selection.rangeCount > 0) {
@@ -130,45 +126,6 @@ const PostForm = ({ post = null, onSubmit }) => {
             return prev;
         });
 
-        /* Temporarily disabled mention and hashtag features
-        // Get the current text at cursor position
-        const selection = window.getSelection();
-        if (selection.rangeCount > 0) {
-            const range = selection.getRangeAt(0);
-            const preCaretRange = range.cloneRange();
-            preCaretRange.selectNodeContents(editorRef.current);
-            preCaretRange.setEnd(range.endContainer, range.endOffset);
-            const textBeforeCaret = preCaretRange.toString();
-
-            // Check for @ mentions
-            const mentionMatch = /@(\w*)$/.exec(textBeforeCaret);
-            if (mentionMatch) {
-                const query = mentionMatch[1];
-                setMentionQuery(query);
-                setShowMentionSuggestions(true);
-                setShowHashtagSuggestions(false);
-                // Fetch user suggestions
-                fetchUserSuggestions(query);
-            } else {
-                setShowMentionSuggestions(false);
-            }
-
-            // Check for # hashtags
-            const hashtagMatch = /#(\w*)$/.exec(textBeforeCaret);
-            if (hashtagMatch) {
-                const query = hashtagMatch[1];
-                setHashtagQuery(query);
-                setShowHashtagSuggestions(true);
-                setShowMentionSuggestions(false);
-                // Fetch hashtag suggestions
-                fetchHashtagSuggestions(query);
-            } else {
-                setShowHashtagSuggestions(false);
-            }
-        }
-        */
-
-        // Save the range after any content change
         saveRange();
     };
 
@@ -463,7 +420,10 @@ const PostForm = ({ post = null, onSubmit }) => {
     };    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        if (formData.images.length === 0 && formData.videos.length === 0 && !post) {
+            alert("You must add at least one image or video");
+            return;
+        }
         // Get the content from the editor
         const content = editorRef.current.innerHTML;
 
@@ -491,18 +451,33 @@ const PostForm = ({ post = null, onSubmit }) => {
         const mediaFiles = [
             ...formData.images.map(img => img.file),
             ...formData.videos.map(video => video.file)
-        ];
+        ];        // Extract mentions and hashtags from content
 
-        // Extract mentions and hashtags from content if needed
-        // Here we could implement extraction logic if needed
-        const mentions = [];
+        // const mentions = [];
+
+        // // Extract hashtags from the content
         const hashtags = [];
+        // const hashtagRegex = /<a[^>]*?class="[^"]*?hashtag[^"]*?"[^>]*?>(?:#)([^<]+)<\/a>/g;
+        // let match;
+
+        // Create a temporary div to parse the HTML content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = content;
+
+        // Extract hashtags from the HTML links
+        const hashtagLinks = tempDiv.querySelectorAll('a.' + styles.hashtag);
+        hashtagLinks.forEach(link => {
+            // Extract the hashtag name (without the # symbol)
+            const hashtagName = link.textContent.substring(1); // Remove the # symbol
+            if (hashtagName && !hashtags.includes(hashtagName)) {
+                hashtags.push(hashtagName);
+            }
+        });
 
         // Prepare data for API
         const postData = {
             creatorId: currentUser.user.id,
             content: content,
-            mentions: mentions,
             hashtags: hashtags
         };
 
@@ -565,6 +540,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                             accept="image/*,video/*"
                             multiple
                             style={{ display: 'none' }}
+
                         />
                     </div>
 
@@ -641,9 +617,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                                 </div>
                             )}
                         </div>
-                    )}
-
-                    <div className={styles['editor-toolbar']}>
+                    )}                    <div className={styles['editor-toolbar']}>
                         <button
                             type="button"
                             className={styles['toolbar-button']}
@@ -662,32 +636,16 @@ const PostForm = ({ post = null, onSubmit }) => {
                         >
                             🔗
                         </button>
-                        {/* Temporarily disabled mention and hashtag buttons 
                         <button
                             type="button"
                             className={styles['toolbar-button']}
-                            onClick={() => {
-                                // Insert @ at cursor position and trigger mention suggestions
-                                insertTextAtCursor('@');
-                            }}
-                            title="Mention Someone"
-                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
-                        >
-                            @
-                        </button>
-                        <button
-                            type="button"
-                            className={styles['toolbar-button']}
-                            onClick={() => {
-                                // Insert # at cursor position and trigger hashtag suggestions
-                                insertTextAtCursor('#');
-                            }}
+                            onClick={() => setShowHashtagDialog(true)}
                             title="Add Hashtag"
                             onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
                         >
                             #
                         </button>
-                        */}
+
                     </div>
                     <div className={styles['rich-editor-container']}>                        <div
                         ref={editorRef}
@@ -742,86 +700,9 @@ const PostForm = ({ post = null, onSubmit }) => {
                                     </div>
                                 </div>
                             </div>
-                        )}                        {/* Temporarily disabled mention suggestions UI
-                        {showMentionSuggestions && (
-                            <div className={styles['suggestions-container']}>
-                                <div className={styles['suggestions-header']}>
-                                    <strong>Mention a user</strong>
-                                    <button
-                                        onClick={() => setShowMentionSuggestions(false)}
-                                        className={styles['close-suggestions']}
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                                {filteredUsers.length > 0 ? (
-                                    <ul className={styles['suggestions-list']}>
-                                        {filteredUsers.map(user => (
-                                            <li
-                                                key={user.id}
-                                                className={styles['suggestion-item']}
-                                                onClick={() => handleMentionSelect(user.username)}
-                                            >
-                                                <img src={user.avatar} alt={user.username} className={styles['suggestion-avatar']} />
-                                                <div className={styles['suggestion-info']}>
-                                                    <span className={styles['suggestion-name']}>{user.fullName}</span>
-                                                    <span className={styles['suggestion-username']}>@{user.username}</span>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className={styles['no-suggestions']}>
-                                        No users found. Keep typing...
-                                    </div>
-                                )}
-                            </div>
                         )}
-                        */}
 
-                        {/* Temporarily disabled hashtag suggestions UI
-                        {showHashtagSuggestions && (
-                            <div className={styles['suggestions-container']}>
-                                <div className={styles['suggestions-header']}>
-                                    <strong>Select a hashtag</strong>
-                                    <button
-                                        onClick={() => setShowHashtagSuggestions(false)}
-                                        className={styles['close-suggestions']}
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                                {filteredHashtags.length > 0 ? (
-                                    <ul className={styles['suggestions-list']}>
-                                        {filteredHashtags.map(tag => (
-                                            <li
-                                                key={tag.id}
-                                                className={styles['suggestion-item']}
-                                                onClick={() => handleHashtagSelect(tag.name)}
-                                            >
-                                                <span className={styles['suggestion-hashtag']}>#{tag.name}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div className={styles['no-suggestions']}>
-                                        <p>No hashtags found. Keep typing...</p>
-                                        <button
-                                            className={styles['create-hashtag']}
-                                            onClick={() => {
-                                                // Create a new hashtag with the current query
-                                                if (hashtagQuery) {
-                                                    handleHashtagSelect(hashtagQuery);
-                                                }
-                                            }}
-                                        >
-                                            Create #{hashtagQuery}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        */}                    </div>
+                    </div>
                     {error && <div className={styles.errorMessage}>{error}</div>}
                     {success && <div className={styles.successMessage}>
                         {post ? 'Post updated successfully!' : 'Post created successfully!'}
@@ -837,6 +718,73 @@ const PostForm = ({ post = null, onSubmit }) => {
                     </div>
                 </div>
             </form>
+
+            {/* Hashtag Dialog */}
+            {showHashtagDialog && (
+                <div className={styles['hashtag-dialog']} ref={linkDialogRef}>
+                    <div className={styles['hashtag-dialog-content']}>
+                        <div className={styles['hashtag-dialog-header']}>
+                            <h3>Add Hashtag</h3>
+                            <button
+                                type="button"
+                                className={styles['close-dialog']}
+                                onClick={() => setShowHashtagDialog(false)}
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className={styles['hashtag-search']}>
+                            <input
+                                type="text"
+                                placeholder="Search hashtags..."
+                                value={hashtagSearch}
+                                onChange={(e) => setHashtagSearch(e.target.value)}
+                                className={styles['hashtag-search-input']}
+                            />
+                            <button
+                                type="button"
+                                className={styles['hashtag-search-button']}
+                                onClick={() => searchHashtags(hashtagSearch)}
+                                disabled={searching || !hashtagSearch.trim()}
+                            >
+                                {searching ? 'Searching...' : 'Search'}
+                            </button>
+                        </div>
+
+                        <div className={styles['hashtag-results']}>
+                            {
+                                searching ? (
+                                    <div className={styles['hashtag-loading']}>Searching hashtags...</div>
+                                ) : hashtagSearchResults.length > 0 ? (
+                                    <ul className={styles['hashtag-list']}>
+                                        {hashtagSearchResults.map(tag => (
+                                            <li
+                                                key={tag.id}
+                                                className={styles['hashtag-item']}
+                                                onClick={() => insertHashtag(tag.name)}
+                                            >
+                                                <span className={styles['hashtag-name']}>#{tag.name}</span>
+
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : searched ? (
+                                    <div className={styles['no-hashtags']}>
+                                        <p>No hashtags found. You can create a new one:</p>
+                                        <button
+                                            type="button"
+                                            className={styles['create-hashtag']}
+                                            onClick={() => insertHashtag(hashtagSearch.trim())}
+                                        >
+                                            Create #{hashtagSearch.trim()}
+                                        </button>
+                                    </div>
+                                ) : (<></>)}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

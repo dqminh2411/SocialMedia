@@ -70,27 +70,28 @@ const HomePage = () => {
         <div className={styles.container}>
             <Sidebar />
 
-            <div className={styles.mainContent}>                {posts.length === 0 ? (
-                <div className={styles.noPosts}>No posts available</div>
-            ) : (<div className={styles.postList}>
-                {posts.map(post => {
+            <div className={styles.mainContent}>
+                {posts.length === 0 ? (
+                    <div className={styles.noPosts}>No posts available</div>
+                ) : (<div className={styles.postList}>
+                    {posts.map(post => {
 
-                    return (
-                        <Post
-                            key={post.id}
-                            id={post.id}
-                            username={post.creator.username}
-                            userAvatar={post.creator.avatar}
-                            media={post.media}
-                            likes={post.likes}
-                            content={post.content}
-                            createdAt={post.createdAt}
-                            commentsCount={post.commentsCount}
-                            isLiked={post.likedByCurrentUser}
-                        />
-                    );
-                })}
-            </div>)}
+                        return (
+                            <Post
+                                key={post.id}
+                                id={post.id}
+                                username={post.creator.username}
+                                userAvatar={post.creator.avatar}
+                                media={post.media}
+                                likes={post.likes}
+                                content={post.content}
+                                createdAt={post.createdAt}
+                                commentsCount={post.commentsCount}
+                                isLiked={post.likedByCurrentUser}
+                            />
+                        );
+                    })}
+                </div>)}
             </div>
 
             <div className={styles.rightPanel}>

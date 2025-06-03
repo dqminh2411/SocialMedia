@@ -13,7 +13,6 @@ class PostService {
         const postTextData = {
             creatorId: postData.creatorId,
             content: postData.content,
-            mentions: postData.mentions || [],
             hashtags: postData.hashtags || []
         };
 
@@ -155,6 +154,26 @@ class PostService {
     getNewHomePosts(pageNo = 0) {
         return axios.get(
             API_URL + 'posts/new-home?pageNo=' + pageNo,
+            { headers: authHeader() }
+        )
+            .then(response => {
+                return response.data.data;
+            });
+    }
+
+    searchHashtags(query) {
+        return axios.get(
+            API_URL + 'hashtags/search?query=' + encodeURIComponent(query),
+            { headers: authHeader() }
+        )
+            .then(response => {
+                return response.data.data;
+            }
+            )
+    }
+    getPostsByHashtag(hashtag, pageNo = 0) {
+        return axios.get(
+            API_URL + 'posts/hashtag/' + encodeURIComponent(hashtag) + '?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {

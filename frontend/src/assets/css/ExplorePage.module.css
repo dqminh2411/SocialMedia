@@ -110,6 +110,76 @@
     margin-right: 6px;
 }
 
+/* Hashtag page specific styles */
+.hashtagHeader {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 935px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hashtagIcon {
+    width: 60px;
+    height: 60px;
+    background-color: #f3f3f3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    color: #1877f2;
+}
+
+.hashtagInfo {
+    flex: 1;
+}
+
+.hashtagName {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #262626;
+}
+
+.hashtagStats {
+    font-size: 14px;
+    color: #8e8e8e;
+    margin: 0;
+}
+
+.noPostsMessage {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.noPostsMessage p {
+    margin: 8px 0;
+    color: #8e8e8e;
+}
+
+.noPostsMessage p:first-child {
+    font-size: 18px;
+    font-weight: 500;
+    color: #262626;
+}
+
+.loadingContainer,
+.errorContainer {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+}
+
 @media (max-width: 768px) {
     .exploreGrid {
         grid-template-columns: repeat(2, 1fr);
