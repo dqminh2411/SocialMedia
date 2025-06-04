@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Post from '../components/Post';
 import SuggestionPanel from '../components/SuggestionPanel';
 import PostService from '../services/post.service.jsx';
+import { useLocation, useNavigate } from 'react-router-dom';
 // Import sample images
 import profileImage from '../assets/images/daidien.png';
 import postImage from '../assets/images/pexels-m-venter-792254-1659438.jpg';
@@ -14,41 +15,62 @@ const HomePage = () => {
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const navigate = useNavigate();
     let testPosts = [];
-    useEffect(() => {
 
-        const fetchPosts = async () => {
-            try {
-                setLoading(true);
-                const postsData = await PostService.getHomePosts();
-                console.log("Posts from following users:", postsData.posts);
-                
-                // Check the fetched data directly instead of the state variable
-                if (postsData.posts && postsData.posts.length > 0) {
-                    // We have posts from followed users, use them
-                    setPosts(postsData.posts);
-                } else {
-                    // No posts from followed users, fetch explore posts instead
-                    console.log("No posts from followed users, fetching explore posts");
-                    const explorePosts = await PostService.getNewHomePosts(0);
-                    console.log("Explore posts fetched:", explorePosts.posts);
-                    setPosts(explorePosts.posts);
-                }
-            } catch (error) {
-                console.error("Error fetching posts:", error);
-                setError("Failed to load posts. Please try again later.");
-            } finally {
-                setLoading(false);
+
+    const fetchPosts = async () => {
+        try {
+            setLoading(true);
+            const postsData = await PostService.getHomePosts();
+            console.log("Posts from following users:", postsData.posts);
+
+            // Check the fetched data directly instead of the state variable
+            if (postsData.posts && postsData.posts.length > 0) {
+                // We have posts from followed users, use them
+                setPosts(postsData.posts);
+            } else {
+                // No posts from followed users, fetch explore posts instead
+                console.log("No posts from followed users, fetching explore posts");
+                const explorePosts = await PostService.getNewHomePosts(0);
+                console.log("Explore posts fetched:", explorePosts.posts);
+                setPosts(explorePosts.posts);
             }
-        };
-        fetchPosts();
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            setError("Failed to load posts. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    }, [])
+    useEffect(() => {
+        console.log("HomePage location.state changed:", location.state);
+        if (location.state?.updatedPost) {
+            const updatedPost = location.state.updatedPost;
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post.id === updatedPost.id
+                        ? {
+                            ...post,
+                            likes: updatedPost.likes,
+                            likedByCurrentUser: updatedPost.likedByCurrentUser,
+                            commentsCount: updatedPost.commentsCount
+                        }
+                        : post
+                )
+            );
 
-
+            // Clear the location state to prevent multiple updates
+            navigate(location.pathname, { replace: true, state: {} });
+        } else {
+            fetchPosts();
+        }
+    }, [location.state])
 
     if (loading) {
-        return <div className={styles.loading}>Loading suggestions...</div>;
+        return <div className={styles.loading}>Loading homepage .....</div>;
     }
 
     if (error) {

@@ -299,7 +299,7 @@ public class PostService {
     }
 
     public List<PostDTO> getUserPostPage(int userId, int pageNo) {
-        final int pageSize = 20;
+        final int pageSize = 10;
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by("createdAt").descending());
         User user = new User();
         user.setId(userId);
@@ -335,14 +335,13 @@ public class PostService {
             throw new RuntimeException("User not found");
         }
 
-        // Check if the user already liked the post
         LikePost existingLike = likePostRepository.findByPostAndUser(post, user);
 
         if (existingLike != null) {
-            // User already liked the post, so unlike it
+
             likePostRepository.delete(existingLike);
         } else {
-            // User hasn't liked the post yet, so like it
+
             LikePost likePost = new LikePost();
             likePost.setPost(post);
             likePost.setUser(user);

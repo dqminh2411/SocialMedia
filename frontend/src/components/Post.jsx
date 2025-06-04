@@ -23,6 +23,10 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
 
     const [isLikedByUser, setIsLikedByUser] = useState(isLiked || false);
     const [likeCount, setLikeCount] = useState(likes || 0);
+    useEffect(() => {
+        setLikeCount(likes);
+        setIsLikedByUser(isLiked);
+    }, [likes, isLiked]);
 
     const handlePostClick = () => {
         // Navigate to the post detail with the current location as state
@@ -56,56 +60,17 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
         return url.toLowerCase().endsWith('.mp4') ||
             url.toLowerCase().endsWith('.mov') ||
             url.toLowerCase().endsWith('.webm');
-    };
-
-    // Add touch swipe functionality for mobile users
-    const handleTouchStart = React.useRef(null);
-    const handleTouchEnd = React.useRef(null);
-
-    useEffect(() => {
-        handleTouchStart.current = (e) => {
-            const touchStartX = e.touches[0].clientX;
-            handleTouchEnd.current = (e) => {
-                const touchEndX = e.changedTouches[0].clientX;
-                const diff = touchStartX - touchEndX;
-
-                // If the swipe is significant enough (more than 50px)
-                if (Math.abs(diff) > 50) {
-                    if (diff > 0) {
-                        // Swipe left -> next image
-                        if (currentMediaIndex < mediaItems.length - 1) {
-                            setCurrentMediaIndex(prevIndex => prevIndex + 1);
-                        }
-                    } else {
-                        // Swipe right -> previous image
-                        if (currentMediaIndex > 0) {
-                            setCurrentMediaIndex(prevIndex => prevIndex - 1);
-                        }
-                    }
-                }
-            };
-        };
-    }, [currentMediaIndex, mediaItems.length]);
+    };    // Mobile touch functionality has been removed
 
     const handleLikePost = async () => {
         try {
+            const newIsLikedByUser = !isLikedByUser
+            setIsLikedByUser(newIsLikedByUser);
+            setLikeCount(prevCount => newIsLikedByUser ? prevCount + 1 : prevCount - 1);
             await PostService.likePost(id);
 
-            // Optimistically update UI
-            setIsLikedByUser(!isLikedByUser);
-            setLikeCount(prevCount => isLikedByUser ? prevCount - 1 : prevCount + 1);
-
-            // Update post data
-            if (postData) {
-                setPostData({
-                    ...postData,
-                    likes: isLiked ? postData.likes - 1 : postData.likes + 1,
-                    likedByCurrentUser: !isLiked
-                });
-            }
         } catch (error) {
             console.error("Error liking post:", error);
-
         }
     };
     return (
@@ -117,11 +82,7 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
                         <div className={styles.userName}>{username}</div>
                     </div>
                 </Link>
-            </div>
-            <div className={styles.mediaContainer}
-                onTouchStart={(e) => handleTouchStart.current(e)}
-                onTouchEnd={(e) => handleTouchEnd.current(e)}
-            >
+            </div>            <div className={styles.mediaContainer}>
                 {mediaItems.length > 1 && currentMediaIndex > 0 && (
                     <button
                         className={`${styles.mediaNavButton} ${styles.prevButton}`}
@@ -187,7 +148,7 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
 
             </div>
 
-            <p>{likes} likes</p>
+            <p>{likeCount} likes</p>
             <p>
                 {content.length > 30 ?
                     <>

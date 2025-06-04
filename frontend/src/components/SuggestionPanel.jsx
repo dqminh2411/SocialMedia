@@ -64,7 +64,7 @@ const SuggestionPanel = () => {
         <div className={styles.suggestionsPanel}>
             <div className={styles.header}>
                 <h3>Suggested for you</h3>
-                <button className={styles.seeAllButton}>See All</button>
+
             </div>
             {suggestions.length === 0 ? (
                 <p className={styles.noSuggestions}>No suggestions available</p>
