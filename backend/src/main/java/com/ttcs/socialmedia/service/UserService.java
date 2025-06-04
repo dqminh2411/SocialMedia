@@ -97,20 +97,10 @@ public class UserService {
         return this.userRepository.findById(id);
     }
 
-    public void acceptFollowRequest(int followingUserId, int followedUserId) {
-        User followedUser = this.userRepository.findById(followedUserId);
-        User followingUser = this.userRepository.findById(followingUserId);
-        if (followedUser != null && followingUser != null) {
-            Follow follow = new Follow();
-            follow.setFollowedUser(followedUser);
-            follow.setFollowingUser(followingUser);
-            followRepository.save(follow);
-        }
-    }
-
     public Page<User> searchUsersByUsername(String username, int pageNo) {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return this.userRepository.findByUsernameContainingIgnoreCase(username, pageable);
     }
+
 }

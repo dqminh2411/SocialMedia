@@ -22,8 +22,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
         @Query("SELECT p FROM Post p WHERE NOT EXISTS " +
                         "(SELECT 1 FROM Follow f WHERE f.followingUser.id = :currentUserId " +
-                        "AND f.status = 'CONFIRMED') " +
+                        "AND f.status = 'CONFIRMED'" +
                         "AND p.creator.id != :currentUserId " +
+                        "AND p.creator.id = f.followedUser.id )" +
                         "ORDER BY FUNCTION('DATE', p.createdAt) DESC, p.likesCount DESC, p.commentsCount DESC")
         Page<Post> findPostsFromUnfollowedUsers(@Param("currentUserId") int currentUserId, Pageable pageable);
 

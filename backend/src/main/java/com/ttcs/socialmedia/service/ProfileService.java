@@ -7,6 +7,8 @@ import com.ttcs.socialmedia.domain.dto.ResProfileDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.ProfileRepository;
+import com.ttcs.socialmedia.util.constants.FollowStatus;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -88,8 +90,10 @@ public class ProfileService {
         resProfileDTO.setUserDTO(userService.userToUserDTO(user));
         resProfileDTO.setPosts(postService.getUserPostPage(user.getId(), 0));
         resProfileDTO.setTotalPostCount(postService.getPostCountByUser(user.getId()));
-        resProfileDTO.setTotalFollowingCount(followRepository.countByFollowingUser(user));
-        resProfileDTO.setTotalFollowerCount(followRepository.countByFollowedUser(user));
+        resProfileDTO
+                .setTotalFollowingCount(followRepository.countByFollowingUserAndStatus(user, FollowStatus.CONFIRMED));
+        resProfileDTO
+                .setTotalFollowerCount(followRepository.countByFollowedUserAndStatus(user, FollowStatus.CONFIRMED));
         return resProfileDTO;
     }
 

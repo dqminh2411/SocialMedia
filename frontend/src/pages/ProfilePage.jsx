@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams, Link } from 'react-router-dom';
 import styles from '../assets/css/ProfilePage.module.css';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
 import ProfileService from '../services/profile.service';
 import UserService from '../services/user.service.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faComment } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faComment, faSearch, faTimes, faUser, faUsers } from '@fortawesome/free-solid-svg-icons';
+import NotificationService from '../services/notification.service.jsx';
 
 const ProfilePage = () => {
     const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
@@ -16,6 +17,7 @@ const ProfilePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [user, setUser] = useState({
+        id: 0,
         username: '',
         fullName: '',
         bio: '',
@@ -36,15 +38,141 @@ const ProfilePage = () => {
     }); const [previewAvatar, setPreviewAvatar] = useState(null);
     const [updateLoading, setUpdateLoading] = useState(false);
     const [updateError, setUpdateError] = useState(null);
-    const [updateSuccess, setUpdateSuccess] = useState(false);
-    const [avatarLoading, setAvatarLoading] = useState(false);
+    const [updateSuccess, setUpdateSuccess] = useState(false); const [avatarLoading, setAvatarLoading] = useState(false);
+    const [followStatus, setFollowStatus] = useState('NOT_REQUESTED');
     const fileInputRef = useRef(null);
+
+    // States for followers/following modal
+    const [showFollowModal, setShowFollowModal] = useState(false);
+    const [modalType, setModalType] = useState(''); // 'followers' or 'following'
+    const [followUsers, setFollowUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [followLoading, setFollowLoading] = useState(false);
+
+    // Add pagination state variables
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalItems, setTotalItems] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+
+    const [searched, setSearched] = useState(false);
+
     useEffect(() => {
+        // Check if we're returning from a post deletion
+        if (location.state && location.state.postDeleted) {
+            console.log("Post was deleted, refreshing profile...");
+            fetchUserProfile();
+            // Clean up the location state to prevent multiple refreshes
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location.state]);
+
+    useEffect(() => {
+        // Log when the component is re-rendering due to location change
+        if (location.key) {
+            console.log("ProfilePage re-rendering due to navigation with key:", location.key);
+        }
+
         // Fetch user profile when component mounts
         if (currentUser && currentUser.user && currentUser.user.id) {
             fetchUserProfile();
+
         }
-    }, [username]);
+    }, [currentUser, username, location.key]);
+
+    const handleFollowClick = async () => {
+        if (!currentUser) return;
+        try {
+            await NotificationService.sendFollowRequest(user.id, currentUser.user.id);
+            setFollowStatus('PENDING');
+            alert("Follow request sent");
+        } catch (error) {
+            console.error("Error sending follow request:", error);
+        }
+    };
+
+    const handleOpenFollowModal = async (type) => {
+        setModalType(type);
+        setSearchQuery('');
+        setFollowLoading(true);
+        setShowFollowModal(true);
+        setCurrentPage(0); // Reset to first page when opening modal
+
+        try {
+            let response;
+            if (type === 'followers') {
+                response = await ProfileService.getUserFollowers(user.id);
+            } else if (type === 'following') {
+                response = await ProfileService.getUserFollowing(user.id);
+            }
+            setFollowUsers(response.users || []);
+            setTotalPages(response.totalPages || 0);
+            setCurrentPage(response.currentPage || 0);
+            setTotalItems(response.totalItems || 0);
+        } catch (error) {
+            console.error(`Error fetching ${type}:`, error);
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
+    // Handle searching in the followers/following modal
+    const handleFollowSearch = async () => {
+        setFollowLoading(true);
+        setCurrentPage(0); // Reset to first page when searching
+        setSearched(true);
+        try {
+            let response;
+            if (modalType === 'followers') {
+                response = await ProfileService.getUserFollowers(user.id, searchQuery, 0, pageSize);
+            } else if (modalType === 'following') {
+                response = await ProfileService.getUserFollowing(user.id, searchQuery, 0, pageSize);
+            }
+            setFollowUsers(response.users || []);
+            setTotalPages(response.totalPages || 0);
+            setCurrentPage(response.currentPage || 0);
+            setTotalItems(response.totalItems || 0);
+        } catch (error) {
+            console.error(`Error searching ${modalType}:`, error);
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
+    // Handle page change in pagination
+    const handlePageChange = async (newPage) => {
+        if (newPage < 0 || newPage >= totalPages) return;
+
+        setFollowLoading(true);
+        setCurrentPage(newPage);
+
+        try {
+            let response;
+            if (modalType === 'followers') {
+                response = await ProfileService.getUserFollowers(user.id, searchQuery, newPage, pageSize);
+            } else if (modalType === 'following') {
+                response = await ProfileService.getUserFollowing(user.id, searchQuery, newPage, pageSize);
+            }
+            setFollowUsers(response.users || []);
+            setTotalPages(response.totalPages || 0);
+            setCurrentPage(response.currentPage || 0);
+            setTotalItems(response.totalItems || 0);
+        } catch (error) {
+            console.error(`Error changing page:`, error);
+        } finally {
+            setFollowLoading(false);
+        }
+    };
+
+    const handleCloseFollowModal = () => {
+        setShowFollowModal(false);
+        setModalType('');
+        setFollowUsers([]);
+        setSearchQuery('');
+        setCurrentPage(0);
+        setTotalPages(0);
+        setTotalItems(0);
+    };
 
     const fetchUserProfile = async () => {
         // if (!currentUser || !currentUser.user.id) {
@@ -60,9 +188,12 @@ const ProfilePage = () => {
         }
         try {
             const profileData = await ProfileService.getUserProfileByUsername(profileUsername);
+            const follow = await ProfileService.checkFollowStatus(currentUser.user.id, profileData.userDTO.id);
+            setFollowStatus(follow.followStatus);
             console.log('Profile data received:', profileData);
 
             setUser({
+                id: profileData.userDTO.id || 0,
                 username: profileData.userDTO.username || 'User',
                 fullName: profileData.userDTO.fullname || '',
                 bio: profileData.bio || '',
@@ -283,15 +414,20 @@ const ProfilePage = () => {
                                 <img src={user.avatar} alt={user.username} />
                             </div>
                             <div className={styles.profileInfo}>
-                                <h1>{user.username}</h1>
-                                <div className={styles.stats}>
+                                <h1>{user.username}</h1>                                <div className={styles.stats}>
                                     <div className={styles.stat}>
                                         <span className={styles.statNumber}>{user.postsCount}</span> posts
                                     </div>
-                                    <div className={styles.stat}>
+                                    <div
+                                        className={`${styles.stat} ${styles.clickable}`}
+                                        onClick={() => handleOpenFollowModal('followers')}
+                                    >
                                         <span className={styles.statNumber}>{user.followersCount}</span> followers
                                     </div>
-                                    <div className={styles.stat}>
+                                    <div
+                                        className={`${styles.stat} ${styles.clickable}`}
+                                        onClick={() => handleOpenFollowModal('following')}
+                                    >
                                         <span className={styles.statNumber}>{user.followingCount}</span> following
                                     </div>
                                 </div>
@@ -311,8 +447,11 @@ const ProfilePage = () => {
                                 ) : (
                                     // Show Follow/Message button for other users
                                     <div className={styles.profileActions}>
-                                        <button className={styles.followBtn}>
-                                            Follow
+                                        <button
+                                            className={styles.followBtn}
+                                            onClick={followStatus === 'NOT_REQUESTED' ? handleFollowClick : undefined}
+                                        >
+                                            {followStatus === 'NOT_REQUESTED' ? 'Follow' : followStatus === 'PENDING' ? 'Requested' : 'Followed'}
                                         </button>
                                         {/* <button 
                                             className={styles.messageBtn}
@@ -344,7 +483,9 @@ const ProfilePage = () => {
                             >
                                 Tagged
                             </button>
-                        </div>                        {activeTab === 'posts' && (
+                        </div>
+
+                        {activeTab === 'posts' && (
                             <div className={styles.postsGrid}>
                                 {posts && posts.length > 0 ? (
                                     posts.map(post => (
@@ -470,7 +611,88 @@ const ProfilePage = () => {
                                     {updateLoading ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
-                        </form>
+                        </form>                    </div>
+                </div>
+            )}
+
+            {/* Followers/Following Modal */}
+            {showFollowModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <div className={styles.modalHeader}>
+                            <h2>{modalType === 'followers' ? 'Followers' : 'Following'}</h2>
+                            <button className={styles.closeButton} onClick={handleCloseFollowModal}>×</button>
+                        </div>
+
+                        <div className={styles.searchContainer}>
+                            <input
+                                type="text"
+                                placeholder={`Search ${modalType}...`}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                            <button
+                                className={styles.searchButton}
+                                onClick={handleFollowSearch}
+                                disabled={followLoading}
+                            >
+                                <FontAwesomeIcon icon={faSearch} />
+                            </button>
+                        </div>
+
+                        <div className={styles.followList}>
+                            {followLoading ? (
+                                <div className={styles.loadingSpinner}>Loading...</div>
+                            ) : followUsers.length > 0 ? (
+                                followUsers.map(user => (
+                                    <Link
+                                        key={user.id}
+                                        to={`/profile/un/${user.username}`}
+                                        className={styles.followItem}
+                                        onClick={handleCloseFollowModal}
+                                    >
+                                        <div className={styles.followAvatar}>
+                                            <img
+                                                src={UserService.getAvatarUrl(user.avatar)}
+                                                alt={user.username}
+                                            />
+                                        </div>
+                                        <div className={styles.followInfo}>
+                                            <span className={styles.followUsername}>{user.username}</span>
+                                            <span className={styles.followName}>{user.fullname}</span>
+                                        </div>
+                                    </Link>
+                                ))
+                            ) : (
+                                <div className={styles.noResults}>
+                                    {searched ? "No results" : modalType === 'followers' ? 'No followers found' : 'Not following anyone'}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Pagination controls */}
+                        {totalPages > 0 && (
+                            <div className={styles.pagination}>
+                                <button
+                                    className={styles.pageButton}
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 0 || followLoading}
+                                >
+                                    Previous
+                                </button>
+                                <span className={styles.pageInfo}>
+                                    Page {currentPage + 1} of {totalPages}
+                                </span>
+                                <button
+                                    className={styles.pageButton}
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage + 1 === totalPages || followLoading}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

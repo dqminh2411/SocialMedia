@@ -24,9 +24,6 @@ class PostService {
             mediaFiles.forEach(file => {
                 formData.append('media', file);
             });
-        } else {
-            // If no media is selected, add an empty array to avoid backend error
-            formData.append('media', new Blob(), '');
         }
 
         return axios.post(
@@ -64,9 +61,6 @@ class PostService {
             mediaFiles.forEach(file => {
                 formData.append('media', file);
             });
-        } else {
-            // If no media is selected, add an empty array to avoid backend error
-            formData.append('media', new Blob(), '');
         }
 
         // Add media to delete if any
@@ -178,6 +172,17 @@ class PostService {
         )
             .then(response => {
                 return response.data.data;
+            });
+    }
+
+    // Delete a post
+    deletePost(postId) {
+        return axios.delete(
+            API_URL + 'posts/' + postId,
+            { headers: authHeader() }
+        )
+            .then(response => {
+                return response.data;
             });
     }
 }

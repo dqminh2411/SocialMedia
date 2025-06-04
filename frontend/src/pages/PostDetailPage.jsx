@@ -10,7 +10,7 @@ import { formatDistanceToNow } from "date-fns";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
-import { faChevronLeft, faChevronRight, faCircle, faReply, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faChevronRight, faCircle, faReply, faTrash, faEdit, faPencilAlt, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 
 const PostDetailPage = () => {
     const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
@@ -240,6 +240,39 @@ const PostDetailPage = () => {
         } catch (error) {
             console.error("Error deleting comment:", error);
         }
+    };    // Handle post deletion
+    const handleDeletePost = async () => {
+        if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            await PostService.deletePost(postId);
+            // Show success message
+            alert("Post deleted successfully");
+
+            // For modal view, first navigate back
+            if (background) {
+                // Use the state object to indicate a refresh is needed
+                navigate('/profile', {
+                    state: {
+                        postDeleted: true,
+                        deletedPostId: postId
+                    }
+                });
+            } else {
+                // Direct navigation to profile with replace to force refresh
+                navigate('/profile', { replace: true });
+            }
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            alert("Failed to delete post. Please try again.");
+        }
+    };
+
+    // Handle post editing - navigate to edit page
+    const handleEditPost = () => {
+        navigate(`/create?edit=${postId}`);
     };
 
     // Close the popup when clicking outside the post card
@@ -339,81 +372,106 @@ const PostDetailPage = () => {
                     <button onClick={() => navigate(-1)}>Go Back</button>
                 </div>
             ) : postData && (
-                <div className={styles["post-container"]}>
-                    <div className={styles["post-card"]}>
-                        {/* Close button - only show in modal view */}
+                <div className={styles["post-container"]}>                    <div className={styles["post-card"]}>
+                    {/* Close button and post action buttons */}
+                    <div className={styles["post-actions-top"]}>
                         {background && (
                             <button className={styles["close-button"]} onClick={() => navigate(-1)}>×</button>
-                        )}                        {/* Left side - Image or media */}
-                        <div className={styles["post-image"]}>
-                            <div className={`${styles["image-container"]} ${isImageLoaded ? styles["loaded"] : styles["loading"]}`}>
-                                {postData.media && postData.media.length > 0 ? (
-                                    <>
-                                        {/* Show navigation arrows only if there are multiple media items */}
-                                        {postData.media.length > 1 && (
-                                            <>
-                                                <button
-                                                    className={additionalStyles["media-nav-button"]}
-                                                    onClick={goToPrevMedia}
-                                                    aria-label="Previous media"
-                                                >
-                                                    <FontAwesomeIcon icon={faChevronLeft} />
-                                                </button>
-                                                <button
-                                                    className={additionalStyles["media-nav-button"]}
-                                                    onClick={goToNextMedia}
-                                                    aria-label="Next media"
-                                                >
-                                                    <FontAwesomeIcon icon={faChevronRight} />
-                                                </button>
-                                            </>
-                                        )}
+                        )}
 
-                                        {/* Display current media - image or video */}
-                                        {postData.media[currentMediaIndex].fileName.match(/\.(mp4|webm|ogg)$/i) ? (
-                                            <video
-                                                src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
-                                                controls
-                                                className={additionalStyles["media-content"]}
-                                                onLoadedData={() => setIsImageLoaded(true)}
-                                            />
-                                        ) : (
-                                            <img
-                                                src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
-                                                alt={`Post media ${currentMediaIndex + 1}`}
-                                                className={additionalStyles["media-content"]}
-                                                onLoad={() => setIsImageLoaded(true)}
-                                            />
-                                        )}
-
-                                        {/* Media dots indicator */}
-                                        {postData.media.length > 1 && (
-                                            <div className={additionalStyles["media-dots"]}>
-                                                {postData.media.map((_, index) => (
-                                                    <span
-                                                        key={index}
-                                                        className={`${additionalStyles["media-dot"]} ${index === currentMediaIndex ? additionalStyles["active"] : ""}`}
-                                                        onClick={() => {
-                                                            setIsImageLoaded(false);
-                                                            setCurrentMediaIndex(index);
-                                                        }}
-                                                    >
-                                                        <FontAwesomeIcon icon={faCircle} size="xs" />
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className={additionalStyles["no-media"]}>No media</div>
-                                )}
-                                {!isImageLoaded && <div className={styles["loading-spinner"]}></div>}
+                        {/* Only show edit and delete buttons if the current user is the post creator */}
+                        {currentUser && postData?.creator?.email === currentUser.email && (
+                            <div className={additionalStyles["post-owner-actions"]}>
+                                <button
+                                    className={additionalStyles["post-edit-btn"]}
+                                    onClick={handleEditPost}
+                                    title="Edit post"
+                                >
+                                    <FontAwesomeIcon icon={faPencilAlt} />
+                                </button>
+                                <button
+                                    className={additionalStyles["post-delete-btn"]}
+                                    onClick={handleDeletePost}
+                                    title="Delete post"
+                                >
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
                             </div>
-                        </div>
+                        )}
+                    </div>
 
-                        {/* Right side - Content */}
-                        <div className={styles["post-content"]}>
-                            <div className={styles["post-header"]}>                                <img
+                    {/* Left side - Image or media */}
+                    <div className={styles["post-image"]}>
+                        <div className={`${styles["image-container"]} ${isImageLoaded ? styles["loaded"] : styles["loading"]}`}>
+                            {postData.media && postData.media.length > 0 ? (
+                                <>
+                                    {/* Show navigation arrows only if there are multiple media items */}
+                                    {postData.media.length > 1 && (
+                                        <>
+                                            <button
+                                                className={additionalStyles["media-nav-button"]}
+                                                onClick={goToPrevMedia}
+                                                aria-label="Previous media"
+                                            >
+                                                <FontAwesomeIcon icon={faChevronLeft} />
+                                            </button>
+                                            <button
+                                                className={additionalStyles["media-nav-button"]}
+                                                onClick={goToNextMedia}
+                                                aria-label="Next media"
+                                            >
+                                                <FontAwesomeIcon icon={faChevronRight} />
+                                            </button>
+                                        </>
+                                    )}
+
+                                    {/* Display current media - image or video */}
+                                    {postData.media[currentMediaIndex].fileName.match(/\.(mp4|webm|ogg)$/i) ? (
+                                        <video
+                                            src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
+                                            controls
+                                            className={additionalStyles["media-content"]}
+                                            onLoadedData={() => setIsImageLoaded(true)}
+                                        />
+                                    ) : (
+                                        <img
+                                            src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
+                                            alt={`Post media ${currentMediaIndex + 1}`}
+                                            className={additionalStyles["media-content"]}
+                                            onLoad={() => setIsImageLoaded(true)}
+                                        />
+                                    )}
+
+                                    {/* Media dots indicator */}
+                                    {postData.media.length > 1 && (
+                                        <div className={additionalStyles["media-dots"]}>
+                                            {postData.media.map((_, index) => (
+                                                <span
+                                                    key={index}
+                                                    className={`${additionalStyles["media-dot"]} ${index === currentMediaIndex ? additionalStyles["active"] : ""}`}
+                                                    onClick={() => {
+                                                        setIsImageLoaded(false);
+                                                        setCurrentMediaIndex(index);
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faCircle} size="xs" />
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className={additionalStyles["no-media"]}>No media</div>
+                            )}
+                            {!isImageLoaded && <div className={styles["loading-spinner"]}></div>}
+                        </div>
+                    </div>
+
+                    {/* Right side - Content */}
+                    <div className={styles["post-content"]}>
+                        <div className={styles["post-header"]}>
+
+                            <img
                                 src={postData.creator.avatar ? AVATAR_URL + postData.creator.avatar : AVATAR_URL + DEFAULT_AVATAR}
                                 alt="avatar"
                                 className={styles["avatar"]}
@@ -421,260 +479,262 @@ const PostDetailPage = () => {
                                     e.target.src = AVATAR_URL + DEFAULT_AVATAR;
                                 }}
                             />
-                                <Link to={`/profile/un/${postData.creator.username}`} className={styles.userLink}>
-                                    <div className={styles.userInfo}>
-                                        <div className={styles.userName}>{postData.creator.username}</div>
-                                    </div>
-                                </Link>
-                            </div>
-                            <div>
-                                <hr className={styles["line"]} />
-                            </div>                            <div className={styles["post-body"]}>
-                                <div
-                                    dangerouslySetInnerHTML={{ __html: postData.content }}
-                                    className={additionalStyles["post-content-html"]}
-                                />
-                            </div>
-                            <div className={styles["post-footer"]}>
-                                <div className={styles["like-section"]}>
-                                    <button
-                                        className={additionalStyles["like-button"]}
-                                        onClick={handleLikePost}
-                                        aria-label={isLiked ? "Unlike this post" : "Like this post"}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={isLiked ? solidHeart : regularHeart}
-                                            className={isLiked ? additionalStyles["liked"] : additionalStyles["not-liked"]}
-                                        />
-                                    </button>
+                            <Link to={`/profile/un/${postData.creator.username}`} className={styles.userLink}>
+                                <div className={styles.userInfo}>
+                                    <div className={styles.userName}>{postData.creator.username}</div>
                                 </div>
-                                <div className={styles["stats"]}>
-                                    <span className={styles["likes"]}>{likeCount} likes</span>
-                                    <span className={styles["time"]}>{postData.createdAt}</span>
-                                </div>                                <div className={styles["comments-section"]}>
-                                    <h3 className={additionalStyles["comments-heading"]}>Comments</h3>
+                            </Link>
+                        </div>
+                        <div>
+                            <hr className={styles["line"]} />
+                        </div>                            <div className={styles["post-body"]}>
+                            <div
+                                dangerouslySetInnerHTML={{ __html: postData.content }}
+                                className={additionalStyles["post-content-html"]}
+                            />
+                        </div>
+                        <div className={styles["post-footer"]}>
+                            <div className={styles["like-section"]}>
+                                <button
+                                    className={additionalStyles["like-button"]}
+                                    onClick={handleLikePost}
+                                    aria-label={isLiked ? "Unlike this post" : "Like this post"}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={isLiked ? solidHeart : regularHeart}
+                                        className={isLiked ? additionalStyles["liked"] : additionalStyles["not-liked"]}
+                                    />
+                                </button>
+                            </div>
+                            <div className={styles["stats"]}>
+                                <span className={styles["likes"]}>{likeCount} likes</span>
+                                <span className={styles["time"]}>{postData.createdAt}</span>
+                            </div>
 
-                                    {Array.isArray(comments) && comments.length > 0 ? (
-                                        <div className={additionalStyles["comments-list"]}>                                            {comments.map(comment => comment && (
-                                            <div
-                                                key={comment.id}
-                                                className={`${additionalStyles["comment-item"]} ${comment.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
-                                            >
-                                                {/* Comment content - unchanged */}
-                                                <div className={additionalStyles["comment-header"]}>
-                                                    <img
-                                                        src={comment.userDTO?.avatar ? AVATAR_URL + comment.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
-                                                        alt={comment.userDTO?.username}
-                                                        className={additionalStyles["comment-avatar"]}
-                                                        onError={(e) => {
-                                                            e.target.src = AVATAR_URL + DEFAULT_AVATAR;
-                                                        }}
-                                                    />
-                                                    <span className={additionalStyles["comment-username"]}>{comment.userDTO.username}</span>
-                                                </div>
+                            <div className={styles["comments-section"]}>
+                                <h3 className={additionalStyles["comments-heading"]}>Comments</h3>
 
-                                                <div className={additionalStyles["comment-content"]}>
-                                                    {editingComment === comment.id ? (
-                                                        <div className={additionalStyles["comment-edit-form"]}>
-                                                            <textarea
-                                                                value={editText}
-                                                                onChange={(e) => setEditText(e.target.value)}
-                                                                className={additionalStyles["comment-edit-input"]}
-                                                            />
-                                                            <div className={additionalStyles["comment-edit-actions"]}>
-                                                                <button
-                                                                    onClick={handleUpdateComment}
-                                                                    className={additionalStyles["edit-save-btn"]}
-                                                                >
-                                                                    Save
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => setEditingComment(null)}
-                                                                    className={additionalStyles["edit-cancel-btn"]}
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <div
-                                                            dangerouslySetInnerHTML={{ __html: comment.content }}
-
-                                                        />
-                                                    )}
-                                                </div>
-
-                                                <div className={additionalStyles["comment-actions"]}>
-                                                    <button
-                                                        onClick={() => handleLikeComment(comment.id)}
-                                                        className={additionalStyles["comment-like-btn"]}
-                                                        aria-label={comment.likedByCurrentUser ? "Unlike comment" : "Like comment"}
-                                                    >
-                                                        <FontAwesomeIcon
-                                                            icon={comment.likedByCurrentUser ? solidHeart : regularHeart}
-                                                            className={comment.likedByCurrentUser ? additionalStyles["comment-liked"] : ""}
-                                                        />
-                                                        <span>{comment.likes}</span>
-                                                    </button>
-
-                                                    <button
-                                                        onClick={() => {
-                                                            setReplyingTo(comment.id);
-                                                            setTimeout(() => commentRef.current?.focus(), 0);
-                                                        }}
-                                                        className={additionalStyles["comment-reply-btn"]}
-                                                    >
-                                                        <FontAwesomeIcon icon={faReply} />                                                            <span>Reply</span>
-                                                    </button>
-
-                                                    {/* Show edit/delete buttons if user is the comment owner or post creator */}
-                                                    {(comment.userDTO?.email === currentUser?.email || comment.userDTO?.email === postData?.creator?.email) && (
-                                                        <>
-                                                            <button
-                                                                onClick={() => startEditComment(comment)}
-                                                                className={additionalStyles["comment-edit-btn"]}
-                                                            >
-                                                                <FontAwesomeIcon icon={faEdit} />
-                                                                <span>Edit</span>
-                                                            </button>
-
-                                                            <button
-                                                                onClick={() => handleDeleteComment(comment.id)}
-                                                                className={additionalStyles["comment-delete-btn"]}
-                                                            >
-                                                                <FontAwesomeIcon icon={faTrash} />
-                                                                <span>Delete</span>
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </div>
-
-                                                {/* Show time */}
-                                                <div className={additionalStyles["comment-time"]}>
-                                                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                                                </div>
-
-                                                {/* Replies section */}
-                                                {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && showReplies[comment.id] && (<div className={additionalStyles["replies-container"]}>
-                                                    {comment.replies.map(reply => reply && (
-                                                        <div
-                                                            key={reply.id}
-                                                            className={`${additionalStyles["reply-item"]} ${reply.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
-                                                        >
-                                                            <div className={additionalStyles["comment-header"]}>
-                                                                <img src={reply.userDTO?.avatar ? AVATAR_URL + reply.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
-                                                                    alt={reply.userDTO?.username || "User"}
-                                                                    className={additionalStyles["comment-avatar"]}
-                                                                    onError={(e) => {
-                                                                        e.target.src = AVATAR_URL + DEFAULT_AVATAR;
-                                                                    }}
-                                                                />
-                                                                <span className={additionalStyles["comment-username"]}>{reply.userDTO?.username || "Unknown User"}</span>
-                                                            </div>
-                                                            <div className={additionalStyles["comment-content"]}>
-                                                                <p>{reply.content}</p>
-                                                            </div>
-                                                            <div className={additionalStyles["comment-actions"]}>
-                                                                <button
-                                                                    onClick={() => handleLikeComment(reply.id)}
-                                                                    className={additionalStyles["comment-like-btn"]}
-                                                                >
-                                                                    <FontAwesomeIcon
-                                                                        icon={reply.likedByCurrentUser ? solidHeart : regularHeart}
-                                                                        className={reply.likedByCurrentUser ? additionalStyles["comment-liked"] : ""}
-                                                                    />                                                                            <span>{reply.likes}</span>
-                                                                </button>
-
-                                                                {/* Show edit/delete buttons for replies too */}
-                                                                {(reply.userDTO?.email === currentUser?.email || reply.userDTO?.email === postData?.creator?.email) && (
-                                                                    <>
-                                                                        <button
-                                                                            onClick={() => startEditComment(reply)}
-                                                                            className={additionalStyles["comment-edit-btn"]}
-                                                                        >
-                                                                            <FontAwesomeIcon icon={faEdit} />
-                                                                            <span>Edit</span>
-                                                                        </button>
-
-                                                                        <button
-                                                                            onClick={() => handleDeleteComment(reply.id)}
-                                                                            className={additionalStyles["comment-delete-btn"]}
-                                                                        >
-                                                                            <FontAwesomeIcon icon={faTrash} />
-                                                                            <span>Delete</span>
-                                                                        </button>
-                                                                    </>
-                                                                )}
-                                                            </div>
-                                                            <div className={additionalStyles["comment-time"]}>
-                                                                {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                )}
-
-                                                {/* Toggle replies button */}
-                                                {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
-                                                    <button
-                                                        onClick={() => toggleReplies(comment.id)}
-                                                        className={additionalStyles["toggle-replies-btn"]}
-                                                    >
-                                                        {showReplies[comment.id] ? "Hide replies" : `Show ${comment.replies.length} replies`}
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-
-                                            {/* Load more comments button */}
-                                            {comments.length >= 20 * currentPage && (
-                                                <button
-                                                    onClick={loadMoreComments}
-                                                    className={additionalStyles["load-more-btn"]}
-                                                    disabled={loadingComments}
-                                                >
-                                                    {loadingComments ? "Loading..." : "Load more comments"}
-                                                </button>
-                                            )}                                        </div>
-                                    ) : (
-                                        <p className={additionalStyles["no-comments"]}>No comments yet. Be the first to comment!</p>
-                                    )}
-                                </div>
-
-                                {/* Comment input area - moved outside the scrollable area */}                                <div className={additionalStyles["comment-form-container"]}>
-                                    <div className={additionalStyles["comment-form"]}>
-                                        {replyingTo ? (
-                                            <div className={additionalStyles["reply-header"]}>
-                                                <span>Replying to comment</span>
-                                                <button
-                                                    onClick={() => setReplyingTo(null)}
-                                                    className={additionalStyles["cancel-reply-btn"]}
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        ) : null}
-
-                                        <textarea
-                                            ref={commentRef}
-                                            value={replyingTo ? replyText : commentText}
-                                            onChange={(e) => replyingTo ? setReplyText(e.target.value) : setCommentText(e.target.value)}
-                                            placeholder={replyingTo ? "Write a reply..." : "Add a comment..."}
-                                            className={additionalStyles["comment-input"]}
-                                        />
-
-                                        <button
-                                            onClick={replyingTo ? handleReplyComment : handlePostComment}
-                                            className={additionalStyles["post-comment-btn"]}
-                                            disabled={replyingTo ? !replyText.trim() : !commentText.trim()}
+                                {Array.isArray(comments) && comments.length > 0 ? (
+                                    <div className={additionalStyles["comments-list"]}>                                            {comments.map(comment => comment && (
+                                        <div
+                                            key={comment.id}
+                                            className={`${additionalStyles["comment-item"]} ${comment.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
                                         >
-                                            {replyingTo ? "Reply" : "Post"}
-                                        </button>
-                                    </div>
+                                            {/* Comment content - unchanged */}
+                                            <div className={additionalStyles["comment-header"]}>
+                                                <img
+                                                    src={comment.userDTO?.avatar ? AVATAR_URL + comment.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
+                                                    alt={comment.userDTO?.username}
+                                                    className={additionalStyles["comment-avatar"]}
+                                                    onError={(e) => {
+                                                        e.target.src = AVATAR_URL + DEFAULT_AVATAR;
+                                                    }}
+                                                />
+                                                <span className={additionalStyles["comment-username"]}>{comment.userDTO.username}</span>
+                                            </div>
+
+                                            <div className={additionalStyles["comment-content"]}>
+                                                {editingComment === comment.id ? (
+                                                    <div className={additionalStyles["comment-edit-form"]}>
+                                                        <textarea
+                                                            value={editText}
+                                                            onChange={(e) => setEditText(e.target.value)}
+                                                            className={additionalStyles["comment-edit-input"]}
+                                                        />
+                                                        <div className={additionalStyles["comment-edit-actions"]}>
+                                                            <button
+                                                                onClick={handleUpdateComment}
+                                                                className={additionalStyles["edit-save-btn"]}
+                                                            >
+                                                                Save
+                                                            </button>
+                                                            <button
+                                                                onClick={() => setEditingComment(null)}
+                                                                className={additionalStyles["edit-cancel-btn"]}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        dangerouslySetInnerHTML={{ __html: comment.content }}
+
+                                                    />
+                                                )}
+                                            </div>
+
+                                            <div className={additionalStyles["comment-actions"]}>
+                                                <button
+                                                    onClick={() => handleLikeComment(comment.id)}
+                                                    className={additionalStyles["comment-like-btn"]}
+                                                    aria-label={comment.likedByCurrentUser ? "Unlike comment" : "Like comment"}
+                                                >
+                                                    <FontAwesomeIcon
+                                                        icon={comment.likedByCurrentUser ? solidHeart : regularHeart}
+                                                        className={comment.likedByCurrentUser ? additionalStyles["comment-liked"] : ""}
+                                                    />
+                                                    <span>{comment.likes}</span>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        setReplyingTo(comment.id);
+                                                        setTimeout(() => commentRef.current?.focus(), 0);
+                                                    }}
+                                                    className={additionalStyles["comment-reply-btn"]}
+                                                >
+                                                    <FontAwesomeIcon icon={faReply} />                                                            <span>Reply</span>
+                                                </button>
+
+                                                {/* Show edit/delete buttons if user is the comment owner or post creator */}
+                                                {(comment.userDTO?.email === currentUser?.email || comment.userDTO?.email === postData?.creator?.email) && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => startEditComment(comment)}
+                                                            className={additionalStyles["comment-edit-btn"]}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEdit} />
+                                                            <span>Edit</span>
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() => handleDeleteComment(comment.id)}
+                                                            className={additionalStyles["comment-delete-btn"]}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrash} />
+                                                            <span>Delete</span>
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {/* Show time */}
+                                            <div className={additionalStyles["comment-time"]}>
+                                                {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                                            </div>
+
+                                            {/* Replies section */}
+                                            {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && showReplies[comment.id] && (<div className={additionalStyles["replies-container"]}>
+                                                {comment.replies.map(reply => reply && (
+                                                    <div
+                                                        key={reply.id}
+                                                        className={`${additionalStyles["reply-item"]} ${reply.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
+                                                    >
+                                                        <div className={additionalStyles["comment-header"]}>
+                                                            <img src={reply.userDTO?.avatar ? AVATAR_URL + reply.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
+                                                                alt={reply.userDTO?.username || "User"}
+                                                                className={additionalStyles["comment-avatar"]}
+                                                                onError={(e) => {
+                                                                    e.target.src = AVATAR_URL + DEFAULT_AVATAR;
+                                                                }}
+                                                            />
+                                                            <span className={additionalStyles["comment-username"]}>{reply.userDTO?.username || "Unknown User"}</span>
+                                                        </div>
+                                                        <div className={additionalStyles["comment-content"]}>
+                                                            <p>{reply.content}</p>
+                                                        </div>
+                                                        <div className={additionalStyles["comment-actions"]}>
+                                                            <button
+                                                                onClick={() => handleLikeComment(reply.id)}
+                                                                className={additionalStyles["comment-like-btn"]}
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    icon={reply.likedByCurrentUser ? solidHeart : regularHeart}
+                                                                    className={reply.likedByCurrentUser ? additionalStyles["comment-liked"] : ""}
+                                                                />                                                                            <span>{reply.likes}</span>
+                                                            </button>
+
+                                                            {/* Show edit/delete buttons for replies too */}
+                                                            {(reply.userDTO?.email === currentUser?.email || reply.userDTO?.email === postData?.creator?.email) && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => startEditComment(reply)}
+                                                                        className={additionalStyles["comment-edit-btn"]}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faEdit} />
+                                                                        <span>Edit</span>
+                                                                    </button>
+
+                                                                    <button
+                                                                        onClick={() => handleDeleteComment(reply.id)}
+                                                                        className={additionalStyles["comment-delete-btn"]}
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faTrash} />
+                                                                        <span>Delete</span>
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                        <div className={additionalStyles["comment-time"]}>
+                                                            {formatDistanceToNow(new Date(reply.createdAt), { addSuffix: true })}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            )}
+
+                                            {/* Toggle replies button */}
+                                            {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
+                                                <button
+                                                    onClick={() => toggleReplies(comment.id)}
+                                                    className={additionalStyles["toggle-replies-btn"]}
+                                                >
+                                                    {showReplies[comment.id] ? "Hide replies" : `Show ${comment.replies.length} replies`}
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+
+                                        {/* Load more comments button */}
+                                        {comments.length >= 20 * currentPage && (
+                                            <button
+                                                onClick={loadMoreComments}
+                                                className={additionalStyles["load-more-btn"]}
+                                                disabled={loadingComments}
+                                            >
+                                                {loadingComments ? "Loading..." : "Load more comments"}
+                                            </button>
+                                        )}                                        </div>
+                                ) : (
+                                    <p className={additionalStyles["no-comments"]}>No comments yet. Be the first to comment!</p>
+                                )}
+                            </div>
+
+                            {/* Comment input area - moved outside the scrollable area */}                                <div className={additionalStyles["comment-form-container"]}>
+                                <div className={additionalStyles["comment-form"]}>
+                                    {replyingTo ? (
+                                        <div className={additionalStyles["reply-header"]}>
+                                            <span>Replying to comment</span>
+                                            <button
+                                                onClick={() => setReplyingTo(null)}
+                                                className={additionalStyles["cancel-reply-btn"]}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : null}
+
+                                    <textarea
+                                        ref={commentRef}
+                                        value={replyingTo ? replyText : commentText}
+                                        onChange={(e) => replyingTo ? setReplyText(e.target.value) : setCommentText(e.target.value)}
+                                        placeholder={replyingTo ? "Write a reply..." : "Add a comment..."}
+                                        className={additionalStyles["comment-input"]}
+                                    />
+
+                                    <button
+                                        onClick={replyingTo ? handleReplyComment : handlePostComment}
+                                        className={additionalStyles["post-comment-btn"]}
+                                        disabled={replyingTo ? !replyText.trim() : !commentText.trim()}
+                                    >
+                                        {replyingTo ? "Reply" : "Post"}
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
                 </div>
             )}

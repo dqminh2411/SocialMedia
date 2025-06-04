@@ -130,6 +130,9 @@ public class PostService {
         if (post == null) {
             throw new RuntimeException("Post not found");
         }
+        if (mediasToDeleteJson == null) {
+            mediasToDeleteJson = "[]"; // default to empty list if null
+        }
         List<String> mediasToDelete = objectMapper.readValue(mediasToDeleteJson, new TypeReference<List<String>>() {
         });
         // convert postJson to newPostDto
@@ -157,13 +160,16 @@ public class PostService {
         }
 
         // insert new medias
-        for (MultipartFile media : newMedias) {
-            PostMedia postMedia = new PostMedia();
-            postMedia.setPost(post);
-            postMedia.setFileName(fileService.save(media, "posts"));
-            postMedia.setPosition(i++);
-            postMediaRepository.save(postMedia);
+        if (newMedias != null && newMedias.size() > 0) {
+            for (MultipartFile media : newMedias) {
+                PostMedia postMedia = new PostMedia();
+                postMedia.setPost(post);
+                postMedia.setFileName(fileService.save(media, "posts"));
+                postMedia.setPosition(i++);
+                postMediaRepository.save(postMedia);
+            }
         }
+
         // update mentions
         Set<String> newMentions = new HashSet<>(newPostDTO.getMentions());
         for (PostMentions postMention : post.getPostMentions()) {
@@ -210,6 +216,25 @@ public class PostService {
         // return updated post
         post = postRepository.save(post);
         return postToDTO(post);
+    }
+
+    public void deletePost(int postId) throws URISyntaxException, IOException {
+        Post post = postRepository.findById(postId);
+        if (post == null) {
+            throw new RuntimeException("Post not found");
+        }
+        // Delete media files
+        List<PostMedia> postMedias = postMediaRepository.findByPost(post);
+        for (PostMedia postMedia : postMedias) {
+            fileService.deleteFile(postMedia.getFileName(), "posts");
+            postMediaRepository.delete(postMedia);
+        }
+        // Delete post hashtags
+        for (PostHashtags postHashtag : post.getPostHashtags()) {
+            postHashtagsRepository.delete(postHashtag);
+        }
+        // Delete post
+        postRepository.delete(post);
     }
 
     public PostDTO postToDTO(Post post) {

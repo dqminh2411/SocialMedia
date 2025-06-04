@@ -11,7 +11,7 @@ import { set } from 'date-fns';
 
 const HomePage = () => {
     // Sample post data - in a real app, this would come from an API
-    const [posts, setPosts] = React.useState([]);
+    const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     let testPosts = [];
@@ -21,36 +21,25 @@ const HomePage = () => {
             try {
                 setLoading(true);
                 const postsData = await PostService.getHomePosts();
-
-                testPosts = postsData.posts;
-                setPosts(postsData.posts);
-                console.log("this is post: ")
-                console.log(posts)
-                console.log("Posts fetched successfully: follow", postsData.posts);
-                if (posts.length === 0) {
-                    try {
-                        setLoading(true);
-                        const explorePosts = await PostService.getNewHomePosts(0);
-                        testPosts = explorePosts;
-                        setPosts(explorePosts.posts);
-                        console.log(testPosts)
-                        console.log("Explore posts fetched successfully:", explorePosts);
-                    } catch (error) {
-                        console.error("Error fetching explore posts:", error);
-                        setError("Failed to load explore posts. Please try again later.");
-                    } finally {
-                        setLoading(false);
-                    }
+                console.log("Posts from following users:", postsData.posts);
+                
+                // Check the fetched data directly instead of the state variable
+                if (postsData.posts && postsData.posts.length > 0) {
+                    // We have posts from followed users, use them
+                    setPosts(postsData.posts);
+                } else {
+                    // No posts from followed users, fetch explore posts instead
+                    console.log("No posts from followed users, fetching explore posts");
+                    const explorePosts = await PostService.getNewHomePosts(0);
+                    console.log("Explore posts fetched:", explorePosts.posts);
+                    setPosts(explorePosts.posts);
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 console.error("Error fetching posts:", error);
                 setError("Failed to load posts. Please try again later.");
             } finally {
                 setLoading(false);
-
             }
-
         };
         fetchPosts();
 

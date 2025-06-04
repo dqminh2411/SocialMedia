@@ -35,14 +35,47 @@ const PostForm = ({ post = null, onSubmit }) => {
     const [showLinkDialog, setShowLinkDialog] = useState(false);
     const [linkData, setLinkData] = useState({ url: '', text: '' });
 
-
-
-    /// Initialize the editor content
+    /// Initialize the editor content and media when editing a post
     useEffect(() => {
-        if (editorRef.current && post?.content) {
-            editorRef.current.innerHTML = post.content;
-            // Set initial state
-            setFormData(prev => ({ ...prev, content: post.content }));
+        if (post) {
+            // Set content
+            if (editorRef.current && post.content) {
+                editorRef.current.innerHTML = post.content;
+                setFormData(prev => ({ ...prev, content: post.content }));
+            }            // Set images/videos from post media
+            if (post.media && post.media.length > 0) {
+                const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
+                const images = [];
+                const videos = [];
+
+                post.media.forEach(media => {
+                    if (!media.fileName) {
+                        console.error('Missing fileName in media object:', media);
+                        return; // Skip this media item
+                    }
+
+                    const isVideo = media.fileName.match(/\.(mp4|webm|ogg)$/i);
+                    const mediaItem = {
+                        id: media.id || `existing-${Math.random().toString(36).substr(2, 9)}`,
+                        fileName: media.fileName,
+                        url: POST_MEDIA_URL + media.fileName,
+                        // For existing media, we don't have a file object
+                        isExisting: true
+                    };
+
+                    if (isVideo) {
+                        videos.push(mediaItem);
+                    } else {
+                        images.push(mediaItem);
+                    }
+                });
+
+                setFormData(prev => ({
+                    ...prev,
+                    images,
+                    videos
+                }));
+            }
         }
     }, [post]);
 
@@ -362,14 +395,53 @@ const PostForm = ({ post = null, onSubmit }) => {
 
         // Reset file input
         e.target.value = '';
-    };
-
-    // Remove media item
+    };    // Remove media item
     const removeMedia = (type, id) => {
-        setFormData(prev => ({
-            ...prev,
-            [type]: prev[type].filter(item => item.id !== id)
-        }));
+        // Find the index of the item to be removed
+        const indexToRemove = formData[type].findIndex(item => item.id === id);
+        if (indexToRemove === -1) return; // Item not found
+
+        // Check if this is an existing media from the backend
+        const isExistingMedia = formData[type][indexToRemove].isExisting;
+
+        // First, get the updated items by filtering out the removed item
+        setFormData(prev => {
+            const updatedItems = prev[type].filter(item => item.id !== id);
+
+            // If we're removing an image, handle the currentImageIndex update
+            if (type === 'images') {
+                // If removing the currently displayed image
+                if (indexToRemove === currentImageIndex) {
+                    // If it's the last image, go to the previous one
+                    if (indexToRemove === prev[type].length - 1 && indexToRemove > 0) {
+                        setCurrentImageIndex(indexToRemove - 1);
+                    }
+                    // If it's not the last image, keep the same index (will show next image)
+                    // Don't need to update if it's the first and only image (will go to 0 anyway)
+                }
+                // If removing an image before the current one, shift index down
+                else if (indexToRemove < currentImageIndex) {
+                    setCurrentImageIndex(currentImageIndex - 1);
+                }
+
+                // Safety check - ensure index is valid
+                if (updatedItems.length === 0) {
+                    setCurrentImageIndex(0);
+                } else if (currentImageIndex >= updatedItems.length) {
+                    setCurrentImageIndex(updatedItems.length - 1);
+                }
+            } return {
+                ...prev,
+                [type]: updatedItems
+            };
+        });
+
+        // If the media being removed is an existing one from the backend, add it to the list to be deleted
+        if (post && formData[type][indexToRemove] && formData[type][indexToRemove].isExisting) {
+            // Store this in component state to send to backend on submit
+            const fileNameToDelete = formData[type][indexToRemove].fileName;
+            console.log(`Marked existing media for deletion: ${fileNameToDelete}`);
+        }
     };
 
     // Handle pasting to strip formatting but keep links
@@ -417,13 +489,16 @@ const PostForm = ({ post = null, onSubmit }) => {
         }
 
         handleContentChange();
-    };    // Handle form submission
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formData.images.length === 0 && formData.videos.length === 0 && !post) {
+
+        if (formData.images.length === 0 && formData.videos.length === 0) {
             alert("You must add at least one image or video");
             return;
         }
+
         // Get the content from the editor
         const content = editorRef.current.innerHTML;
 
@@ -445,13 +520,25 @@ const PostForm = ({ post = null, onSubmit }) => {
             setError('User not authenticated');
             setIsSubmitting(false);
             return;
-        }
-
-        // Extract media files from formData for API call
+        }        // Extract media files from formData for API call
         const mediaFiles = [
-            ...formData.images.map(img => img.file),
-            ...formData.videos.map(video => video.file)
-        ];        // Extract mentions and hashtags from content
+            ...formData.images.filter(img => !img.isExisting).map(img => img.file),
+            ...formData.videos.filter(video => !video.isExisting).map(video => video.file)
+        ];
+
+        // Track media that should be deleted (for edit mode)
+        const mediaToDelete = [];
+        if (post && post.media) {
+            // Find media from the original post that are no longer in formData
+            post.media.forEach(originalMedia => {
+                const stillExists = [...formData.images, ...formData.videos].some(
+                    currentMedia => currentMedia.isExisting && currentMedia.fileName === originalMedia.fileName
+                );
+                if (!stillExists) {
+                    mediaToDelete.push(originalMedia.fileName);
+                }
+            });
+        }
 
         // const mentions = [];
 
@@ -483,7 +570,7 @@ const PostForm = ({ post = null, onSubmit }) => {
 
         if (post) {
             // Update existing post
-            postService.updatePost(post.id, postData, mediaFiles)
+            postService.updatePost(post.id, postData, mediaFiles, mediaToDelete)
                 .then(response => {
                     console.log('Post updated successfully:', response);
                     setSuccess(true);
@@ -542,48 +629,62 @@ const PostForm = ({ post = null, onSubmit }) => {
                             style={{ display: 'none' }}
 
                         />
-                    </div>
-
-                    {/* Media preview as slideshow */}
+                    </div>                    {/* Media preview as slideshow */}
                     {(formData.images.length > 0 || formData.videos.length > 0) && (
                         <div className={styles['slideshow-container']}>
                             {/* Images slideshow */}
                             {formData.images.length > 0 && (
                                 <div className={styles['slideshow']}>
-                                    <div className={styles['slide']}>
-                                        <img
-                                            src={formData.images[currentImageIndex].url}
-                                            alt="Preview"
-                                            className={styles['slide-media']}
-                                        />
-                                        <button
-                                            type="button"
-                                            className={styles['remove-media']}
-                                            onClick={() => removeMedia('images', formData.images[currentImageIndex].id)}
-                                        >
-                                            ×
-                                        </button>
-                                    </div>                                    {/* Navigation arrows */}
-                                    {formData.images.length > 1 && (
+                                    <div className={styles['slide']}>                                    {formData.images.length > currentImageIndex && formData.images[currentImageIndex] ? (
+                                        <>
+                                            <img
+                                                src={formData.images[currentImageIndex].url || ''}
+                                                alt="Preview"
+                                                className={styles['slide-media']}
+                                                onError={(e) => {
+                                                    console.error("Image failed to load:", formData.images[currentImageIndex]);
+                                                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2VlZSIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiPkltYWdlIEVycm9yPC90ZXh0Pjwvc3ZnPg==';
+                                                }}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={styles['remove-media']}
+                                                onClick={() => removeMedia('images', formData.images[currentImageIndex].id)}
+                                            >
+                                                ×
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className={styles['no-media']}>No images available</div>
+                                    )}
+                                    </div>                                {formData.images.length > 1 && (
                                         <>
                                             <button
                                                 type="button"
                                                 className={`${styles['nav-button']} ${styles['prev']}`}
-                                                onClick={() => setCurrentImageIndex(prev =>
-                                                    prev === 0 ? formData.images.length - 1 : prev - 1
-                                                )}
+                                                onClick={() => {
+                                                    if (formData.images.length > 0) {
+                                                        setCurrentImageIndex(prev =>
+                                                            prev === 0 ? formData.images.length - 1 : prev - 1
+                                                        );
+                                                    }
+                                                }}
                                             >
                                                 ❮
                                             </button>
                                             <button
                                                 type="button"
                                                 className={`${styles['nav-button']} ${styles['next']}`}
-                                                onClick={() => setCurrentImageIndex(prev =>
-                                                    prev === formData.images.length - 1 ? 0 : prev + 1
-                                                )}
+                                                onClick={() => {
+                                                    if (formData.images.length > 0) {
+                                                        setCurrentImageIndex(prev =>
+                                                            prev === formData.images.length - 1 ? 0 : prev + 1
+                                                        );
+                                                    }
+                                                }}
                                             >
                                                 ❯
-                                            </button>                                            {/* Dots/indicators */}
+                                            </button>{/* Dots/indicators */}
                                             <div className={styles['dots-container']}>
                                                 {formData.images.map((_, index) => (
                                                     <button
@@ -597,21 +698,23 @@ const PostForm = ({ post = null, onSubmit }) => {
                                         </>
                                     )}
                                 </div>
-                            )}
-
-                            {/* Videos */}
+                            )}                            {/* Videos */}
                             {formData.videos.length > 0 && formData.images.length === 0 && (
                                 <div className={styles['videos-container']}>
                                     {formData.videos.map(video => (
                                         <div key={video.id} className={styles['media-item']}>
-                                            <video src={video.url} className={styles['media-thumbnail']} controls />
-                                            <button
-                                                type="button"
-                                                className={styles['remove-media']}
-                                                onClick={() => removeMedia('videos', video.id)}
-                                            >
-                                                ×
-                                            </button>
+                                            {video.url && (
+                                                <>
+                                                    <video src={video.url} className={styles['media-thumbnail']} controls />
+                                                    <button
+                                                        type="button"
+                                                        className={styles['remove-media']}
+                                                        onClick={() => removeMedia('videos', video.id)}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

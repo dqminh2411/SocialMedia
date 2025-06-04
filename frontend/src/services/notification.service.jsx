@@ -34,8 +34,8 @@ class NotificationService {
     // Accept a follow request
     acceptFollowRequest(notificationId) {
         return axios.post(
-            API_URL + 'notifications/' + notificationId + '/accept',
-            {},
+            API_URL + 'notifications/accept',
+            { id: notificationId },
             { headers: authHeader() }
         ).then(response => {
             return response.data.data;

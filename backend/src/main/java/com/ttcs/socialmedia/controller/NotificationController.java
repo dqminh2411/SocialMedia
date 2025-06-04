@@ -1,8 +1,12 @@
 package com.ttcs.socialmedia.controller;
 
+import com.ttcs.socialmedia.domain.Follow;
 import com.ttcs.socialmedia.domain.Notification;
 import com.ttcs.socialmedia.domain.User;
+import com.ttcs.socialmedia.domain.dto.FollowDTO;
 import com.ttcs.socialmedia.domain.dto.NotificationDTO;
+import com.ttcs.socialmedia.repository.FollowRepository;
+import com.ttcs.socialmedia.service.FollowService;
 import com.ttcs.socialmedia.service.NotificationService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.SecurityUtil;
@@ -25,6 +29,7 @@ public class NotificationController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final FollowService followService;
 
     @PostMapping("/follow-request")
     public ResponseEntity<?> sendFollowRequest(@RequestBody Map<String, Integer> request) {
@@ -37,7 +42,12 @@ public class NotificationController {
         if (sender == null || recipient == null) {
             return ResponseEntity.badRequest().body("Invalid user IDs");
         }
+        // check if request existed
 
+        Follow follow = followService.getFollowByUsers(sender.getId(), recipient.getId());
+        if (follow != null) {
+            return ResponseEntity.badRequest().body("Follow request already sent");
+        }
         // Create notification
         Notification notification = new Notification();
         notification.setSender(sender);
@@ -52,6 +62,11 @@ public class NotificationController {
         // Convert to DTO for WebSocket
         NotificationDTO notificationDTO = notificationService.convertToDTO(savedNotification);
 
+        FollowDTO followDTO = new FollowDTO();
+        followDTO.setFollowingUserId(sender.getId());
+        followDTO.setFollowedUserId(recipient.getId());
+        followService.createFollow(followDTO);
+
         // Send via WebSocket
         // simpMessagingTemplate.convertAndSendToUser(
         // recipient.getEmail(),
@@ -61,12 +76,12 @@ public class NotificationController {
         return ResponseEntity.ok(notificationDTO);
     }
 
-    @PostMapping("/{id}/accept")
-    public ResponseEntity<?> acceptFollowRequest(@PathVariable("id") int notificationId) {
+    @PostMapping("/accept")
+    public ResponseEntity<?> acceptFollowRequest(@RequestBody() NotificationDTO notificationDTO) {
         String currentUserEmail = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new RuntimeException("User not authenticated"));
 
-        Notification notification = notificationService.getNotificationById(notificationId);
+        Notification notification = notificationService.getNotificationById(notificationDTO.getId());
 
         if (notification == null) {
             return ResponseEntity.badRequest().body("Notification not found");
@@ -78,8 +93,11 @@ public class NotificationController {
         }
 
         // Accept follow request
-        userService.acceptFollowRequest(notification.getSender().getId(), notification.getRecipient().getId());
-
+        // userService.acceptFollowRequest(notification.getSender().getId(),
+        // notification.getRecipient().getId());
+        Follow follow = followService.getFollowByUsers(notification.getSender().getId(),
+                notification.getRecipient().getId());
+        followService.confirmFollow(follow.getId());
         // Mark notification as read
         notification.setRead(true);
         notificationService.saveNotification(notification);
@@ -117,6 +135,9 @@ public class NotificationController {
             return ResponseEntity.badRequest().body("Notification not found");
         }
 
+        Follow follow = followService.getFollowByUsers(notification.getSender().getId(),
+                notification.getRecipient().getId());
+        followService.deleteFollow(follow.getId());
         // Check if current user is the recipient
         if (!notification.getRecipient().getEmail().equals(currentUserEmail)) {
             return ResponseEntity.badRequest().body("Not authorized to reject this request");

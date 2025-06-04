@@ -245,6 +245,7 @@
 .post-footer {
     display: flex;
     flex-direction: column;
+    justify-items: space-between;
     margin-top: auto;
     border-top: 1px solid #efefef;
     padding-top: 10px;
@@ -330,4 +331,15 @@
 .submit-button:disabled {
     background-color: #b2dffc;
     cursor: not-allowed;
+}
+
+.post-actions-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
 }

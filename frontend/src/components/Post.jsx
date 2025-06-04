@@ -8,8 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import commentIcon from '../assets/images/binhluan2.png';
-import shareIcon from '../assets/images/chiase2.png';
-import saveIcon from '../assets/images/—Pngtree—a set of instagram icons_9062112 (1) (1).png';
 import PostService from '../services/post.service.jsx';
 const Post = ({ id, username, userAvatar, media, likes, content, createdAt, commentsCount, isLiked }) => {
     const navigate = useNavigate();
@@ -184,20 +182,19 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
                         </button>
                     </span>
                     <span><img src={commentIcon} alt="Comment" onClick={handlePostClick} /></span>
-                    <span><img src={shareIcon} alt="Share" /></span>
+
                 </div>
-                <div className={styles.rightIcon}>
-                    <img src={saveIcon} alt="Save" className={styles.icon2} />
-                </div>
+
             </div>
 
             <p>{likes} likes</p>
             <p>
                 {content.length > 30 ?
                     <>
-                        {content.substring(0, 30)}... <span className={styles.comment}>more</span>
+                        <div dangerouslySetInnerHTML={{ __html: content.substring(0, 30) }} className={styles.comment} />
+                        <span className={styles.comment} onClick={handlePostClick}>... more</span>
                     </> :
-                    content
+                    <div dangerouslySetInnerHTML={{ __html: content }} className={styles.comment} />
                 }
             </p>
             <p className={styles.comment} onClick={handleViewAllComments}>View all {commentsCount} comments</p>

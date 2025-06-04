@@ -70,6 +70,7 @@ export const NotificationProvider = ({ children }) => {
                 prev.map(n => n.id === notificationId ? { ...n, read: true, accepted: true } : n)
             );
             setUnreadCount(prev => Math.max(0, prev - 1));
+            alert("Follow request accepted");
         } catch (error) {
             console.error("Error accepting follow request:", error);
         }
@@ -82,6 +83,7 @@ export const NotificationProvider = ({ children }) => {
                 prev.map(n => n.id === notificationId ? { ...n, read: true, rejected: true } : n)
             );
             setUnreadCount(prev => Math.max(0, prev - 1));
+            alert("Follow request rejected");
         } catch (error) {
             console.error("Error rejecting follow request:", error);
         }

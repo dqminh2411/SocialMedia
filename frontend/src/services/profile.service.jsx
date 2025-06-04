@@ -39,6 +39,37 @@ class ProfileService {
             .then(response => {
                 return response.data;
             });
+    } checkFollowStatus(followingUserId, followedUserId) {
+        return axios.get(
+            API_URL + 'follows/check?followingUserId=' + followingUserId + '&followedUserId=' + followedUserId,
+            { headers: authHeader() }
+        ).then(response => {
+            return response.data.data;
+        })
+    }    // Get user followers
+    getUserFollowers(userId, query = '', page = 0, size = 10) {
+        let url = API_URL + 'follows/followers/' + userId + '?page=' + page + '&size=' + size;
+        if (query) {
+            url += '&query=' + encodeURIComponent(query);
+        }
+
+        return axios.get(url, { headers: authHeader() })
+            .then(response => {
+                return response.data.data;
+            });
+    }
+
+    // Get users being followed by a user
+    getUserFollowing(userId, query = '', page = 0, size = 10) {
+        let url = API_URL + 'follows/following/' + userId + '?page=' + page + '&size=' + size;
+        if (query) {
+            url += '&query=' + encodeURIComponent(query);
+        }
+
+        return axios.get(url, { headers: authHeader() })
+            .then(response => {
+                return response.data.data;
+            });
     }
 }
 

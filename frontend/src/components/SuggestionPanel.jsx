@@ -6,7 +6,7 @@ import NotificationService from '../services/notification.service';
 import AuthService from '../services/auth.service.jsx';
 const SuggestionPanel = () => {
     const [suggestions, setSuggestions] = useState([]);
-    const [sentRequests, setSentRequests] = useState([]);
+    //const [sentRequests, setSentRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const currentUser = AuthService.getCurrentUser();
@@ -24,7 +24,7 @@ const SuggestionPanel = () => {
 
                 // Extract recipient IDs from sent requests
                 const sentRequestIds = sentRequestsData.map(request => request.recipientId);
-                setSentRequests(sentRequestIds);
+                //setSentRequests(sentRequestIds);
 
                 // Filter suggestions to exclude users who already received follow requests
                 const filteredSuggestions = suggestionsData.filter(
@@ -46,7 +46,7 @@ const SuggestionPanel = () => {
     // Update suggestions when a new follow request is sent
     const handleFollowRequestSent = (userId) => {
         // Add to sent requests
-        setSentRequests(prev => [...prev, userId]);
+        // setSentRequests(prev => [...prev, userId]);
 
         // Remove from suggestions
         setSuggestions(prev => prev.filter(suggestion => suggestion.id !== userId));

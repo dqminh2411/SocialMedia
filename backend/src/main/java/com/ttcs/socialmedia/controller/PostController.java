@@ -44,7 +44,7 @@ public class PostController {
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public PostDTO updatePost(@PathVariable("id") int id,
             @RequestPart(value = "postText") String postJson,
-            @RequestPart(value = "media") List<MultipartFile> media,
+            @RequestPart(value = "media", required = false) List<MultipartFile> media,
             @RequestPart(value = "mediaToDelete", required = false) String mediaToDeleteJson)
             throws URISyntaxException, IOException {
         return this.postService.updatePost(id, postJson, mediaToDeleteJson, media);
@@ -130,5 +130,11 @@ public class PostController {
                 "currentPage", postsPage.getNumber(),
                 "totalElements", postsPage.getTotalElements());
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable("id") int postId) throws IOException, URISyntaxException {
+        postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
     }
 }

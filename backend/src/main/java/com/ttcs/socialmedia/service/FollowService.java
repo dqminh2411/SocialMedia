@@ -7,6 +7,13 @@ import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.constants.FollowStatus;
 import lombok.AllArgsConstructor;
+
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +32,7 @@ public class FollowService {
             followRepository.save(follow);
         }
     }
+
     public void confirmFollow(int followId) {
         Follow follow = followRepository.findById(followId);
         if (follow != null) {
@@ -32,6 +40,7 @@ public class FollowService {
             followRepository.save(follow);
         }
     }
+
     public void deleteFollow(int followId) {
         Follow follow = followRepository.findById(followId);
         if (follow != null) {
@@ -39,4 +48,40 @@ public class FollowService {
         }
     }
 
+    public String checkFollowStatus(int followingUserId, int followedUserId) {
+        String status = followRepository.checkFollowStatus(followingUserId, followedUserId);
+
+        return status;
+    }
+
+    public Follow getFollowByUsers(int followingUserId, int followedUserId) {
+        User followingUser = userRepository.findById(followingUserId);
+        User followedUser = userRepository.findById(followedUserId);
+        if (followingUser != null && followedUser != null) {
+            return followRepository.findByFollowingUserAndFollowedUser(followingUser, followedUser);
+        }
+        return null;
+    }
+
+    public Page<User> getUserFollowers(int userId, String query, int pageNo, int pageSize) {
+        if (query == null) {
+            query = "";
+        }
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        User user = this.userRepository.findById(userId);
+        Page<User> followersPage = followRepository.findUserFollowerByStatus(user, FollowStatus.CONFIRMED, query,
+                pageable);
+        return followersPage;
+    }
+
+    public Page<User> getUserFollowings(int userId, String query, int pageNo, int pageSize) {
+        if (query == null) {
+            query = "";
+        }
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        User user = this.userRepository.findById(userId);
+        Page<User> followingsPage = followRepository.findUserFollowingByStatus(user, FollowStatus.CONFIRMED, query,
+                pageable);
+        return followingsPage;
+    }
 }
