@@ -18,9 +18,9 @@ const SignUp = () => {
 
     const navigate = useNavigate();
 
-    // Add effect to force navigation to work correctly
+    
     useEffect(() => {
-        // Add event listeners to ensure links and buttons are clickable
+        
         const fixClickableElements = () => {
             const buttons = document.querySelectorAll('button');
             const links = document.querySelectorAll('a');
@@ -37,7 +37,7 @@ const SignUp = () => {
         };
 
         fixClickableElements();
-        // Run the fix on every render and after a short delay
+        
         const timeoutId = setTimeout(fixClickableElements, 500);
 
         return () => clearTimeout(timeoutId);
@@ -57,7 +57,7 @@ const SignUp = () => {
         setError('');
         setSuccess('');
 
-        // Basic validation
+        
         if (!formData.fullname || !formData.email || !formData.rePassword || !formData.password) {
             setError('Vui lòng điền đầy đủ thông tin');
             setLoading(false);
@@ -78,7 +78,7 @@ const SignUp = () => {
 
             setSuccess('Đăng ký thành công! Chuyển hướng đến trang đăng nhập...');
 
-            // Scroll to the success message if it's not visible
+            
             setTimeout(() => {
                 const successElement = document.querySelector(`.${styles.successMessage}`);
                 if (successElement) {
@@ -86,7 +86,7 @@ const SignUp = () => {
                 }
             }, 100);
 
-            // Show success message for 3 seconds before redirecting
+            
             setTimeout(() => {
                 navigate('/login?from=signup');
             }, 1500);
@@ -98,17 +98,17 @@ const SignUp = () => {
         setLoading(false);
     };
 
-    // Handle button click directly when using it outside a form
+    
     const handleSignupClick = () => {
         handleSubmit(new Event('submit', { cancelable: true, bubbles: true }));
     };
 
-    // Handle link click
+    
     const handleLoginClick = () => {
         navigate('/login');
     };
 
-    // Combine CSS module styles with inline styles for resilience
+    
     const combinedStyles = {
         container: { ...defaultStyles.container },
         part1: { ...defaultStyles.part1 },
@@ -179,7 +179,7 @@ const SignUp = () => {
                     />
                 </form>
 
-                {/* Signup button outside the form for better click handling */}
+                {}
                 <button
                     className={styles.dangki}
                     style={combinedStyles.dangki}
@@ -198,7 +198,7 @@ const SignUp = () => {
                 </p>
                 <p>
                     Don't have an account? {' '}
-                    {/* Use both Link and onClick for better resilience */}
+                    {}
                     <Link
                         to="/login"
                         className={styles.dangnhap}

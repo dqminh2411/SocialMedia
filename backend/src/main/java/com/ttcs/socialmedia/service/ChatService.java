@@ -104,4 +104,8 @@ public class ChatService {
         chat = chatRepository.save(chat);
         return chatToDTO(chat, chat.getUser1());
     }
+
+    public int getTotalChatCount() {
+        return (int) chatRepository.count();
+    }
 }

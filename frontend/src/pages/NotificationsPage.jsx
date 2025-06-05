@@ -7,12 +7,12 @@ import AuthService from '../services/auth.service.jsx';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../context/NotificationContext.jsx';
 const NotificationsPage = () => {
-    // Mock data for notifications
-    // const [notifications, setNotifications] = useState([]);
-    // const [isOpen, setIsOpen] = useState(false);
-    // const [unreadCount, setUnreadCount] = useState(0);
+    
+    
+    
+    
     const currentUser = AuthService.getCurrentUser();
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
+    const AVATAR_URL = 'http:
     const DEFAULT_AVATAR = 'default.png';
     const {
         notifications,
@@ -26,14 +26,14 @@ const NotificationsPage = () => {
     const [readingNotification, setReadingNotification] = useState(null);
 
     const handleNotificationClick = async (notification) => {
-        // Mark as read if not already
+        
         if (!notification.read) {
             setReadingNotification(notification.id);
 
             try {
                 await markAsRead(notification.id);
 
-                // After animation completes, reset the reading state
+                
                 setTimeout(() => {
                     setReadingNotification(null);
                 }, 1000);
@@ -44,45 +44,45 @@ const NotificationsPage = () => {
         }
     };
 
-    // const handleAcceptFollow = async (notification) => {
-    //     try {
-    //         await NotificationService.acceptFollowRequest(notification.id);
+    
+    
+    
 
-    //         // Update local state
-    //         setNotifications(prev =>
-    //             prev.map(n => n.id === notification.id ? { ...n, read: true, accepted: true } : n)
-    //         );
-    //         setUnreadCount(prevCount => prevCount - 1);
-    //     } catch (error) {
-    //         console.error("Error accepting follow request:", error);
-    //     }
-    // };
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    // const handleRejectFollow = async (notification) => {
-    //     try {
-    //         await NotificationService.rejectFollowRequest(notification.id);
+    
+    
+    
 
-    //         // Update local state
-    //         setNotifications(prev =>
-    //             prev.map(n => n.id === notification.id ? { ...n, read: true, rejected: true } : n)
-    //         );
-    //         setUnreadCount(prevCount => prevCount - 1);
-    //     } catch (error) {
-    //         console.error("Error rejecting follow request:", error);
-    //     }
-    // };
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    // const markAllAsRead = async () => {
-    //     try {
-    //         await NotificationService.markAllAsRead();
+    
+    
+    
 
-    //         // Update local state
-    //         setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    //         setUnreadCount(0);
-    //     } catch (error) {
-    //         console.error("Error marking all notifications as read:", error);
-    //     }
-    // };
+    
+    
+    
+    
+    
+    
+    
     return (
         <div className={styles.container}>
             <Sidebar />

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import styles from '../assets/css/ExplorePage.module.css';
 import Sidebar from '../components/Sidebar';
 import PostService from '../services/post.service.jsx';
-// Import FontAwesome icons for better UI
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faComment } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,7 +12,7 @@ const ExplorePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // State for posts
+
     const [explorePosts, setExplorePosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -20,7 +20,6 @@ const ExplorePage = () => {
     // Constants
     const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
 
-    // Fetch posts when component mounts
     useEffect(() => {
         const fetchPosts = async () => {
             try {
@@ -38,14 +37,14 @@ const ExplorePage = () => {
         fetchPosts();
     }, []);
 
-    // Filter posts based on active tab
-    // const explorePosts = activeTab === 'all'
-    //     ? explorePosts
-    //     : explorePosts.filter(post => {
-    //         // Assuming post has a category property or you can use hashtags
-    //         // Adjust this logic based on your actual data structure
-    //         return post.hashtags?.some(tag => tag.name.toLowerCase() === activeTab.toLowerCase());
-    //     });
+
+
+
+
+
+
+
+
 
     return (
         <div className={styles.container}>

@@ -24,7 +24,7 @@ const NotificationTest = () => {
 
         connectToWebSocket();
 
-        // Register message handler
+        
         const unsubscribe = NotificationService.onMessage(notification => {
             console.log("Test component received notification:", notification);
             setNotifications(prev => [notification, ...prev]);
@@ -40,8 +40,8 @@ const NotificationTest = () => {
         e.preventDefault();
 
         try {
-            // Use the message API endpoint
-            await fetch('http://localhost:8080/api/notifications/test', {
+            
+            await fetch('http:
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

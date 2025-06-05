@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Stomp } from "@stomp/stompjs";
 import SockJS from 'sockjs-client';
 function Notification(){
-    const socket = new SockJS('/ws'); // Connects to /ws
+    const socket = new SockJS('/ws'); 
     const stompClient = Stomp.over(socket);
 
     const user = JSON.parse(localStorage.getItem('user'))

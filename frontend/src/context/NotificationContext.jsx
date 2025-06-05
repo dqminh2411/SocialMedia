@@ -10,7 +10,7 @@ export const NotificationProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const currentUser = AuthService.getCurrentUser();
 
-    // Function to fetch notifications
+    
     const fetchNotifications = async () => {
         if (!currentUser) return;
 
@@ -31,16 +31,16 @@ export const NotificationProvider = ({ children }) => {
 
         fetchNotifications();
 
-        // Set up polling for new notifications (every 30 seconds)
+        
         const notificationPollInterval = setInterval(fetchNotifications, 30000);
 
-        // Cleanup function
+        
         return () => {
             clearInterval(notificationPollInterval);
         };
     }, []);
 
-    // Functions to handle notifications
+    
     const markAsRead = async (notificationId) => {
         try {
             await NotificationService.markAsRead(notificationId);

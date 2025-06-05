@@ -218,25 +218,6 @@ public class PostService {
         return postToDTO(post);
     }
 
-    public void deletePost(int postId) throws URISyntaxException, IOException {
-        Post post = postRepository.findById(postId);
-        if (post == null) {
-            throw new RuntimeException("Post not found");
-        }
-        // Delete media files
-        List<PostMedia> postMedias = postMediaRepository.findByPost(post);
-        for (PostMedia postMedia : postMedias) {
-            fileService.deleteFile(postMedia.getFileName(), "posts");
-            postMediaRepository.delete(postMedia);
-        }
-        // Delete post hashtags
-        for (PostHashtags postHashtag : post.getPostHashtags()) {
-            postHashtagsRepository.delete(postHashtag);
-        }
-        // Delete post
-        postRepository.delete(post);
-    }
-
     public PostDTO postToDTO(Post post) {
         PostDTO postDTO = new PostDTO();
         postDTO.setId(post.getId());
@@ -378,5 +359,76 @@ public class PostService {
             return Page.empty();
         }
         return postRepository.findByHashtag(ht, pageable);
+    }
+
+    public int getTotalPostCount() {
+        return (int) postRepository.count();
+    }
+
+    public int getTotalPostLikesCount() {
+        return (int) likePostRepository.count();
+    }
+
+    /**
+     * Finds posts with pagination and optional search functionality for admin
+     * management
+     * 
+     * @param pageable Pagination information
+     * @param search   Optional search query for post content or creator username
+     * @return Page of Post objects matching the search criteria
+     */
+    public Page<Post> findPostsWithPagination(Pageable pageable, String search) {
+        if (search != null && !search.trim().isEmpty()) {
+            return postRepository.findByContentOrCreatorUsernameContainingIgnoreCase(search.trim(), pageable);
+        } else {
+            return postRepository.findAll(pageable);
+        }
+    }
+
+    /**
+     * Find a post by its ID
+     * 
+     * @param id The post ID to look for
+     * @return The post or null if not found
+     */
+    public Post findById(int id) {
+        return postRepository.findById(id);
+    }
+
+    /**
+     * Update a post by an admin
+     * 
+     * @param id      The ID of the post to update
+     * @param postDTO The data to update the post with
+     * @return The updated post or null if the post wasn't found
+     */
+
+    /**
+     * Delete a post by its ID
+     * 
+     * @param id The ID of the post to delete
+     * @return true if the post was deleted, false if the post wasn't found
+     * @throws URISyntaxException
+     */
+    public boolean deletePost(int id) throws URISyntaxException {
+        Post post = postRepository.findById(id);
+        if (post == null) {
+            return false;
+        }
+
+        // Delete all related media files first
+        if (post.getPostMedias() != null && !post.getPostMedias().isEmpty()) {
+            for (PostMedia media : post.getPostMedias()) {
+                try {
+                    fileService.deleteFile(media.getFileName(), "posts");
+                } catch (IOException e) {
+                    // Log error but continue with deletion
+                    System.err.println("Error deleting media file: " + e.getMessage());
+                }
+            }
+        }
+
+        postRepository.delete(post);
+        return true;
     }
 }

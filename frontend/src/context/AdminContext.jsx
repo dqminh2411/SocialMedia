@@ -1,10 +1,10 @@
-// src/context/AdminContext.jsx
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AdminService from '../services/admin.service';
 
 const AdminContext = createContext(null);
 
-// Function to parse the stored admin data
+
 const parseStoredAdmin = () => {
     try {
         const storedAdmin = localStorage.getItem('admin');

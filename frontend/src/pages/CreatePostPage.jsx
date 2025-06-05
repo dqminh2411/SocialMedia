@@ -13,11 +13,11 @@ const CreatePostPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Extract the postId from the URL query parameters for editing
+    
     const queryParams = new URLSearchParams(location.search);
     const editPostId = queryParams.get('edit');
 
-    // Fetch post data if in edit mode
+    
     useEffect(() => {
         if (editPostId) {
             setLoading(true);
@@ -38,10 +38,10 @@ const CreatePostPage = () => {
         setIsSubmitting(true);
         setError(null);
 
-        // The actual submission is handled in PostForm component
-        // This is just for handling the response
+        
+        
 
-        // Navigate to profile page after successful post submission
+        
         navigate('/profile', { replace: true });
     };
 

@@ -2,7 +2,7 @@ import React from 'react';
 import PostForm from './PostForm';
 
 const PostPage = () => {
-    // For editing an existing post, you would provide this data
+
     const existingPost = {
         content: 'Check out this amazing sunset! <span class="hashtag">#photography</span> <span class="hashtag">#nature</span> <span class="mention">@johndoe</span> <a href="https://example.com" class="url" target="_blank">My travel blog</a>',
         images: [
@@ -13,8 +13,8 @@ const PostPage = () => {
 
     const handleSubmit = (formData) => {
         console.log('Form submitted with:', formData);
-        // Here you would send the data to your backend API
-        // axios.post('/api/posts', formData) or similar
+
+
     };
 
     return (

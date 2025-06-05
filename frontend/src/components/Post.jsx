@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styles from '../assets/css/Post.module.css';
 
-// Import icons
+
 import likeIcon from '../assets/images/traitim2.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
@@ -29,29 +29,29 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
     }, [likes, isLiked]);
 
     const handlePostClick = () => {
-        // Navigate to the post detail with the current location as state
-        // This is what enables the modal behavior
+
+
         navigate(`/post/${id}`, {
             state: { background: location }
         });
     };
 
     const handleViewAllComments = (e) => {
-        e.stopPropagation(); // Prevent the click from bubbling up to the post div
+        e.stopPropagation();
         navigate(`/post/${id}`, {
             state: { background: location }
         });
     };
 
     const goToNextMedia = (e) => {
-        e.stopPropagation(); // Prevent the click from bubbling up to the post div
+        e.stopPropagation();
         if (currentMediaIndex < mediaItems.length - 1) {
             setCurrentMediaIndex(prevIndex => prevIndex + 1);
         }
     };
 
     const goToPrevMedia = (e) => {
-        e.stopPropagation(); // Prevent the click from bubbling up to the post div
+        e.stopPropagation();
         if (currentMediaIndex > 0) {
             setCurrentMediaIndex(prevIndex => prevIndex - 1);
         }
@@ -60,7 +60,7 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
         return url.toLowerCase().endsWith('.mp4') ||
             url.toLowerCase().endsWith('.mov') ||
             url.toLowerCase().endsWith('.webm');
-    };    // Mobile touch functionality has been removed
+    };
 
     const handleLikePost = async () => {
         try {

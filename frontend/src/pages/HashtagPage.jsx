@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import styles from '../assets/css/ExplorePage.module.css'; // Reuse explore page styles
+import styles from '../assets/css/ExplorePage.module.css';
 import Sidebar from '../components/Sidebar';
 import PostService from '../services/post.service.jsx';
-// Import FontAwesome icons for better UI
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faComment, faHashtag } from '@fortawesome/free-solid-svg-icons';
 
@@ -12,19 +12,20 @@ const HashtagPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // State for posts
+
     const [hashtagPosts, setHashtagPosts] = useState([]);
     const [postCount, setPostCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // Constants
-    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';    // Fetch posts for this hashtag when component mounts or hashtagName changes
+    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
+
     useEffect(() => {
         const fetchHashtagPosts = async () => {
             try {
                 setLoading(true);
-                // Call the API to get posts for this hashtag
+
                 const data = await PostService.getPostsByHashtag(hashtagName, 0);
                 setHashtagPosts(data.posts || []);
                 setPostCount(data.totalElements || 0);

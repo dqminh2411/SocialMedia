@@ -15,11 +15,11 @@ const MessagesPage = () => {
     const chatContainerRef = useRef(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
+    const AVATAR_URL = 'http:
     const DEFAULT_AVATAR = 'defaultAvatar.jpg';
     const currentUser = AuthService.getCurrentUser();
 
-    // New chat popup states
+    
     const [showNewChatPopup, setShowNewChatPopup] = useState(false);
     const [searchUsername, setSearchUsername] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -27,7 +27,7 @@ const MessagesPage = () => {
     const [searching, setSearching] = useState(false);
     const [searchError, setSearchError] = useState("");
 
-    // Get chat context
+    
     const {
         chats: conversations,
         activeChat: selectedConversation,
@@ -42,30 +42,30 @@ const MessagesPage = () => {
 
 
 
-    // Handle conversation selection
+    
     const handleConversationSelect = (conversationId) => {
-        // Get messages for this conversation
+        
         getMessages(conversationId);
     };
 
 
-    // Handle sending messages
+    
     const handleSendMessage = (e) => {
         e.preventDefault();
         if (!message.trim() || !selectedConversation) return;
 
-        // Send message via context
+        
         sendMessage(selectedConversation, message.trim());
 
-        // Clear the input
+        
         setMessage("");
 
-        // Adjust textarea height
+        
         if (messageInputRef.current) {
             messageInputRef.current.style.height = 'auto';
         }
 
-        // Scroll to bottom of chat
+        
         setTimeout(() => {
             if (chatContainerRef.current) {
                 chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -73,7 +73,7 @@ const MessagesPage = () => {
         }, 100);
     };
 
-    // Handle keyboard events
+    
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -81,7 +81,7 @@ const MessagesPage = () => {
         }
     };
 
-    // Adjust textarea height as user types
+    
     const adjustTextareaHeight = (e) => {
         const textarea = e.target;
         textarea.style.height = 'auto';
@@ -89,12 +89,12 @@ const MessagesPage = () => {
         setMessage(e.target.value);
     };
 
-    // Handle emoji selection
+    
     const handleEmojiClick = (emojiObject) => {
         setMessage(prevMessage => prevMessage + emojiObject.emoji);
         setShowEmojiPicker(false);
 
-        // Focus and adjust height after adding emoji
+        
         if (messageInputRef.current) {
             messageInputRef.current.focus();
             setTimeout(() => {
@@ -104,19 +104,19 @@ const MessagesPage = () => {
         }
     };
 
-    // Toggle emoji picker
+    
     const toggleEmojiPicker = () => {
         setShowEmojiPicker(!showEmojiPicker);
     };
 
 
-    // Format timestamp for messages
+    
     const formatMessageTime = (timestamp) => {
         const date = new Date(timestamp);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    // Format date for message separators
+    
     const formatMessageDate = (timestamp) => {
         const date = new Date(timestamp);
         const today = new Date();
@@ -132,7 +132,7 @@ const MessagesPage = () => {
         }
     };
 
-    // Search for users
+    
     const handleSearchUsers = async (e) => {
         e.preventDefault();
         if (!searchUsername.trim()) return;
@@ -158,28 +158,28 @@ const MessagesPage = () => {
         }
     };
 
-    // Select user to chat with
+    
     const handleSelectUser = (user) => {
         setSelectedUser(user);
-    };    // Create a new chat with selected user
+    };    
     const handleCreateChat = async () => {
         if (!selectedUser) return;
 
         try {
-            // Show loading indicator if needed
+            
             setSearching(true);
 
-            // Create chat via context
+            
             const newChatId = await createChat(selectedUser.id);
 
             if (newChatId) {
                 console.log("New chat created with ID:", newChatId);
-                // Chat was created successfully and added to the list in the ChatContext
+                
 
-                // Close the popup
+                
                 setShowNewChatPopup(false);
 
-                // Scroll to bottom of messages when the chat is loaded
+                
                 setTimeout(() => {
                     if (chatContainerRef.current) {
                         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -197,11 +197,11 @@ const MessagesPage = () => {
         }
     };
 
-    // Toggle new chat popup
+    
     const toggleNewChatPopup = () => {
         setShowNewChatPopup(!showNewChatPopup);
         if (!showNewChatPopup) {
-            // Reset search when opening popup
+            
             setSearchUsername("");
             setSearchResults([]);
             setSelectedUser(null);
@@ -209,21 +209,21 @@ const MessagesPage = () => {
         }
     };
 
-    // Scroll to bottom when conversation changes or new messages arrive
+    
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [selectedConversation, messages]);
 
-    // Focus the input when selecting a conversation
+    
     useEffect(() => {
         if (selectedConversation && messageInputRef.current) {
             messageInputRef.current.focus();
         }
     }, [selectedConversation]);
 
-    // Handle click outside emoji picker
+    
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -243,21 +243,21 @@ const MessagesPage = () => {
         };
     }, []);
 
-    // Get the selected conversation data
+    
     const selectedConversationData = selectedConversation
         ? conversations.find(c => c.id === selectedConversation)
         : null;
 
-    // Determine container class for mobile responsive layout
-    // Handle WebSocket message
-    // This is handled directly by the ChatContext now
+    
+    
+    
     /*
     const handleNewMessage = (newMessage) => {
         if (!newMessage || !newMessage.chatId) return;
 
         const chatId = newMessage.chatId;
 
-        // Update messages if this chat is currently selected
+        
         setMessages(prevMessages => {
             if (!prevMessages[chatId]) return prevMessages;
 
@@ -267,7 +267,7 @@ const MessagesPage = () => {
             };
         });
 
-        // Update conversation list
+        
         setConversations(prevConversations => {
             const updatedConversations = prevConversations.map(convo => {
                 if (convo.id === chatId) {
@@ -275,14 +275,14 @@ const MessagesPage = () => {
                         ...convo,
                         lastMessage: newMessage.content,
                         time: "Just now",
-                        // Mark as unread if it's not from current user and not the active conversation
+                        
                         unread: newMessage.senderId !== currentUser.user.id && selectedConversation !== chatId
                     };
                 }
                 return convo;
             });
 
-            // Move the updated conversation to the top
+            
             const convoIndex = updatedConversations.findIndex(c => c.id === chatId);
             if (convoIndex > 0) {
                 const [convo] = updatedConversations.splice(convoIndex, 1);
@@ -292,20 +292,20 @@ const MessagesPage = () => {
             return updatedConversations;
         });
 
-        // Mark message as read if the chat is currently selected
+        
         if (selectedConversation === chatId && newMessage.senderId !== currentUser.user.id) {
-            // Implement marking as read
+            
         }
     };
     */
 
-    // Format relative time (e.g., "2h ago", "Just now")
+    
     return (
         <div className={styles.container}>
             <Sidebar />
             <div className={styles.mainContent}>
                 <div className={styles.messagesContainer}>
-                    {/* Left Sidebar - Conversation List */}
+                    {}
                     <div className={styles.conversationList}>
                         <div className={styles.conversationHeader}>
                             <h2>Messages</h2>
@@ -337,11 +337,11 @@ const MessagesPage = () => {
                         </div>
                     </div>
 
-                    {/* Right Side - Chat Area */}
+                    {}
                     <div className={styles.chatArea}>
                         {selectedConversation ? (
                             <>
-                                {/* Chat Header */}
+                                {}
                                 <div className={styles.chatHeader}>
                                     <div className={styles.recipientInfo}>
                                         <img
@@ -356,7 +356,7 @@ const MessagesPage = () => {
                                     <button className={styles.viewProfileBtn}>
                                         <FontAwesomeIcon icon={faInfoCircle} />
                                     </button>
-                                </div>                                {/* Chat Messages */}
+                                </div>                                {}
                                 <div className={styles.messagesWrapper} ref={chatContainerRef}>
                                     {loading ? (
                                         <div className={styles.loadingIndicator}>Loading messages...</div>
@@ -367,7 +367,7 @@ const MessagesPage = () => {
                                             {messages[selectedConversation]?.map((message, index) => {
                                                 const isCurrentUser = message.senderId === currentUser.user.id;
                                                 const messageClass = isCurrentUser ? styles.sentMessage : styles.receivedMessage;
-                                                const messageStatus = message.pending ? 'Sending...' : (message.read ? 'Read' : 'Sent');                                                // Check if we need to display a date separator
+                                                const messageStatus = message.pending ? 'Sending...' : (message.read ? 'Read' : 'Sent');                                                
                                                 const showDateSeparator = index === 0 ||
                                                     formatMessageDate(message.sentAt) !==
                                                     formatMessageDate(messages[selectedConversation][index - 1].sentAt); return (
@@ -406,7 +406,7 @@ const MessagesPage = () => {
                                             })}
                                         </div>
                                     )}
-                                </div>{/* Chat Input */}
+                                </div>{}
                                 <div className={styles.chatInputContainer}>
                                     {showEmojiPicker && (
                                         <div className={styles.emojiPickerContainer} ref={emojiPickerRef}>
@@ -442,7 +442,7 @@ const MessagesPage = () => {
                                     </div>
                                 </div>
                             </>
-                        ) : (                            // No conversation selected
+                        ) : (                            
                             <div className={styles.noConversation}>
                                 <div className={styles.noConversationContent}>
                                     <div className={styles.iconPlaceholder}>
@@ -457,7 +457,7 @@ const MessagesPage = () => {
                     </div>                </div>
             </div>
 
-            {/* New Chat Popup */}
+            {}
             {showNewChatPopup && (
                 <div className={styles.newChatPopupOverlay}>
                     <div className={styles.newChatPopup}>

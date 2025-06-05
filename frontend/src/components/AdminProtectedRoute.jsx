@@ -1,4 +1,4 @@
-// src/components/AdminProtectedRoute.jsx
+
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAdmin } from '../context/AdminContext';
@@ -23,7 +23,7 @@ const AdminProtectedRoute = ({ children }) => {
 
     if (!currentAdmin) {
         console.log('Admin not authenticated, redirecting to admin login from:', location.pathname);
-        // Save the current location to redirect back after login
+        
         return <Navigate to="/admin/login" state={{ from: location.pathname }} replace />;
     }
 

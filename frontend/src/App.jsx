@@ -14,7 +14,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { AdminProvider } from "./context/AdminContext.jsx";
 
 
-// Import our new pages
+
 import HomePage from "./pages/HomePage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import ExplorePage from "./pages/ExplorePage.jsx";
@@ -25,19 +25,19 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import PostDetailPage from "./pages/PostDetailPage.jsx";
 import HashtagPage from "./pages/HashtagPage.jsx";
 
-// Import admin pages
+
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import UserManagement from "./pages/admin/UserManagement.jsx";
 import PostManagement from "./pages/admin/PostManagement.jsx";
 
 
-// Import global styles
+
 import './assets/css/Global.css';
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import { ChatProvider } from "./context/ChatContext.jsx";
 
-// We need to create this component to handle the modal routing logic
+
 const AppRoutes = () => {
     const location = useLocation();
     const background = location.state?.background;
@@ -46,11 +46,11 @@ const AppRoutes = () => {
         <>
 
             <Routes location={background || location}>
-                {/* Auth Routes */}
+                {}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
 
-                {/* Protected Routes */}
+                {}
                 <Route path="/" element={
                     <ProtectedRoute>
                         <HomePage />
@@ -104,7 +104,7 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 } />
 
-                {/* Admin Routes */}
+                {}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={
                     <AdminProtectedRoute>
@@ -123,11 +123,11 @@ const AppRoutes = () => {
                 } />
 
 
-                {/* Default route - redirect to login */}
+                {}
                 <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
 
-            {/* Show the modal when we have a background location */}
+            {}
             {background && (
                 <Routes>
                     <Route path="/post/:postId" element={
@@ -135,7 +135,7 @@ const AppRoutes = () => {
                             <PostDetailPage />
                         </ProtectedRoute>
                     } />
-                    {/* Also allow hashtag page to have modal posts */}
+                    {}
                     {/* <Route path="/hashtag/:hashtagName/post/:postId" element={
                         <ProtectedRoute>
                             <PostDetailPage />

@@ -26,9 +26,9 @@ public class Post {
 
     private int likesCount;
     private int commentsCount;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    @JsonFormat(timezone = "GMT+7")
     private Instant createdAt;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    @JsonFormat(timezone = "GMT+7")
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

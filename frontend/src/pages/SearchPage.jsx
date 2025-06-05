@@ -10,7 +10,7 @@ const SearchPage = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searched, setSearched] = useState(false);
-    // Mock data for search results
+    
     const [tags, setTags] = useState([]);
 
     const handleSearch = async (e) => {
@@ -108,7 +108,7 @@ const SearchPage = () => {
                                                         <Link to={`/hashtag/${tag.name}`} className={styles.tagLink}>
                                                             <div className={styles.tagInfo}>
                                                                 <div className={styles.tagName}>#{tag.name}</div>
-                                                                {/* <div className={styles.tagCount}>{tag.postsCount}</div> */}
+                                                                {}
                                                             </div>
                                                         </Link>
 

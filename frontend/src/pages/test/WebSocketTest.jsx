@@ -19,16 +19,16 @@ const WebSocketTest = () => {
     console.log("jwt: " + accessToken)
 
     const connect = () => {
-        const socket = new WebSocket("ws://localhost:8080/ws"); // Match Spring Boot port!
+        const socket = new WebSocket("ws:
         stompClient.current = Stomp.over(socket);
 
         stompClient.current.connect(
             { Authorization: `Bearer ${accessToken}` },
             () => {
-                //setIsConnected(true);
+                
                 console.log('connected')
-                stompClient.current.subscribe("/user/topic", (msg) => {// msg is STOMP message
-                    const data = JSON.parse(msg.body); // msg.body is message payload (JSON string) that backend sends
+                stompClient.current.subscribe("/user/topic", (msg) => {
+                    const data = JSON.parse(msg.body); 
                     setMessages((prev) => [...prev, data]);
                 });
             }
@@ -66,31 +66,31 @@ const WebSocketTest = () => {
                     <h1>WebSocket Test</h1>
                 </div>
                 {
-                //     !isLoggedIn ? (
-                //     <div className="col-6">
-                //         <form onSubmit={handleLogin} className="d-flex gap-2">
-                //             <input
-                //                 type="text"
-                //                 className="form-control"
-                //                 placeholder="username"
-                //                 value={username}
-                //                 onChange={(e) => setUsername(e.target.value)}
-                //                 required
-                //             />
-                //             <input
-                //                 type="password"
-                //                 className="form-control"
-                //                 placeholder="password"
-                //                 value={password}
-                //                 onChange={(e) => setPassword(e.target.value)}
-                //                 required
-                //             />
-                //             <button type="submit" className="btn btn-primary btn-sm px-4">
-                //                 Login
-                //             </button>
-                //         </form>
-                //     </div>
-                // )
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 }
 
 

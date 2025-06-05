@@ -1,4 +1,4 @@
-// src/components/ProtectedRoute.jsx
+
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
         return <LoadingSpinner />;
     } if (!currentUser) {
         console.log('User not authenticated, redirecting to login from:', location.pathname);
-        // Save the current location to redirect back after login
+        
         return <Navigate to="/login" state={{ from: location.pathname }} replace />;
     }
 

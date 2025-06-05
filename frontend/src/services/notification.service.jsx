@@ -4,7 +4,7 @@ import authHeader from './auth-header';
 const API_URL = 'http://localhost:8080/api/';
 
 class NotificationService {
-    // Get all notifications for current user
+
     getNotifications(page = 0, size = 10) {
         return axios.get(
             API_URL + 'notifications',
@@ -17,7 +17,7 @@ class NotificationService {
         });
     }
 
-    // Send a follow request notification
+
     sendFollowRequest(recipientId, senderId) {
         return axios.post(
             API_URL + 'notifications/follow-request',
@@ -31,7 +31,7 @@ class NotificationService {
         });
     }
 
-    // Accept a follow request
+
     acceptFollowRequest(notificationId) {
         return axios.post(
             API_URL + 'notifications/accept',
@@ -42,7 +42,7 @@ class NotificationService {
         });
     }
 
-    // Reject a follow request
+
     rejectFollowRequest(notificationId) {
         return axios.post(
             API_URL + 'notifications/' + notificationId + '/reject',
@@ -53,7 +53,7 @@ class NotificationService {
         });
     }
 
-    // Mark notification as read
+
     markAsRead(notificationId) {
         return axios.put(
             API_URL + 'notifications/' + notificationId + '/read',
@@ -64,7 +64,7 @@ class NotificationService {
         });
     }
 
-    // Mark all notifications as read
+
     markAllAsRead() {
         return axios.put(
             API_URL + 'notifications/read-all',
@@ -75,7 +75,7 @@ class NotificationService {
         });
     }
 
-    // Get all sent follow requests
+
     getSentFollowRequests() {
         return axios.get(API_URL + 'notifications/sent-requests', { headers: authHeader() })
             .then(response => {

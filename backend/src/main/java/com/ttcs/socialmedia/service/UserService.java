@@ -7,6 +7,7 @@ import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
+import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.Role;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
 import org.springframework.data.domain.Pageable;
@@ -77,6 +78,8 @@ public class UserService {
         userDTO.setEmail(user.getEmail());
         userDTO.setFullname(user.getFullname());
         userDTO.setUsername(user.getUsername());
+        userDTO.setCreatedAt(user.getCreatedAt());
+        userDTO.setRole(user.getRole().name());
         Profile p = user.getProfile();
         if (p != null)
             userDTO.setAvatar(p.getAvatar());
@@ -103,4 +106,79 @@ public class UserService {
         return this.userRepository.findByUsernameContainingIgnoreCase(username, pageable);
     }
 
+    public int getTotalUserCount() {
+        return (int) this.userRepository.count();
+    }
+
+    /**
+     * Finds users with pagination and optional search functionality for admin
+     * management
+     * 
+     * @param pageable Pagination information
+     * @param search   Optional search query for username, email, or fullname
+     * @return Page of User objects matching the search criteria
+     */
+    public Page<User> findUsersWithPagination(Pageable pageable, String search) {
+        String currentEmail = SecurityUtil.getCurrentUserLogin().orElseThrow();
+        if(search == null) search = "";
+        return userRepository.findByUsernameOrEmailContainingIgnoreCase(currentEmail,search.trim(), pageable);
+    }
+
+    /**
+     * Find a user by their ID
+     * 
+     * @param id The user ID to look for
+     * @return The user or null if not found
+     */
+    public User findById(int id) {
+        return userRepository.findById(id);
+    }
+
+    /**
+     * Update a user by an admin
+     * 
+     * @param id      The ID of the user to update
+     * @param userDTO The data to update the user with
+     * @return The updated user or null if the user wasn't found
+     */
+    public User updateUserByAdmin(int id, UserDTO userDTO) {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            return null;
+        }
+
+        // Update user fields
+        if (userDTO.getUsername() != null && !userDTO.getUsername().trim().isEmpty()) {
+            user.setUsername(userDTO.getUsername());
+        }
+
+        if (userDTO.getEmail() != null && !userDTO.getEmail().trim().isEmpty()) {
+            user.setEmail(userDTO.getEmail());
+        }
+
+        if (userDTO.getFullname() != null) {
+            user.setFullname(userDTO.getFullname());
+        }
+        if(userDTO.getRole() != null){
+            if(userDTO.getRole().equals("ADMIN")) user.setRole(Role.ADMIN);
+            else user.setRole(Role.USER);
+        }
+        return userRepository.save(user);
+    }
+
+    /**
+     * Delete a user by their ID
+     * 
+     * @param id The ID of the user to delete
+     * @return true if the user was deleted, false if the user wasn't found
+     */
+    public boolean deleteUser(int id) {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            return false;
+        }
+
+        userRepository.delete(user);
+        return true;
+    }
 }

@@ -40,4 +40,11 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
         @Query("SELECT p FROM Post p JOIN PostHashtags ph ON p.id = ph.post.id WHERE ph.hashtag = :hashtag " +
                         "ORDER BY p.createdAt DESC, p.likesCount DESC, p.commentsCount DESC")
         Page<Post> findByHashtag(@Param("hashtag") Hashtag hashtag, Pageable pageable);
+
+        @Query("SELECT p FROM Post p WHERE " +
+                        "LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+                        "LOWER(p.creator.username) LIKE LOWER(CONCAT('%', :search, '%')) " +
+                        "ORDER BY p.createdAt DESC")
+        Page<Post> findByContentOrCreatorUsernameContainingIgnoreCase(@Param("search") String search,
+                        Pageable pageable);
 }

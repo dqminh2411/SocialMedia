@@ -4,7 +4,7 @@ import authHeader from './auth-header';
 const API_URL = 'http://localhost:8080/api/';
 
 class CommentService {
-    // Get comments for a post with pagination
+
     getComments(postId, pageNo) {
         return axios.get(
             API_URL + 'comments?postId=' + postId + '&pageNo=' + pageNo,
@@ -15,7 +15,7 @@ class CommentService {
             });
     }
 
-    // Add a new comment to a post
+
     addComment(postId, content) {
         return axios.post(
             API_URL + 'comments',
@@ -30,7 +30,7 @@ class CommentService {
             });
     }
 
-    // Update an existing comment
+
     updateComment(commentId, content) {
         return axios.put(
             API_URL + 'comments/' + commentId,
@@ -42,7 +42,7 @@ class CommentService {
             });
     }
 
-    // Delete a comment
+
     deleteComment(commentId) {
         return axios.delete(
             API_URL + 'comments/' + commentId,
@@ -53,7 +53,7 @@ class CommentService {
             });
     }
 
-    // Get replies for a comment with pagination
+
     getReplies(commentId, pageNo) {
         return axios.get(
             API_URL + 'comments/' + commentId + '/replies?pageNo=' + pageNo,
@@ -64,7 +64,7 @@ class CommentService {
             });
     }
 
-    // Add a reply to a comment
+
     addReply(commentId, content) {
         return axios.post(
             API_URL + 'comments/' + commentId + '/replies',
@@ -79,7 +79,7 @@ class CommentService {
             });
     }
 
-    // Like a comment
+
     likeComment(commentId) {
         return axios.post(
             API_URL + 'comments/' + commentId + '/like',

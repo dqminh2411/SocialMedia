@@ -176,4 +176,8 @@ public class CommentService {
         LikeComment existingLike = likeCommentRepository.findByCommentAndUser(comment, user);
         return existingLike != null;
     }
+
+    public int getTotalCommentCount() {
+        return (int) commentRepository.count();
+    }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from '../../assets/css/login.module.css';
-import '../../assets/css/auth-common.css'; // Import the common auth styles directly
+import '../../assets/css/auth-common.css'; 
 import { defaultStyles } from '../../assets/js/defaultStyles';
 import { useAuth } from '../../context/AuthContext';
 
@@ -17,9 +17,9 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { login, currentUser } = useAuth();
-    const from = location.state?.from || '/';    // Add effect to force navigation to work correctly
+    const from = location.state?.from || '/';    
     useEffect(() => {
-        // Add event listeners to ensure links and buttons are clickable
+        
         const fixClickableElements = () => {
             const buttons = document.querySelectorAll('button');
             const links = document.querySelectorAll('a');
@@ -36,19 +36,19 @@ const Login = () => {
         };
 
         fixClickableElements();
-        // Run the fix on every render and after a short delay
+        
         const timeoutId = setTimeout(fixClickableElements, 500);
 
         return () => clearTimeout(timeoutId);
     }, []);
-    // Check if user was redirected from signup page
+    
     useEffect(() => {
-        // If came from signup page with success param
+        
         const params = new URLSearchParams(location.search);
         if (params.get('from') === 'signup') {
             setSuccess('Successful signup! You can now log in with your email and password.');
 
-            // Scroll to the success message if it's not visible
+            
             setTimeout(() => {
                 const successElement = document.querySelector(`.${styles.successMessage}`);
                 if (successElement) {
@@ -56,20 +56,20 @@ const Login = () => {
                 }
             }, 100);
 
-            // Auto-focus the email field
+            
             const emailInput = document.querySelector('input[name="email"]');
             if (emailInput) {
                 emailInput.focus();
             }
 
-            // Clear the success message after 5 seconds
+            
             setTimeout(() => {
                 setSuccess('');
             }, 5000);
         }
     }, [location, styles.successMessage]);
 
-    // If user is already authenticated, redirect to home page
+    
     useEffect(() => {
         if (currentUser) {
             console.log('User already logged in, redirecting to:', from);
@@ -105,17 +105,17 @@ const Login = () => {
         setLoading(false);
     };
 
-    // Handle button click directly when using it outside a form
+    
     const handleLoginClick = () => {
         handleSubmit(new Event('submit', { cancelable: true, bubbles: true }));
     };
 
-    // Handle link click
+    
     const handleSignupClick = () => {
         navigate('/signup');
     };
 
-    // Combine CSS module styles with inline styles for resilience
+    
     const combinedStyles = {
         container: { ...defaultStyles.container },
         part1: { ...defaultStyles.part1 },
@@ -162,7 +162,7 @@ const Login = () => {
                     />
                 </form>
 
-                {/* Login button outside the form for better click handling */}
+                {}
                 <button
                     className={styles.dangki}
                     style={combinedStyles.dangki}
@@ -184,7 +184,7 @@ const Login = () => {
                 </p> */}
                 <p>
                     <span>Don't have an account? </span>
-                    {/* Use both Link and onClick for better resilience */}
+                    {}
                     <Link
                         to="/signup"
                         className={styles.dangnhap}

@@ -1,4 +1,4 @@
-// src/pages/admin/AdminLogin.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
@@ -12,7 +12,7 @@ function AdminLogin() {
     const location = useLocation();
     const { login, currentAdmin } = useAdmin();
 
-    // Check if we should redirect to a specific page after login
+    
     const from = location.state?.from || '/admin/dashboard';
 
     useEffect(() => {
@@ -20,7 +20,7 @@ function AdminLogin() {
         console.log('Redirect after admin login target:', from);
     }, [location, from]);
 
-    // If admin is already authenticated, redirect to admin dashboard
+    
     useEffect(() => {
         if (currentAdmin) {
             console.log('Admin already logged in, redirecting to:', from);

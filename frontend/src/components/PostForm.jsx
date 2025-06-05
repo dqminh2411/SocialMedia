@@ -1,26 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
-import EmojiPicker from 'emoji-picker-react'; // You'll need to install this package
+import EmojiPicker from 'emoji-picker-react';
 import styles from '../assets/css/PostForm.module.css';
 import postService from '../services/post.service';
 import authService from '../services/auth.service';
 import { set } from 'date-fns';
 
 const PostForm = ({ post = null, onSubmit }) => {
-    // Using a ref for the editable div instead of a textarea
+
     const editorRef = useRef(null);
     const savedRangeRef = useRef(null)
     const fileInputRef = useRef(null);
     const linkDialogRef = useRef(null);
 
-    // State for current image in slideshow
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);    // State for form data
+
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [formData, setFormData] = useState({
         content: post?.content || '',
         images: post?.images || [],
         videos: post?.videos || [],
     });
 
-    // State for UI control
+
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -35,14 +35,14 @@ const PostForm = ({ post = null, onSubmit }) => {
     const [showLinkDialog, setShowLinkDialog] = useState(false);
     const [linkData, setLinkData] = useState({ url: '', text: '' });
 
-    /// Initialize the editor content and media when editing a post
+
     useEffect(() => {
         if (post) {
-            // Set content
+
             if (editorRef.current && post.content) {
                 editorRef.current.innerHTML = post.content;
                 setFormData(prev => ({ ...prev, content: post.content }));
-            }            // Set images/videos from post media
+            }
             if (post.media && post.media.length > 0) {
                 const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
                 const images = [];
@@ -51,7 +51,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                 post.media.forEach(media => {
                     if (!media.fileName) {
                         console.error('Missing fileName in media object:', media);
-                        return; // Skip this media item
+                        return;
                     }
 
                     const isVideo = media.fileName.match(/\.(mp4|webm|ogg)$/i);
@@ -59,7 +59,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                         id: media.id || `existing-${Math.random().toString(36).substr(2, 9)}`,
                         fileName: media.fileName,
                         url: POST_MEDIA_URL + media.fileName,
-                        // For existing media, we don't have a file object
+
                         isExisting: true
                     };
 
@@ -80,7 +80,7 @@ const PostForm = ({ post = null, onSubmit }) => {
     }, [post]);
 
 
-    // Function to search for hashtags
+
     const searchHashtags = async (query) => {
         if (!query.trim()) {
             return;
@@ -97,22 +97,22 @@ const PostForm = ({ post = null, onSubmit }) => {
 
     };
 
-    // Function to insert a hashtag into the editor as a link
+
     const insertHashtag = (hashtag) => {
         if (!savedRangeRef.current) return;
 
-        // Focus the editor if it's not already focused
+
         editorRef.current.focus();
 
-        // Restore the selection
+
         const selection = window.getSelection();
         selection.removeAllRanges();
         selection.addRange(savedRangeRef.current);
 
-        // Create the hashtag link HTML
+
         const hashtagLink = `<a href="/hashtag/${hashtag}" class="${styles.hashtag}">#${hashtag}</a>&nbsp;`;
 
-        // Insert the hashtag at the cursor position
+
         const range = selection.getRangeAt(0);
         range.deleteContents();
 
@@ -126,15 +126,15 @@ const PostForm = ({ post = null, onSubmit }) => {
 
         range.insertNode(fragment);
 
-        // Move cursor to the end of the inserted content
+
         range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // Close the hashtag dialog
+
         setShowHashtagDialog(false);
 
-        // Update content
+
         handleContentChange();
     };
 
@@ -146,13 +146,13 @@ const PostForm = ({ post = null, onSubmit }) => {
         if (selection && selection.rangeCount > 0) {
             savedRangeRef.current = selection.getRangeAt(0).cloneRange();
         }
-    }    // Monitor content changes in the editable div
+    }
     const handleContentChange = () => {
         if (!editorRef.current) return;
 
         const content = editorRef.current.innerHTML;
         setFormData(prev => {
-            // Only update if content has actually changed to avoid unnecessary re-renders
+
             if (prev.content !== content) {
                 return { ...prev, content };
             }
@@ -172,99 +172,99 @@ const PostForm = ({ post = null, onSubmit }) => {
 
     }
 
-    // Function to insert text at cursor position
+
     const insertTextAtCursor = (text) => {
         if (!editorRef.current) return;
 
-        // Focus the editor
+
         editorRef.current.focus();
 
-        // Get current selection
+
         const selection = window.getSelection();
         if (selection.rangeCount > 0) {
-            // Get the range
+
             const range = selection.getRangeAt(0);
 
-            // Delete any selected text
+
             range.deleteContents();
 
-            // Insert the text
+
             const textNode = document.createTextNode(text);
             range.insertNode(textNode);
 
-            // Move cursor to the end of the inserted text
+
             range.setStartAfter(textNode);
             range.setEndAfter(textNode);
             selection.removeAllRanges();
             selection.addRange(range);
 
-            // Trigger content change to update suggestions
+
             handleContentChange();
 
-            // Save the range for further operations
+
             saveRange();
         }
     };
 
-    // Handle emoji selection
+
     const handleEmojiClick = (emojiObject) => {
         if (!savedRangeRef.current) return;
 
         const selection = window.getSelection();
 
-        // Now we should have a valid selection range
+
         const range = savedRangeRef.current;
 
 
 
-        // Create a text node with the emoji
+
         const textNode = document.createTextNode(emojiObject.emoji);
 
-        // Insert the emoji at the cursor position
+
         range.deleteContents();
         range.insertNode(textNode);
 
-        // Move cursor after the inserted emoji
+
         range.setStartAfter(textNode);
         range.setEndAfter(textNode);
 
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // Close emoji picker and update content state
+
         setShowEmojiPicker(false);
         handleContentChange();
-    };    // Handle mention selection - temporarily commented out
-    /*
+    };
+
     const handleMentionSelect = (username) => {
         if (!savedRangeRef.current) return;
-        
-        // Focus the editor if it's not already focused
+
+
         editorRef.current.focus();
-        
-        // Insert mention with proper structure and a space after it
+
+
         replaceTextBeforeCursor(/@\w*$/, `<span class="${styles.mention}">@${username}</span>&nbsp;`);
         setShowMentionSuggestions(false);
-        
-        // Ensure the editor keeps focus
+
+
         editorRef.current.focus();
     };
 
-    // Handle hashtag selection - temporarily commented out
+
     const handleHashtagSelect = (hashtag) => {
         if (!savedRangeRef.current) return;
 
-        // Focus the editor if it's not already focused
+
         editorRef.current.focus();
 
-        // Insert hashtag with proper structure
+
         replaceTextBeforeCursor(/#\w*$/, `<span class="${styles.hashtag}">#${hashtag}</span>`);
         setShowHashtagSuggestions(false);
 
-        // Ensure the editor keeps focus
+
         editorRef.current.focus();
     };
-    */// Replace text before cursor with formatted HTML
+
     const replaceTextBeforeCursor = (regex, html) => {
         const selection = window.getSelection();
         if (selection.rangeCount === 0) return;
@@ -279,22 +279,22 @@ const PostForm = ({ post = null, onSubmit }) => {
 
         if (!lastMatch) return;
 
-        // Calculate how many characters to delete
+
         const deleteCount = lastMatch[0].length;
         const tempRange = range.cloneRange();
 
-        // Move the range back to the end of the last match
+
         tempRange.setStart(range.endContainer, range.endOffset - deleteCount);
         tempRange.setEnd(range.endContainer, range.endOffset);
 
-        // Delete the last match
+
         tempRange.deleteContents();
 
-        // Insert the HTML
+
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
 
-        // Move all nodes from the temp div to the document
+
         const fragment = document.createDocumentFragment();
         while (tempDiv.firstChild) {
             fragment.appendChild(tempDiv.firstChild);
@@ -302,16 +302,16 @@ const PostForm = ({ post = null, onSubmit }) => {
 
         range.insertNode(fragment);
 
-        // Move cursor to the end of the inserted content
+
         range.collapse(false);
         selection.removeAllRanges();
         selection.addRange(range);
 
-        // Trigger content change handling
+
         handleContentChange();
     };
 
-    // Open link dialog with selected text
+
     const openLinkDialog = () => {
         saveRange();
         const selection = window.getSelection();
@@ -326,7 +326,7 @@ const PostForm = ({ post = null, onSubmit }) => {
         setShowLinkDialog(true);
     };
 
-    // Insert link to the editor
+
     const insertLink = () => {
         if (!linkData.url) {
             setShowLinkDialog(false);
@@ -334,7 +334,7 @@ const PostForm = ({ post = null, onSubmit }) => {
         }
 
         if (savedRangeRef) {
-            // restoreSelection(selectionRange);
+
 
             const selection = window.getSelection();
             selection.addRange(savedRangeRef.current)
@@ -354,7 +354,7 @@ const PostForm = ({ post = null, onSubmit }) => {
 
                 range.insertNode(fragment);
 
-                // Move cursor to the end
+
                 range.collapse(false);
                 selection.removeAllRanges();
                 selection.addRange(range);
@@ -365,27 +365,27 @@ const PostForm = ({ post = null, onSubmit }) => {
         handleContentChange();
     };
 
-    // Handle file selection
+
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
 
         files.forEach(file => {
             if (file.type.startsWith('image/')) {
-                // Handle image
+
                 setFormData(prev => ({
                     ...prev,
                     images: [...prev.images, {
-                        id: Date.now() + Math.random(), // Temporary ID
+                        id: Date.now() + Math.random(),
                         file,
                         url: URL.createObjectURL(file),
                     }]
                 }));
             } else if (file.type.startsWith('video/')) {
-                // Handle video
+
                 setFormData(prev => ({
                     ...prev,
                     videos: [...prev.videos, {
-                        id: Date.now() + Math.random(), // Temporary ID
+                        id: Date.now() + Math.random(),
                         file,
                         url: URL.createObjectURL(file),
                     }]
@@ -393,38 +393,38 @@ const PostForm = ({ post = null, onSubmit }) => {
             }
         });
 
-        // Reset file input
-        e.target.value = '';
-    };    // Remove media item
-    const removeMedia = (type, id) => {
-        // Find the index of the item to be removed
-        const indexToRemove = formData[type].findIndex(item => item.id === id);
-        if (indexToRemove === -1) return; // Item not found
 
-        // Check if this is an existing media from the backend
+        e.target.value = '';
+    };
+    const removeMedia = (type, id) => {
+
+        const indexToRemove = formData[type].findIndex(item => item.id === id);
+        if (indexToRemove === -1) return;
+
+
         const isExistingMedia = formData[type][indexToRemove].isExisting;
 
-        // First, get the updated items by filtering out the removed item
+
         setFormData(prev => {
             const updatedItems = prev[type].filter(item => item.id !== id);
 
-            // If we're removing an image, handle the currentImageIndex update
+
             if (type === 'images') {
-                // If removing the currently displayed image
+
                 if (indexToRemove === currentImageIndex) {
-                    // If it's the last image, go to the previous one
+
                     if (indexToRemove === prev[type].length - 1 && indexToRemove > 0) {
                         setCurrentImageIndex(indexToRemove - 1);
                     }
-                    // If it's not the last image, keep the same index (will show next image)
-                    // Don't need to update if it's the first and only image (will go to 0 anyway)
+
+
                 }
-                // If removing an image before the current one, shift index down
+
                 else if (indexToRemove < currentImageIndex) {
                     setCurrentImageIndex(currentImageIndex - 1);
                 }
 
-                // Safety check - ensure index is valid
+
                 if (updatedItems.length === 0) {
                     setCurrentImageIndex(0);
                 } else if (currentImageIndex >= updatedItems.length) {
@@ -436,42 +436,42 @@ const PostForm = ({ post = null, onSubmit }) => {
             };
         });
 
-        // If the media being removed is an existing one from the backend, add it to the list to be deleted
+
         if (post && formData[type][indexToRemove] && formData[type][indexToRemove].isExisting) {
-            // Store this in component state to send to backend on submit
+
             const fileNameToDelete = formData[type][indexToRemove].fileName;
             console.log(`Marked existing media for deletion: ${fileNameToDelete}`);
         }
     };
 
-    // Handle pasting to strip formatting but keep links
+
     const handlePaste = (e) => {
         e.preventDefault();
 
-        // Get pasted text
+
         const text = e.clipboardData.getData('text/plain');
 
-        // Insert text at cursor position
+
         const selection = window.getSelection();
         if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
             range.deleteContents();
 
-            // Split text by URLs and insert with formatting
+
             const urlRegex = /(https?:\/\/[^\s]+)/g;
             const parts = text.split(urlRegex);
 
-            // Create a document fragment to hold all the nodes
+
             const fragment = document.createDocumentFragment();
 
             parts.forEach((part, index) => {
                 if (index % 2 === 0) {
-                    // Regular text
+
                     if (part) {
                         fragment.appendChild(document.createTextNode(part));
                     }
                 } else {
-                    // URL                    const link = document.createElement('a');
+
                     link.href = part;
                     link.className = styles.url;
                     link.target = '_blank';
@@ -482,7 +482,7 @@ const PostForm = ({ post = null, onSubmit }) => {
 
             range.insertNode(fragment);
 
-            // Move cursor to the end
+
             range.collapse(false);
             selection.removeAllRanges();
             selection.addRange(range);
@@ -499,37 +499,37 @@ const PostForm = ({ post = null, onSubmit }) => {
             return;
         }
 
-        // Get the content from the editor
+
         const content = editorRef.current.innerHTML;
 
-        // Validate content
+
         if (!content.trim()) {
             setError("Post content cannot be empty");
             return;
         }
 
-        // Reset states
+
         setError(null);
         setIsSubmitting(true);
         setSuccess(false);
 
-        // Get the current user
+
         const currentUser = authService.getCurrentUser();
 
         if (!currentUser || !currentUser.user) {
             setError('User not authenticated');
             setIsSubmitting(false);
             return;
-        }        // Extract media files from formData for API call
+        }
         const mediaFiles = [
             ...formData.images.filter(img => !img.isExisting).map(img => img.file),
             ...formData.videos.filter(video => !video.isExisting).map(video => video.file)
         ];
 
-        // Track media that should be deleted (for edit mode)
+
         const mediaToDelete = [];
         if (post && post.media) {
-            // Find media from the original post that are no longer in formData
+
             post.media.forEach(originalMedia => {
                 const stillExists = [...formData.images, ...formData.videos].some(
                     currentMedia => currentMedia.isExisting && currentMedia.fileName === originalMedia.fileName
@@ -540,28 +540,28 @@ const PostForm = ({ post = null, onSubmit }) => {
             });
         }
 
-        // const mentions = [];
 
-        // // Extract hashtags from the content
+
+
         const hashtags = [];
-        // const hashtagRegex = /<a[^>]*?class="[^"]*?hashtag[^"]*?"[^>]*?>(?:#)([^<]+)<\/a>/g;
-        // let match;
 
-        // Create a temporary div to parse the HTML content
+
+
+
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = content;
 
-        // Extract hashtags from the HTML links
+
         const hashtagLinks = tempDiv.querySelectorAll('a.' + styles.hashtag);
         hashtagLinks.forEach(link => {
-            // Extract the hashtag name (without the # symbol)
-            const hashtagName = link.textContent.substring(1); // Remove the # symbol
+
+            const hashtagName = link.textContent.substring(1);
             if (hashtagName && !hashtags.includes(hashtagName)) {
                 hashtags.push(hashtagName);
             }
         });
 
-        // Prepare data for API
+
         const postData = {
             creatorId: currentUser.user.id,
             content: content,
@@ -569,7 +569,7 @@ const PostForm = ({ post = null, onSubmit }) => {
         };
 
         if (post) {
-            // Update existing post
+
             postService.updatePost(post.id, postData, mediaFiles, mediaToDelete)
                 .then(response => {
                     console.log('Post updated successfully:', response);
@@ -583,7 +583,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                     setIsSubmitting(false);
                 });
         } else {
-            // Create new post
+
             postService.createPost(postData, mediaFiles)
                 .then(response => {
                     console.log('Post created successfully:', response);
@@ -592,7 +592,7 @@ const PostForm = ({ post = null, onSubmit }) => {
 
                     if (onSubmit) onSubmit(response);
 
-                    // Clear form after successful submission
+
                     editorRef.current.innerHTML = '';
                     setFormData({
                         content: '',
@@ -611,7 +611,7 @@ const PostForm = ({ post = null, onSubmit }) => {
     return (
         <div className={styles['post-form-container']}>
             <form onSubmit={handleSubmit}>
-                <div className={styles['form-group']}>                    {/* Media controls and preview moved above the editor */}
+                <div className={styles['form-group']}>                    { }
                     <div className={styles['media-controls']}>
                         <button
                             type="button"
@@ -629,10 +629,10 @@ const PostForm = ({ post = null, onSubmit }) => {
                             style={{ display: 'none' }}
 
                         />
-                    </div>                    {/* Media preview as slideshow */}
+                    </div>                    { }
                     {(formData.images.length > 0 || formData.videos.length > 0) && (
                         <div className={styles['slideshow-container']}>
-                            {/* Images slideshow */}
+                            { }
                             {formData.images.length > 0 && (
                                 <div className={styles['slideshow']}>
                                     <div className={styles['slide']}>                                    {formData.images.length > currentImageIndex && formData.images[currentImageIndex] ? (
@@ -684,7 +684,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                                                 }}
                                             >
                                                 ❯
-                                            </button>{/* Dots/indicators */}
+                                            </button>{ }
                                             <div className={styles['dots-container']}>
                                                 {formData.images.map((_, index) => (
                                                     <button
@@ -698,7 +698,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                                         </>
                                     )}
                                 </div>
-                            )}                            {/* Videos */}
+                            )}                            { }
                             {formData.videos.length > 0 && formData.images.length === 0 && (
                                 <div className={styles['videos-container']}>
                                     {formData.videos.map(video => (
@@ -726,7 +726,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                             className={styles['toolbar-button']}
                             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                             title="Insert Emoji"
-                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                            onMouseDown={(e) => e.preventDefault()}
                         >
                             😀
                         </button>
@@ -735,7 +735,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                             className={styles['toolbar-button']}
                             onClick={openLinkDialog}
                             title="Insert Link"
-                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                            onMouseDown={(e) => e.preventDefault()}
                         >
                             🔗
                         </button>
@@ -744,7 +744,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                             className={styles['toolbar-button']}
                             onClick={() => setShowHashtagDialog(true)}
                             title="Add Hashtag"
-                            onMouseDown={(e) => e.preventDefault()} // Prevent focus loss
+                            onMouseDown={(e) => e.preventDefault()}
                         >
                             #
                         </button>
@@ -822,7 +822,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                 </div>
             </form>
 
-            {/* Hashtag Dialog */}
+            { }
             {showHashtagDialog && (
                 <div className={styles['hashtag-dialog']} ref={linkDialogRef}>
                     <div className={styles['hashtag-dialog-content']}>

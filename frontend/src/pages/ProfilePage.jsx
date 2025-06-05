@@ -10,8 +10,8 @@ import { faHeart, faComment, faSearch, faTimes, faUser, faUsers } from '@fortawe
 import NotificationService from '../services/notification.service.jsx';
 
 const ProfilePage = () => {
-    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
+    const POST_MEDIA_URL = 'http:
+    const AVATAR_URL = 'http:
     const { username } = useParams();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -42,14 +42,14 @@ const ProfilePage = () => {
     const [followStatus, setFollowStatus] = useState('NOT_REQUESTED');
     const fileInputRef = useRef(null);
 
-    // States for followers/following modal
+    
     const [showFollowModal, setShowFollowModal] = useState(false);
-    const [modalType, setModalType] = useState(''); // 'followers' or 'following'
+    const [modalType, setModalType] = useState(''); 
     const [followUsers, setFollowUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [followLoading, setFollowLoading] = useState(false);
 
-    // Add pagination state variables
+    
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
@@ -58,22 +58,22 @@ const ProfilePage = () => {
     const [searched, setSearched] = useState(false);
 
     useEffect(() => {
-        // Check if we're returning from a post deletion
+        
         if (location.state && location.state.postDeleted) {
             console.log("Post was deleted, refreshing profile...");
             fetchUserProfile();
-            // Clean up the location state to prevent multiple refreshes
+            
             navigate(location.pathname, { replace: true, state: {} });
         }
     }, [location.state]);
 
     useEffect(() => {
-        // Log when the component is re-rendering due to location change
+        
         if (location.key) {
             console.log("ProfilePage re-rendering due to navigation with key:", location.key);
         }
 
-        // Fetch user profile when component mounts
+        
         if (currentUser && currentUser.user && currentUser.user.id) {
             fetchUserProfile();
 
@@ -96,7 +96,7 @@ const ProfilePage = () => {
         setSearchQuery('');
         setFollowLoading(true);
         setShowFollowModal(true);
-        setCurrentPage(0); // Reset to first page when opening modal
+        setCurrentPage(0); 
 
         try {
             let response;
@@ -116,10 +116,10 @@ const ProfilePage = () => {
         }
     };
 
-    // Handle searching in the followers/following modal
+    
     const handleFollowSearch = async () => {
         setFollowLoading(true);
-        setCurrentPage(0); // Reset to first page when searching
+        setCurrentPage(0); 
         setSearched(true);
         try {
             let response;
@@ -139,7 +139,7 @@ const ProfilePage = () => {
         }
     };
 
-    // Handle page change in pagination
+    
     const handlePageChange = async (newPage) => {
         if (newPage < 0 || newPage >= totalPages) return;
 
@@ -175,11 +175,11 @@ const ProfilePage = () => {
     };
 
     const fetchUserProfile = async () => {
-        // if (!currentUser || !currentUser.user.id) {
-        //     setError('User not logged in or user ID not available');
-        //     setLoading(false);
-        //     return;
-        // }
+        
+        
+        
+        
+        
         const profileUsername = username || currentUser.user.username;
         if (!profileUsername) {
             setError('Username not provided');
@@ -203,9 +203,9 @@ const ProfilePage = () => {
                 avatar: UserService.getAvatarUrl(profileData.userDTO.avatar)
             });
 
-            // Fetch user posts
-            // const postsData = await ProfileService.getUserPosts(userId);
-            // setPosts(postsData);
+            
+            
+            
             setPosts(profileData.posts || []);
         } catch (err) {
             console.error('Error fetching user profile:', err);
@@ -222,7 +222,7 @@ const ProfilePage = () => {
     };
 
     const handleEditProfileClick = () => {
-        // Initialize form with current values
+        
         setEditFormData({
             bio: user.bio || '',
             avatar: null
@@ -232,20 +232,20 @@ const ProfilePage = () => {
         setUpdateError(null);
         setUpdateSuccess(false);
     }; const handleCloseEditForm = () => {
-        // Check if there are unsaved changes
+        
         const hasUnsavedChanges =
             editFormData.bio !== (user.bio || '') ||
             editFormData.avatar !== null;
 
         if (hasUnsavedChanges) {
-            // Ask for confirmation before closing
-            // const confirmClose = window.confirm('You have unsaved changes. Are you sure you want to discard them?');
-            // if (!confirmClose) {
-            //     return; // User chose to continue editing
-            // }
+            
+            
+            
+            
+            
         }
 
-        // Close the form and reset form state
+        
         setShowEditForm(false);
         setPreviewAvatar(null);
         setEditFormData({
@@ -269,10 +269,10 @@ const ProfilePage = () => {
                 avatar: file
             }));
 
-            // Show loading indicator
+            
             setAvatarLoading(true);
 
-            // Create preview URL
+            
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewAvatar(reader.result);
@@ -289,25 +289,25 @@ const ProfilePage = () => {
         fileInputRef.current.click();
     };
 
-    // Validate profile data before submission
+    
     const validateProfileData = (data) => {
         const errors = {};
 
-        // Validate bio (optional, but if provided should be within limits)
+        
         if (data.bio && data.bio.length > 500) {
             errors.bio = 'Bio must be 500 characters or less';
         }
 
-        // Validate avatar if present
+        
         if (data.avatar) {
-            // Check file type
+            
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(data.avatar.type)) {
                 errors.avatar = 'Only JPG, PNG, GIF, and WEBP images are allowed';
             }
 
-            // Check file size (2MB limit)
-            const maxSize = 2 * 1024 * 1024; // 2MB in bytes
+            
+            const maxSize = 2 * 1024 * 1024; 
             if (data.avatar.size > maxSize) {
                 errors.avatar = 'Image size should be less than 2MB';
             }
@@ -317,7 +317,7 @@ const ProfilePage = () => {
             isValid: Object.keys(errors).length === 0,
             errors
         };
-    };// Function to submit profile updates to the backend
+    };
     const submitProfileUpdate = async (profileData) => {
         if (!currentUser || !currentUser.user.id) {
             return { success: false, error: 'User not authenticated' };
@@ -325,17 +325,17 @@ const ProfilePage = () => {
 
         try {
             const formData = new FormData();
-            // Add user ID to formData
+            
             formData.append('userId', currentUser.user.id);
-            // Add bio to formData
+            
             formData.append('bio', profileData.bio);
 
-            // Add avatar to formData if it exists
+            
             if (profileData.avatar) {
                 formData.append('avatar', profileData.avatar);
             }
 
-            // Make API call to update profile
+            
             const response = await ProfileService.updateUserProfile(formData);
             console.log('Profile updated:', response);
 
@@ -351,7 +351,7 @@ const ProfilePage = () => {
             };
         }
     };
-    // Form submission handler
+    
     const handleSubmitEditForm = async (e) => {
         e.preventDefault();
 
@@ -359,10 +359,10 @@ const ProfilePage = () => {
         setUpdateError(null);
         setUpdateSuccess(false);
 
-        // Validate form data before submission
+        
         const validationResult = validateProfileData(editFormData);
         if (!validationResult.isValid) {
-            // Get the first error message
+            
             const firstError = Object.values(validationResult.errors)[0];
             setUpdateError(firstError);
             setUpdateLoading(false);
@@ -372,20 +372,20 @@ const ProfilePage = () => {
         const result = await submitProfileUpdate(editFormData);
 
         if (result.success) {
-            // Update the user state with new data
+            
             setUser(prev => ({
                 ...prev,
                 bio: editFormData.bio,
-                // Only update avatar if a new one was uploaded
+                
                 ...(editFormData.avatar && { avatar: previewAvatar })
             }));
 
             setUpdateSuccess(true);
 
-            // Close the form after a delay
+            
             setTimeout(() => {
                 handleCloseEditForm();
-                // Refresh the profile data
+                
                 fetchUserProfile();
             }, 1500);
         } else {
@@ -436,7 +436,7 @@ const ProfilePage = () => {
                                     <p>{user.bio}</p>
                                 </div>
 
-                                {/* Only show Edit button if this is the current user's profile */}
+                                {}
                                 {currentUser && currentUser.user.username === username ? (
                                     <button
                                         className={styles.editProfileBtn}
@@ -445,7 +445,7 @@ const ProfilePage = () => {
                                         Edit Profile
                                     </button>
                                 ) : (
-                                    // Show Follow/Message button for other users
+                                    
                                     <div className={styles.profileActions}>
                                         <button
                                             className={styles.followBtn}
@@ -529,7 +529,7 @@ const ProfilePage = () => {
                 )}
             </div>
 
-            {/* Edit Profile Modal */}
+            {}
             {showEditForm && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -615,7 +615,7 @@ const ProfilePage = () => {
                 </div>
             )}
 
-            {/* Followers/Following Modal */}
+            {}
             {showFollowModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -671,7 +671,7 @@ const ProfilePage = () => {
                             )}
                         </div>
 
-                        {/* Pagination controls */}
+                        {}
                         {totalPages > 0 && (
                             <div className={styles.pagination}>
                                 <button

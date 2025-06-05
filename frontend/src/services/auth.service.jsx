@@ -1,4 +1,4 @@
-// src/services/auth.service.js
+
 import axios from 'axios';
 
 const API_URL = 'http://localhost:8080/auth/';
@@ -48,7 +48,7 @@ class AuthService {
                 return null;
             }
             const user = JSON.parse(userStr);
-            //console.log('Current user from localStorage:', user);
+
             return user;
         } catch (error) {
             console.error('Error getting current user:', error);
@@ -65,6 +65,7 @@ class AuthService {
             return {};
         }
     }
+
 }
 
 export default new AuthService();

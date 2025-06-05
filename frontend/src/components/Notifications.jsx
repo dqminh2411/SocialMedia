@@ -17,7 +17,7 @@ const Notifications = () => {
     useEffect(() => {
         if (!currentUser) return;
 
-        // Fetch notifications
+
         const fetchNotifications = async () => {
             try {
                 const data = await NotificationService.getNotifications();
@@ -30,17 +30,17 @@ const Notifications = () => {
 
         fetchNotifications();
 
-        // Connect to WebSocket for real-time notifications
+
         NotificationService.connect();
 
-        // Handle incoming notifications
+
         const unsubscribe = NotificationService.onMessage(notification => {
             setNotifications(prev => [notification, ...prev]);
             setUnreadCount(prevCount => prevCount + 1);
         });
 
         return () => {
-            // Clean up
+
             unsubscribe();
             NotificationService.disconnect();
         };
@@ -51,12 +51,12 @@ const Notifications = () => {
     };
 
     const handleNotificationClick = async (notification) => {
-        // Mark as read if not already
+
         if (!notification.read) {
             try {
                 await NotificationService.markAsRead(notification.id);
 
-                // Update local state
+
                 setNotifications(prev =>
                     prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
                 );
@@ -71,7 +71,7 @@ const Notifications = () => {
         try {
             await NotificationService.acceptFollowRequest(notification.id);
 
-            // Update local state
+
             setNotifications(prev =>
                 prev.map(n => n.id === notification.id ? { ...n, read: true, accepted: true } : n)
             );
@@ -85,7 +85,7 @@ const Notifications = () => {
         try {
             await NotificationService.rejectFollowRequest(notification.id);
 
-            // Update local state
+
             setNotifications(prev =>
                 prev.map(n => n.id === notification.id ? { ...n, read: true, rejected: true } : n)
             );
@@ -99,7 +99,7 @@ const Notifications = () => {
         try {
             await NotificationService.markAllAsRead();
 
-            // Update local state
+
             setNotifications(prev => prev.map(n => ({ ...n, read: true })));
             setUnreadCount(0);
         } catch (error) {

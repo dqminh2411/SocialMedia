@@ -16,37 +16,37 @@ class MessageService {
         this.maxReconnectAttempts = 5;
     }
     connect() {
-        // If already connected, return existing promise
+
         if (this.connected && this.stompClient) {
             return Promise.resolve();
         }
 
-        // If connection is in progress, return the existing promise
+
         if (this.connectionPromise) {
             return this.connectionPromise;
         }
 
-        // Create a new connection promise
+
         this.connectionPromise = new Promise((resolve, reject) => {
             try {
-                // Get the token from authHeader
+
                 const headers = authHeader();
                 // Create a WebSocket connection
                 const socket = new WebSocket("ws://localhost:8080/ws");
 
                 this.stompClient = Stomp.over(socket);
 
-                // Enable debug logging for troubleshooting
+
                 this.stompClient.debug = function (str) {
                     console.log('STOMP Debug:', str);
-                };                // Connect to the STOMP broker
+                };
                 this.stompClient.connect(
                     headers,
                     (frame) => {
                         console.log('Connected to WebSocket: ' + frame);
                         this.connected = true;
 
-                        // Subscribe only after we're connected
+
                         try {
                             console.log('Subscribing to topic:', USER_CHAT);
 
@@ -58,7 +58,7 @@ class MessageService {
                                         const data = JSON.parse(message.body);
                                         console.log("📨 Parsed message data:", data);
 
-                                        // Call all registered handlers
+
                                         this.messageHandlers.forEach(handler => handler(data));
                                     } catch (error) {
                                         console.error("Error parsing message:", error);
@@ -68,11 +68,11 @@ class MessageService {
                             );
 
                             console.log('Successfully subscribed to:', USER_CHAT);
-                            this.connectionPromise = null; // Clear the promise to allow future connection attempts
+                            this.connectionPromise = null;
                             resolve();
                         } catch (subError) {
                             console.error('Error during subscription:', subError);
-                            // Still resolve as connected even if subscription fails
+
                             this.connectionPromise = null;
                             resolve();
                         }
@@ -93,18 +93,18 @@ class MessageService {
         });
 
         return this.connectionPromise;
-    }    // Disconnect from WebSocket
+    }
     disconnect() {
         try {
             console.log('Disconnecting from WebSocket');
 
-            // Clear all handlers
+
             this.messageHandlers = [];
 
-            // Clear any pending connection promise
+
             this.connectionPromise = null;
 
-            // Unsubscribe from any active subscriptions
+
             if (this.subscription) {
                 console.log('Unsubscribing from subscription');
                 try {
@@ -115,7 +115,7 @@ class MessageService {
                 this.subscription = null;
             }
 
-            // Disconnect the STOMP client if connected
+
             if (this.stompClient) {
                 if (this.connected) {
                     console.log('Disconnecting STOMP client');
@@ -128,7 +128,7 @@ class MessageService {
                     }
                 }
 
-                // Clean up resources regardless of disconnect success
+
                 this.stompClient = null;
                 this.connected = false;
             }
@@ -136,12 +136,12 @@ class MessageService {
             console.log('WebSocket cleanup completed');
         } catch (error) {
             console.error('Error during WebSocket disconnect:', error);
-            // Ensure resources are cleaned up even if there's an error
+
             this.stompClient = null;
             this.connected = false;
             this.subscription = null;
         }
-    }// Register a message handler
+    }
     onMessage(handler) {
         this.messageHandlers.push(handler);
         return () => {
@@ -149,7 +149,7 @@ class MessageService {
         };
     }
     sendMessage(senderId, chatId, content) {
-        // If not connected, try to connect first
+
         if (!this.connected || !this.stompClient) {
             console.log('WebSocket not connected, attempting to connect before sending message');
             return this.connect()
@@ -160,9 +160,9 @@ class MessageService {
                 });
         }
 
-        // If already connected, send immediately
+
         return Promise.resolve(this.doSendMessage(senderId, chatId, content));
-    }    // Internal method to actually send the message
+    }
     doSendMessage(senderId, chatId, content) {
         const message = {
             senderId,
@@ -182,12 +182,12 @@ class MessageService {
             console.log('Sending message to', CHAT_DESTINATION, message);
             this.stompClient.send(CHAT_DESTINATION, authHeader(), JSON.stringify(message));
             console.log('Message sent successfully');
-            this.reconnectAttempts = 0; // Reset reconnect attempts on successful send
+            this.reconnectAttempts = 0;
             return true;
         } catch (error) {
             console.error('Error sending message:', error);
 
-            // If we encounter an error while sending, check connection on next attempt
+
             this.connected = false;
 
             return false;
@@ -242,7 +242,7 @@ class MessageService {
         });
     }
 
-    // Check connection status and reconnect if needed
+
     checkConnection() {
         if (this.connected && this.stompClient) {
             console.log('WebSocket connection is active');

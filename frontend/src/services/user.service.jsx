@@ -25,7 +25,7 @@ class UserService {
             });
     }
 
-    // Get users that the user is following
+
     getUserFollowing(userId, page = 0, size = 20) {
         return axios.get(
             API_URL + 'users/' + userId + '/following',
@@ -43,7 +43,7 @@ class UserService {
             });
     }
 
-    // Follow a user
+
     followUser(userId) {
         return axios.post(
             API_URL + 'users/' + userId + '/follow',
@@ -59,7 +59,7 @@ class UserService {
             });
     }
 
-    // Unfollow a user
+
     unfollowUser(userId) {
         return axios.delete(
             API_URL + 'users/' + userId + '/follow',
@@ -74,7 +74,7 @@ class UserService {
             });
     }
 
-    // Search for users
+
     searchUsers(username, page = 1) {
         return axios.get(
             'http://localhost:8080/users/search',
@@ -106,12 +106,12 @@ class UserService {
             })
             .catch(error => {
                 console.error("Error fetching suggested users:", error);
-                // Return empty array as fallback
+
                 return { content: [] };
             });
     }
 
-    // Helper method to get avatar URL
+
     getAvatarUrl(avatarFileName) {
         if (!avatarFileName) {
             return AVATAR_URL + DEFAULT_AVATAR;

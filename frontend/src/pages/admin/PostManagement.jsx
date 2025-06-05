@@ -1,4 +1,4 @@
-// src/pages/admin/PostManagement.jsx
+
 import React, { useState, useEffect } from 'react';
 import AdminService from '../../services/admin.service';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -29,30 +29,25 @@ const PostManagement = () => {
     const [editForm, setEditForm] = useState({
         caption: '',
         status: ''
-    }); const fetchPosts = async () => {
+    });
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+
+    const fetchPosts = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await AdminService.getMockPosts(page, size, searchQuery);
+            const response = await AdminService.getPosts(page, size, searchQuery);
 
             if (response.data && response.data.data) {
                 setPosts(response.data.data.content);
                 setTotalPages(response.data.data.totalPages);
-            } else {
-                // Try to use the mock data directly
-                const mockData = AdminService.getMockPosts(page, size, searchQuery);
-                setPosts(mockData.data.content);
-                setTotalPages(mockData.data.totalPages);
             }
         } catch (error) {
-            console.error('Error fetching posts:', error);
-            setError('Failed to load posts. Using mock data instead.');
-
-            // Use mock data as fallback
-            const mockData = AdminService.getMockPosts(page, size, searchQuery);
-            setPosts(mockData.data.content);
-            setTotalPages(mockData.data.totalPages);
+            console.error('Unexpected response format:', response);
+            setError('Failed to load posts. Please try again later.');
+            setPosts([]);
+            setTotalPages(0);
         } finally {
             setLoading(false);
         }
@@ -72,14 +67,13 @@ const PostManagement = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setPage(0); // Reset to first page when searching
+        setPage(0);
         fetchPosts();
-    };
-
-    const handleViewClick = async (postId) => {
+    }; const handleViewClick = async (postId) => {
         try {
             const response = await AdminService.getPostById(postId);
             setSelectedPost(response.data.data);
+            setCurrentMediaIndex(0);
             setShowDetailModal(true);
         } catch (error) {
             console.error('Error fetching post details:', error);
@@ -107,7 +101,7 @@ const PostManagement = () => {
         if (window.confirm('Are you sure you want to delete this post?')) {
             try {
                 await AdminService.deletePost(postId);
-                // Refresh the post list
+
                 fetchPosts();
                 alert('Post deleted successfully');
             } catch (error) {
@@ -131,16 +125,14 @@ const PostManagement = () => {
         try {
             await AdminService.updatePost(selectedPost.id, editForm);
             setShowEditModal(false);
-            // Refresh the post list
+
             fetchPosts();
             alert('Post updated successfully');
         } catch (error) {
             console.error('Error updating post:', error);
             alert('Failed to update post. Please try again.');
         }
-    };
-
-    const formatDate = (dateString) => {
+    }; const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
 
         const date = new Date(dateString);
@@ -156,6 +148,32 @@ const PostManagement = () => {
     const truncateText = (text, maxLength = 50) => {
         if (!text) return 'N/A';
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    };
+
+
+    const goToNextMedia = () => {
+        if (selectedPost?.media && selectedPost.media.length > 0) {
+            setCurrentMediaIndex((prevIndex) =>
+                prevIndex === selectedPost.media.length - 1 ? 0 : prevIndex + 1
+            );
+        }
+    };
+
+
+    const goToPrevMedia = () => {
+        if (selectedPost?.media && selectedPost.media.length > 0) {
+            setCurrentMediaIndex((prevIndex) =>
+                prevIndex === 0 ? selectedPost.media.length - 1 : prevIndex - 1
+            );
+        }
+    };
+
+
+    const isVideo = (fileName) => {
+        if (!fileName) return false;
+        return fileName.toLowerCase().endsWith('.mp4') ||
+            fileName.toLowerCase().endsWith('.mov') ||
+            fileName.toLowerCase().endsWith('.webm');
     };
 
     return (
@@ -200,7 +218,6 @@ const PostManagement = () => {
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-
                                         <th>Content</th>
                                         <th>Author</th>
                                         <th>Likes</th>
@@ -214,21 +231,9 @@ const PostManagement = () => {
                                         posts.map(post => (
                                             <tr key={post.id}>
                                                 <td>{post.id}</td>
-                                                <td>
-                                                    {post.mediaUrl ? (
-                                                        <div className={styles.thumbnailContainer}>
-                                                            <img
-                                                                src={post.mediaUrl}
-                                                                alt="Post thumbnail"
-                                                                className={styles.thumbnail}
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        'No image'
-                                                    )}
-                                                </td>
-                                                <td>{truncateText(post.caption)}</td>
-                                                <td>{post.author?.username || 'User1'}</td>
+
+                                                <td><div dangerouslySetInnerHTML={{ __html: post.content.substring(0, 30) }} /></td>
+                                                <td>{post.creator?.username || 'User1'}</td>
                                                 <td>{post.likeCount || 0}</td>
                                                 <td>{post.commentCount || 0}</td>
 
@@ -294,7 +299,7 @@ const PostManagement = () => {
                 )}
             </div>
 
-            {/* Post Detail Modal */}
+            { }
             {showDetailModal && selectedPost && (
                 <div className={styles.modalOverlay} onClick={() => setShowDetailModal(false)}>
                     <div className={styles.detailModal} onClick={e => e.stopPropagation()}>
@@ -307,7 +312,6 @@ const PostManagement = () => {
                                 <FontAwesomeIcon icon={faTimes} />
                             </button>
                         </div>
-
                         <div className={styles.postDetail}>
                             <div className={styles.postImage}>
                                 {selectedPost.mediaUrl ? (
@@ -319,7 +323,7 @@ const PostManagement = () => {
                                 ) : (
                                     <div className={styles.noImage}>
                                         <FontAwesomeIcon icon={faImage} />
-                                        <p>No image available</p>
+                                        <p>No media available</p>
                                     </div>
                                 )}
                             </div>
@@ -327,12 +331,12 @@ const PostManagement = () => {
                             <div className={styles.postInfo}>
                                 <div className={styles.infoItem}>
                                     <span className={styles.infoLabel}>Author:</span>
-                                    <span className={styles.infoValue}>{selectedPost.author?.username || 'Unknown'}</span>
+                                    <span className={styles.infoValue}>{selectedPost.creator?.username || 'Unknown'}</span>
                                 </div>
 
                                 <div className={styles.infoItem}>
-                                    <span className={styles.infoLabel}>Caption:</span>
-                                    <p className={styles.caption}>{selectedPost.caption || 'No caption'}</p>
+                                    <span className={styles.infoLabel}>Content:</span>
+                                    <div dangerouslySetInnerHTML={{ __html: selectedPost.content.substring(0, 30) }} />
                                 </div>
 
                                 <div className={styles.infoRow}>
@@ -348,12 +352,7 @@ const PostManagement = () => {
                                 </div>
 
                                 <div className={styles.infoRow}>
-                                    <div className={styles.infoItem}>
-                                        <span className={styles.infoLabel}>Status:</span>
-                                        <span className={`${styles.badge} ${styles[selectedPost.status?.toLowerCase() || 'active']}`}>
-                                            {selectedPost.status || 'ACTIVE'}
-                                        </span>
-                                    </div>
+
 
                                     <div className={styles.infoItem}>
                                         <span className={styles.infoLabel}>Created:</span>
@@ -362,15 +361,7 @@ const PostManagement = () => {
                                 </div>
 
                                 <div className={styles.modalActions}>
-                                    <button
-                                        className={styles.editButton}
-                                        onClick={() => {
-                                            setShowDetailModal(false);
-                                            handleEditClick(selectedPost.id);
-                                        }}
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} /> Edit Post
-                                    </button>
+
 
                                     <button
                                         className={styles.deleteButton}
@@ -388,8 +379,8 @@ const PostManagement = () => {
                 </div>
             )}
 
-            {/* Edit Post Modal */}
-            {showEditModal && selectedPost && (
+            { }
+            {/* {showEditModal && selectedPost && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
                         <div className={styles.modalHeader}>
@@ -444,7 +435,7 @@ const PostManagement = () => {
                         </form>
                     </div>
                 </div>
-            )}
+            )} */}
         </AdminLayout>
     );
 };

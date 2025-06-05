@@ -56,8 +56,6 @@ public class AuthController {
             String accessToken = this.securityUtil.createAccessToken(userDTO);
             resLoginDTO.setAccessToken(accessToken);
 
-
-
             // create refresh token
 
             String refreshToken = this.securityUtil.createRefreshToken(resLoginDTO);
@@ -98,7 +96,7 @@ public class AuthController {
             throw new AuthException("User/RefreshToken không hợp lệ");
         }
 
-        // create resLoginDTO,
+        // create resLoginDTO
 
         UserDTO userLogin = userService.userToUserDTO(user);
         ResLoginDTO resLoginDTO = new ResLoginDTO();

@@ -1,4 +1,4 @@
-// src/pages/admin/UserManagement.jsx
+
 import React, { useState, useEffect } from 'react';
 import AdminService from '../../services/admin.service';
 import AdminLayout from '../../components/admin/AdminLayout';
@@ -29,31 +29,25 @@ const UserManagement = () => {
         email: '',
         fullName: '',
         role: '',
-        status: ''
-    }); const fetchUsers = async () => {
+    });
+
+    const fetchUsers = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await AdminService.getMockUsers(page, size, searchQuery);
+            const response = await AdminService.getUsers(page, size, searchQuery);
 
             if (response.data && response.data.data) {
                 setUsers(response.data.data.content);
                 setTotalPages(response.data.data.totalPages);
-            } else {
-                // Try to use the mock data directly
-                const mockData = AdminService.getMockUsers(page, size, searchQuery);
-                setUsers(mockData.data.content);
-                setTotalPages(mockData.data.totalPages);
             }
+            console.log(response.data.data.content)
         } catch (error) {
             console.error('Error fetching users:', error);
             setError('Failed to load users. Using mock data instead.');
 
-            // Use mock data as fallback
-            const mockData = AdminService.getMockUsers(page, size, searchQuery);
-            setUsers(mockData.data.content);
-            setTotalPages(mockData.data.totalPages);
+
         } finally {
             setLoading(false);
         }
@@ -73,28 +67,25 @@ const UserManagement = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        setPage(0); // Reset to first page when searching
+        setPage(0); 
         fetchUsers();
-    };
-
-    const handleEditClick = (user) => {
+    }; const handleEditClick = (user) => {
         setSelectedUser(user);
         setEditForm({
-            username: user.username,
-            email: user.email,
-            fullName: user.fullName || '',
-            role: user.role || 'USER',
-            status: user.status || 'ACTIVE'
+            username: user.username || '',
+            email: user.email || '',
+            fullName: user.fullname || '', 
+            role: user.role || 'USER'
         });
         setShowEditModal(true);
-    };
-
-    const handleDeleteClick = async (userId) => {
+    }; const handleDeleteClick = async (userId) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
                 await AdminService.deleteUser(userId);
-                // Refresh the user list
-                fetchUsers();
+
+                
+                setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+
                 alert('User deleted successfully');
             } catch (error) {
                 console.error('Error deleting user:', error);
@@ -109,16 +100,38 @@ const UserManagement = () => {
             ...editForm,
             [name]: value
         });
-    };
-
-    const handleEditSubmit = async (e) => {
+    }; const handleEditSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            await AdminService.updateUser(selectedUser.id, editForm);
+            
+            const userData = {
+                username: editForm.username,
+                email: editForm.email,
+                fullname: editForm.fullName, 
+                role: editForm.role
+            };
+
+            console.log('Submitting form with data:', userData);
+            const response = await AdminService.updateUser(selectedUser.id, userData);
+            console.log('Update response:', response);
+
+            
+            setUsers(prevUsers =>
+                prevUsers.map(user =>
+                    user.id === selectedUser.id
+                        ? {
+                            ...user,
+                            username: userData.username,
+                            email: userData.email,
+                            fullname: userData.fullname,
+                            role: userData.role
+                        }
+                        : user
+                )
+            );
+
             setShowEditModal(false);
-            // Refresh the user list
-            fetchUsers();
             alert('User updated successfully');
         } catch (error) {
             console.error('Error updating user:', error);
@@ -185,7 +198,6 @@ const UserManagement = () => {
                                         <th>Email</th>
                                         <th>Full Name</th>
                                         <th>Role</th>
-
                                         <th>Created At</th>
                                         <th>Actions</th>
                                     </tr>
@@ -197,7 +209,7 @@ const UserManagement = () => {
                                                 <td>{user.id}</td>
                                                 <td>{user.username}</td>
                                                 <td>{user.email}</td>
-                                                <td>{user.fullName || 'N/A'}</td>
+                                                <td>{user.fullname || 'N/A'}</td>
                                                 <td>
                                                     <span className={`${styles.badge} ${styles[user.role?.toLowerCase() || 'user']}`}>
                                                         {user.role || 'USER'}
@@ -257,7 +269,7 @@ const UserManagement = () => {
                 )}
             </div>
 
-            {/* Edit User Modal */}
+            {}
             {showEditModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modal}>
@@ -280,7 +292,7 @@ const UserManagement = () => {
                                     name="username"
                                     value={editForm.username}
                                     onChange={handleEditFormChange}
-                                    disabled // Username typically shouldn't be changed
+                                    disabled 
                                 />
                             </div>
 
@@ -291,7 +303,7 @@ const UserManagement = () => {
                                     id="email"
                                     name="email"
                                     value={editForm.email}
-                                    onChange={handleEditFormChange}
+                                    onChange={handleEditFormChange} disabled
                                 />
                             </div>
 
@@ -303,6 +315,7 @@ const UserManagement = () => {
                                     name="fullName"
                                     value={editForm.fullName}
                                     onChange={handleEditFormChange}
+
                                 />
                             </div>
 
@@ -316,7 +329,7 @@ const UserManagement = () => {
                                 >
                                     <option value="USER">User</option>
                                     <option value="ADMIN">Admin</option>
-                                    <option value="MODERATOR">Moderator</option>
+
                                 </select>
                             </div>
 

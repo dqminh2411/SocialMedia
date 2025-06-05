@@ -12,7 +12,7 @@ export default function InstagramMessengerUI() {
 
   function handleComment() {
     const [comment, setcomment] = useState("");
-    const api = fetch("ws://localhost:8080/ws", {
+    const api = fetch("ws:
       method: "POST",
       header: {
         "content-type": "application/json"
@@ -24,7 +24,7 @@ export default function InstagramMessengerUI() {
   }
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      {/* Sidebar */}
+      {}
       <div className="sidebar">
         <FaInstagram size={24} />
         <FaHome size={24} />
@@ -41,9 +41,9 @@ export default function InstagramMessengerUI() {
 
       </div>
 
-      {/* Main Content */}
+      {}
       <div style={{ display: "flex", flex: 1 }}>
-        {/* Message Sidebar */}
+        {}
         <div className="message-sidebar">
           <div className="message-header">
             <h2 style={{ fontSize: "1.125rem", fontWeight: "bold" }}>ttn_046</h2>
@@ -77,7 +77,7 @@ export default function InstagramMessengerUI() {
 
 
 
-        {/* Chat Empty Section */}
+        {}
         <div className="chat-empty">
 
           <BsMessenger size={48} className="mb-4" />

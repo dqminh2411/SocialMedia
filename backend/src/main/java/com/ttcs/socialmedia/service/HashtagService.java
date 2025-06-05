@@ -49,4 +49,8 @@ public class HashtagService {
         hashTagDTO.setName(hashtag.getName());
         return hashTagDTO;
     }
+
+    public int getTotalHashtagsCount() {
+        return (int) hashtagRepository.count();
+    }
 }

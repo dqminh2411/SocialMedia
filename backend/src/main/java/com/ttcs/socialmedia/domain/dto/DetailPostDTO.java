@@ -16,10 +16,10 @@ public class DetailPostDTO {
     private int likes;
     private int commentsCount;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    @JsonFormat(timezone = "GMT+7")
     private Instant createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    @JsonFormat(timezone = "GMT+7")
     private Instant updatedAt;
 
     private List<PostMediaDTO> media;

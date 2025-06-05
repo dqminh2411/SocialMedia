@@ -5,13 +5,13 @@ import Post from '../components/Post';
 import SuggestionPanel from '../components/SuggestionPanel';
 import PostService from '../services/post.service.jsx';
 import { useLocation, useNavigate } from 'react-router-dom';
-// Import sample images
+
 import profileImage from '../assets/images/daidien.png';
 import postImage from '../assets/images/pexels-m-venter-792254-1659438.jpg';
 import { set } from 'date-fns';
 
 const HomePage = () => {
-    // Sample post data - in a real app, this would come from an API
+    
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -26,12 +26,12 @@ const HomePage = () => {
             const postsData = await PostService.getHomePosts();
             console.log("Posts from following users:", postsData.posts);
 
-            // Check the fetched data directly instead of the state variable
+            
             if (postsData.posts && postsData.posts.length > 0) {
-                // We have posts from followed users, use them
+                
                 setPosts(postsData.posts);
             } else {
-                // No posts from followed users, fetch explore posts instead
+                
                 console.log("No posts from followed users, fetching explore posts");
                 const explorePosts = await PostService.getNewHomePosts(0);
                 console.log("Explore posts fetched:", explorePosts.posts);
@@ -62,7 +62,7 @@ const HomePage = () => {
                 )
             );
 
-            // Clear the location state to prevent multiple updates
+            
             navigate(location.pathname, { replace: true, state: {} });
         } else {
             fetchPosts();

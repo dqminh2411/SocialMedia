@@ -1,10 +1,10 @@
-// src/context/AuthContext.jsx
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AuthService from '../services/auth.service';
 
 const AuthContext = createContext(null);
 
-// Function to parse the stored user data
+
 const parseStoredUser = () => {
     try {
         const storedUser = localStorage.getItem('user');
