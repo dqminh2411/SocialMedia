@@ -1,11 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Login from './pages/auth/login.jsx'
 import SignUp from './pages/auth/signup.jsx'
-import WebSocketTest from "./pages/test/WebSocketTest.jsx";
 import PostForm from "./components/PostForm.jsx";
 import PostPage from "./components/PostPage.jsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import InstagramMessengerUI from './pages/chat/message.jsx';
 
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AdminProtectedRoute from "./components/AdminProtectedRoute.jsx";
@@ -46,11 +44,11 @@ const AppRoutes = () => {
         <>
 
             <Routes location={background || location}>
-                {}
+                { }
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
 
-                {}
+                { }
                 <Route path="/" element={
                     <ProtectedRoute>
                         <HomePage />
@@ -104,7 +102,7 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 } />
 
-                {}
+                { }
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={
                     <AdminProtectedRoute>
@@ -123,11 +121,11 @@ const AppRoutes = () => {
                 } />
 
 
-                {}
+                { }
                 <Route path="*" element={<Navigate to="/login" />} />
             </Routes>
 
-            {}
+            { }
             {background && (
                 <Routes>
                     <Route path="/post/:postId" element={
@@ -135,7 +133,7 @@ const AppRoutes = () => {
                             <PostDetailPage />
                         </ProtectedRoute>
                     } />
-                    {}
+                    { }
                     {/* <Route path="/hashtag/:hashtagName/post/:postId" element={
                         <ProtectedRoute>
                             <PostDetailPage />

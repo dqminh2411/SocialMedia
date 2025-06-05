@@ -7,12 +7,12 @@ import AuthService from '../services/auth.service.jsx';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../context/NotificationContext.jsx';
 const NotificationsPage = () => {
-    
-    
-    
-    
+
+
+
+
     const currentUser = AuthService.getCurrentUser();
-    const AVATAR_URL = 'http:
+    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
     const DEFAULT_AVATAR = 'default.png';
     const {
         notifications,
@@ -26,14 +26,14 @@ const NotificationsPage = () => {
     const [readingNotification, setReadingNotification] = useState(null);
 
     const handleNotificationClick = async (notification) => {
-        
+
         if (!notification.read) {
             setReadingNotification(notification.id);
 
             try {
                 await markAsRead(notification.id);
 
-                
+
                 setTimeout(() => {
                     setReadingNotification(null);
                 }, 1000);
@@ -44,45 +44,45 @@ const NotificationsPage = () => {
         }
     };
 
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-    
-    
-    
 
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     return (
         <div className={styles.container}>
             <Sidebar />

@@ -15,11 +15,11 @@ const MessagesPage = () => {
     const chatContainerRef = useRef(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
-    const AVATAR_URL = 'http:
+    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
     const DEFAULT_AVATAR = 'defaultAvatar.jpg';
     const currentUser = AuthService.getCurrentUser();
 
-    
+
     const [showNewChatPopup, setShowNewChatPopup] = useState(false);
     const [searchUsername, setSearchUsername] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -27,7 +27,7 @@ const MessagesPage = () => {
     const [searching, setSearching] = useState(false);
     const [searchError, setSearchError] = useState("");
 
-    
+
     const {
         chats: conversations,
         activeChat: selectedConversation,
@@ -42,30 +42,30 @@ const MessagesPage = () => {
 
 
 
-    
+
     const handleConversationSelect = (conversationId) => {
-        
+
         getMessages(conversationId);
     };
 
 
-    
+
     const handleSendMessage = (e) => {
         e.preventDefault();
         if (!message.trim() || !selectedConversation) return;
 
-        
+
         sendMessage(selectedConversation, message.trim());
 
-        
+
         setMessage("");
 
-        
+
         if (messageInputRef.current) {
             messageInputRef.current.style.height = 'auto';
         }
 
-        
+
         setTimeout(() => {
             if (chatContainerRef.current) {
                 chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -73,7 +73,7 @@ const MessagesPage = () => {
         }, 100);
     };
 
-    
+
     const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -81,7 +81,7 @@ const MessagesPage = () => {
         }
     };
 
-    
+
     const adjustTextareaHeight = (e) => {
         const textarea = e.target;
         textarea.style.height = 'auto';
@@ -89,12 +89,12 @@ const MessagesPage = () => {
         setMessage(e.target.value);
     };
 
-    
+
     const handleEmojiClick = (emojiObject) => {
         setMessage(prevMessage => prevMessage + emojiObject.emoji);
         setShowEmojiPicker(false);
 
-        
+
         if (messageInputRef.current) {
             messageInputRef.current.focus();
             setTimeout(() => {
@@ -104,19 +104,19 @@ const MessagesPage = () => {
         }
     };
 
-    
+
     const toggleEmojiPicker = () => {
         setShowEmojiPicker(!showEmojiPicker);
     };
 
 
-    
+
     const formatMessageTime = (timestamp) => {
         const date = new Date(timestamp);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    
+
     const formatMessageDate = (timestamp) => {
         const date = new Date(timestamp);
         const today = new Date();
@@ -132,7 +132,7 @@ const MessagesPage = () => {
         }
     };
 
-    
+
     const handleSearchUsers = async (e) => {
         e.preventDefault();
         if (!searchUsername.trim()) return;
@@ -158,28 +158,28 @@ const MessagesPage = () => {
         }
     };
 
-    
+
     const handleSelectUser = (user) => {
         setSelectedUser(user);
-    };    
+    };
     const handleCreateChat = async () => {
         if (!selectedUser) return;
 
         try {
-            
+
             setSearching(true);
 
-            
+
             const newChatId = await createChat(selectedUser.id);
 
             if (newChatId) {
                 console.log("New chat created with ID:", newChatId);
-                
 
-                
+
+
                 setShowNewChatPopup(false);
 
-                
+
                 setTimeout(() => {
                     if (chatContainerRef.current) {
                         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -197,11 +197,11 @@ const MessagesPage = () => {
         }
     };
 
-    
+
     const toggleNewChatPopup = () => {
         setShowNewChatPopup(!showNewChatPopup);
         if (!showNewChatPopup) {
-            
+
             setSearchUsername("");
             setSearchResults([]);
             setSelectedUser(null);
@@ -209,21 +209,21 @@ const MessagesPage = () => {
         }
     };
 
-    
+
     useEffect(() => {
         if (chatContainerRef.current) {
             chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
         }
     }, [selectedConversation, messages]);
 
-    
+
     useEffect(() => {
         if (selectedConversation && messageInputRef.current) {
             messageInputRef.current.focus();
         }
     }, [selectedConversation]);
 
-    
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -243,14 +243,14 @@ const MessagesPage = () => {
         };
     }, []);
 
-    
+
     const selectedConversationData = selectedConversation
         ? conversations.find(c => c.id === selectedConversation)
         : null;
 
-    
-    
-    
+
+
+
     /*
     const handleNewMessage = (newMessage) => {
         if (!newMessage || !newMessage.chatId) return;
@@ -299,13 +299,13 @@ const MessagesPage = () => {
     };
     */
 
-    
+
     return (
         <div className={styles.container}>
             <Sidebar />
             <div className={styles.mainContent}>
                 <div className={styles.messagesContainer}>
-                    {}
+                    { }
                     <div className={styles.conversationList}>
                         <div className={styles.conversationHeader}>
                             <h2>Messages</h2>
@@ -337,11 +337,11 @@ const MessagesPage = () => {
                         </div>
                     </div>
 
-                    {}
+                    { }
                     <div className={styles.chatArea}>
                         {selectedConversation ? (
                             <>
-                                {}
+                                { }
                                 <div className={styles.chatHeader}>
                                     <div className={styles.recipientInfo}>
                                         <img
@@ -356,7 +356,7 @@ const MessagesPage = () => {
                                     <button className={styles.viewProfileBtn}>
                                         <FontAwesomeIcon icon={faInfoCircle} />
                                     </button>
-                                </div>                                {}
+                                </div>                                { }
                                 <div className={styles.messagesWrapper} ref={chatContainerRef}>
                                     {loading ? (
                                         <div className={styles.loadingIndicator}>Loading messages...</div>
@@ -367,7 +367,7 @@ const MessagesPage = () => {
                                             {messages[selectedConversation]?.map((message, index) => {
                                                 const isCurrentUser = message.senderId === currentUser.user.id;
                                                 const messageClass = isCurrentUser ? styles.sentMessage : styles.receivedMessage;
-                                                const messageStatus = message.pending ? 'Sending...' : (message.read ? 'Read' : 'Sent');                                                
+                                                const messageStatus = message.pending ? 'Sending...' : (message.read ? 'Read' : 'Sent');
                                                 const showDateSeparator = index === 0 ||
                                                     formatMessageDate(message.sentAt) !==
                                                     formatMessageDate(messages[selectedConversation][index - 1].sentAt); return (
@@ -406,7 +406,7 @@ const MessagesPage = () => {
                                             })}
                                         </div>
                                     )}
-                                </div>{}
+                                </div>{ }
                                 <div className={styles.chatInputContainer}>
                                     {showEmojiPicker && (
                                         <div className={styles.emojiPickerContainer} ref={emojiPickerRef}>
@@ -442,7 +442,7 @@ const MessagesPage = () => {
                                     </div>
                                 </div>
                             </>
-                        ) : (                            
+                        ) : (
                             <div className={styles.noConversation}>
                                 <div className={styles.noConversationContent}>
                                     <div className={styles.iconPlaceholder}>
@@ -457,7 +457,7 @@ const MessagesPage = () => {
                     </div>                </div>
             </div>
 
-            {}
+            { }
             {showNewChatPopup && (
                 <div className={styles.newChatPopupOverlay}>
                     <div className={styles.newChatPopup}>

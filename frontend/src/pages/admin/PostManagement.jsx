@@ -378,64 +378,6 @@ const PostManagement = () => {
                     </div>
                 </div>
             )}
-
-            { }
-            {/* {showEditModal && selectedPost && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modal}>
-                        <div className={styles.modalHeader}>
-                            <h2>Edit Post</h2>
-                            <button
-                                className={styles.closeButton}
-                                onClick={() => setShowEditModal(false)}
-                            >
-                                <FontAwesomeIcon icon={faTimes} />
-                            </button>
-                        </div>
-
-                        <form className={styles.editForm} onSubmit={handleEditSubmit}>
-                            <div className={styles.formGroup}>
-                                <label htmlFor="caption">Caption</label>
-                                <textarea
-                                    id="caption"
-                                    name="caption"
-                                    value={editForm.caption}
-                                    onChange={handleEditFormChange}
-                                    rows="4"
-                                ></textarea>
-                            </div>
-
-                            <div className={styles.formGroup}>
-                                <label htmlFor="status">Status</label>
-                                <select
-                                    id="status"
-                                    name="status"
-                                    value={editForm.status}
-                                    onChange={handleEditFormChange}
-                                >
-                                    <option value="ACTIVE">Active</option>
-                                    <option value="HIDDEN">Hidden</option>
-                                    <option value="REPORTED">Reported</option>
-                                    <option value="REMOVED">Removed</option>
-                                </select>
-                            </div>
-
-                            <div className={styles.formActions}>
-                                <button
-                                    type="button"
-                                    className={styles.cancelButton}
-                                    onClick={() => setShowEditModal(false)}
-                                >
-                                    Cancel
-                                </button>
-                                <button type="submit" className={styles.saveButton}>
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )} */}
         </AdminLayout>
     );
 };

@@ -10,8 +10,8 @@ import { faHeart, faComment, faSearch, faTimes, faUser, faUsers } from '@fortawe
 import NotificationService from '../services/notification.service.jsx';
 
 const ProfilePage = () => {
-    const POST_MEDIA_URL = 'http:
-    const AVATAR_URL = 'http:
+    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/'
+    const AVATAR_URL = 'http://localhost:8080/storage/avatars/'
     const { username } = useParams();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -42,14 +42,14 @@ const ProfilePage = () => {
     const [followStatus, setFollowStatus] = useState('NOT_REQUESTED');
     const fileInputRef = useRef(null);
 
-    
+
     const [showFollowModal, setShowFollowModal] = useState(false);
-    const [modalType, setModalType] = useState(''); 
+    const [modalType, setModalType] = useState('');
     const [followUsers, setFollowUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [followLoading, setFollowLoading] = useState(false);
 
-    
+
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
@@ -58,22 +58,22 @@ const ProfilePage = () => {
     const [searched, setSearched] = useState(false);
 
     useEffect(() => {
-        
+
         if (location.state && location.state.postDeleted) {
             console.log("Post was deleted, refreshing profile...");
             fetchUserProfile();
-            
+
             navigate(location.pathname, { replace: true, state: {} });
         }
     }, [location.state]);
 
     useEffect(() => {
-        
+
         if (location.key) {
             console.log("ProfilePage re-rendering due to navigation with key:", location.key);
         }
 
-        
+
         if (currentUser && currentUser.user && currentUser.user.id) {
             fetchUserProfile();
 
@@ -96,7 +96,7 @@ const ProfilePage = () => {
         setSearchQuery('');
         setFollowLoading(true);
         setShowFollowModal(true);
-        setCurrentPage(0); 
+        setCurrentPage(0);
 
         try {
             let response;
@@ -116,10 +116,10 @@ const ProfilePage = () => {
         }
     };
 
-    
+
     const handleFollowSearch = async () => {
         setFollowLoading(true);
-        setCurrentPage(0); 
+        setCurrentPage(0);
         setSearched(true);
         try {
             let response;
@@ -139,7 +139,7 @@ const ProfilePage = () => {
         }
     };
 
-    
+
     const handlePageChange = async (newPage) => {
         if (newPage < 0 || newPage >= totalPages) return;
 
@@ -175,11 +175,11 @@ const ProfilePage = () => {
     };
 
     const fetchUserProfile = async () => {
-        
-        
-        
-        
-        
+
+
+
+
+
         const profileUsername = username || currentUser.user.username;
         if (!profileUsername) {
             setError('Username not provided');
@@ -203,9 +203,9 @@ const ProfilePage = () => {
                 avatar: UserService.getAvatarUrl(profileData.userDTO.avatar)
             });
 
-            
-            
-            
+
+
+
             setPosts(profileData.posts || []);
         } catch (err) {
             console.error('Error fetching user profile:', err);
@@ -222,7 +222,7 @@ const ProfilePage = () => {
     };
 
     const handleEditProfileClick = () => {
-        
+
         setEditFormData({
             bio: user.bio || '',
             avatar: null
@@ -232,20 +232,20 @@ const ProfilePage = () => {
         setUpdateError(null);
         setUpdateSuccess(false);
     }; const handleCloseEditForm = () => {
-        
+
         const hasUnsavedChanges =
             editFormData.bio !== (user.bio || '') ||
             editFormData.avatar !== null;
 
         if (hasUnsavedChanges) {
-            
-            
-            
-            
-            
+
+
+
+
+
         }
 
-        
+
         setShowEditForm(false);
         setPreviewAvatar(null);
         setEditFormData({
@@ -269,10 +269,10 @@ const ProfilePage = () => {
                 avatar: file
             }));
 
-            
+
             setAvatarLoading(true);
 
-            
+
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewAvatar(reader.result);
@@ -289,25 +289,25 @@ const ProfilePage = () => {
         fileInputRef.current.click();
     };
 
-    
+
     const validateProfileData = (data) => {
         const errors = {};
 
-        
+
         if (data.bio && data.bio.length > 500) {
             errors.bio = 'Bio must be 500 characters or less';
         }
 
-        
+
         if (data.avatar) {
-            
+
             const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!allowedTypes.includes(data.avatar.type)) {
                 errors.avatar = 'Only JPG, PNG, GIF, and WEBP images are allowed';
             }
 
-            
-            const maxSize = 2 * 1024 * 1024; 
+
+            const maxSize = 2 * 1024 * 1024;
             if (data.avatar.size > maxSize) {
                 errors.avatar = 'Image size should be less than 2MB';
             }
@@ -325,17 +325,17 @@ const ProfilePage = () => {
 
         try {
             const formData = new FormData();
-            
+
             formData.append('userId', currentUser.user.id);
-            
+
             formData.append('bio', profileData.bio);
 
-            
+
             if (profileData.avatar) {
                 formData.append('avatar', profileData.avatar);
             }
 
-            
+
             const response = await ProfileService.updateUserProfile(formData);
             console.log('Profile updated:', response);
 
@@ -351,7 +351,7 @@ const ProfilePage = () => {
             };
         }
     };
-    
+
     const handleSubmitEditForm = async (e) => {
         e.preventDefault();
 
@@ -359,10 +359,10 @@ const ProfilePage = () => {
         setUpdateError(null);
         setUpdateSuccess(false);
 
-        
+
         const validationResult = validateProfileData(editFormData);
         if (!validationResult.isValid) {
-            
+
             const firstError = Object.values(validationResult.errors)[0];
             setUpdateError(firstError);
             setUpdateLoading(false);
@@ -372,20 +372,20 @@ const ProfilePage = () => {
         const result = await submitProfileUpdate(editFormData);
 
         if (result.success) {
-            
+
             setUser(prev => ({
                 ...prev,
                 bio: editFormData.bio,
-                
+
                 ...(editFormData.avatar && { avatar: previewAvatar })
             }));
 
             setUpdateSuccess(true);
 
-            
+
             setTimeout(() => {
                 handleCloseEditForm();
-                
+
                 fetchUserProfile();
             }, 1500);
         } else {
@@ -436,7 +436,7 @@ const ProfilePage = () => {
                                     <p>{user.bio}</p>
                                 </div>
 
-                                {}
+                                { }
                                 {currentUser && currentUser.user.username === username ? (
                                     <button
                                         className={styles.editProfileBtn}
@@ -445,7 +445,7 @@ const ProfilePage = () => {
                                         Edit Profile
                                     </button>
                                 ) : (
-                                    
+
                                     <div className={styles.profileActions}>
                                         <button
                                             className={styles.followBtn}
@@ -470,18 +470,6 @@ const ProfilePage = () => {
                                 onClick={() => handleTabChange('posts')}
                             >
                                 Posts
-                            </button>
-                            <button
-                                className={`${styles.tabButton} ${activeTab === 'saved' ? styles.active : ''}`}
-                                onClick={() => handleTabChange('saved')}
-                            >
-                                Saved
-                            </button>
-                            <button
-                                className={`${styles.tabButton} ${activeTab === 'tagged' ? styles.active : ''}`}
-                                onClick={() => handleTabChange('tagged')}
-                            >
-                                Tagged
                             </button>
                         </div>
 
@@ -516,20 +504,15 @@ const ProfilePage = () => {
 
                         {activeTab === 'saved' && (
                             <div className={styles.savedPostsMessage}>
-                                <p>Only you can see what you've saved</p>
+                                <p>The posts you liked</p>
                             </div>
                         )}
 
-                        {activeTab === 'tagged' && (
-                            <div className={styles.taggedPostsMessage}>
-                                <p>Photos of you</p>
-                            </div>
-                        )}
                     </>
                 )}
             </div>
 
-            {}
+            { }
             {showEditForm && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -615,7 +598,7 @@ const ProfilePage = () => {
                 </div>
             )}
 
-            {}
+            { }
             {showFollowModal && (
                 <div className={styles.modalOverlay}>
                     <div className={styles.modalContent}>
@@ -671,7 +654,7 @@ const ProfilePage = () => {
                             )}
                         </div>
 
-                        {}
+                        { }
                         {totalPages > 0 && (
                             <div className={styles.pagination}>
                                 <button

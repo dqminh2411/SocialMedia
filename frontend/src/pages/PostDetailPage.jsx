@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import styles from "../assets/css/PostDetail.module.css";
 import additionalStyles from "../assets/css/PostDetailAdditions.module.css";
-import "../assets/css/CommentFormFix.css"; 
+import "../assets/css/CommentFormFix.css";
 import PostService from "../services/post.service";
 import CommentService from "../services/comment.service";
 import AuthService from "../services/auth.service";
@@ -13,8 +13,8 @@ import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import { faChevronLeft, faChevronRight, faCircle, faReply, faTrash, faEdit, faPencilAlt, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 
 const PostDetailPage = () => {
-    const POST_MEDIA_URL = 'http:
-    const AVATAR_URL = 'http:
+    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/'
+    const AVATAR_URL = 'http://localhost:8080/storage/avatars/'
     const DEFAULT_AVATAR = 'defaultAvatar.jpg';
     const { postId } = useParams();
     const navigate = useNavigate();
@@ -34,11 +34,11 @@ const PostDetailPage = () => {
     const [editingComment, setEditingComment] = useState(null); const [editText, setEditText] = useState('');
     const [showReplies, setShowReplies] = useState({}); const [loadingComments, setLoadingComments] = useState(false);
     const commentRef = useRef(null);
-    const [currentUser, setCurrentUser] = useState(null);    
+    const [currentUser, setCurrentUser] = useState(null);
     const [clickedLike, setClickedLike] = useState(false);
     const [postComment, setPostComment] = useState(false);
     useEffect(() => {
-        
+
         const user = AuthService.getCurrentUser();
         setCurrentUser(user?.user || null);
 
@@ -51,7 +51,7 @@ const PostDetailPage = () => {
                 setLikeCount(data.likes || 0);
                 setLoading(false);
 
-                
+
                 fetchComments(1);
             })
             .catch(err => {
@@ -59,7 +59,7 @@ const PostDetailPage = () => {
                 setError("Failed to load post details. Please try again later.");
                 setLoading(false);
             });
-    }, [postId]);    
+    }, [postId]);
     const fetchComments = (page) => {
         setLoadingComments(true);
         CommentService.getComments(postId, page)
@@ -83,10 +83,10 @@ const PostDetailPage = () => {
             });
     };
 
-    
+
     const loadMoreComments = () => {
         fetchComments(currentPage + 1);
-    };    
+    };
     const handlePostComment = async () => {
         if (!commentText.trim()) return;
 
@@ -110,7 +110,7 @@ const PostDetailPage = () => {
         try {
             await CommentService.likeComment(commentId);
 
-            
+
             setComments(prevComments => (prevComments || []).map(comment => {
                 if (comment && comment.id === commentId) {
                     return {
@@ -124,19 +124,19 @@ const PostDetailPage = () => {
         } catch (error) {
             console.error("Error liking comment:", error);
         }
-    };    
+    };
     const toggleReplies = async (commentId) => {
-        
+
         if (showReplies[commentId]) {
             setShowReplies(prev => ({ ...prev, [commentId]: false }));
             return;
         }
 
-        
+
         try {
             const replies = await CommentService.getReplies(commentId, 1);
 
-            
+
             setComments(prevComments => (prevComments || []).map(comment => {
                 if (comment && comment.id === commentId) {
                     return { ...comment, replies: replies || [] };
@@ -144,19 +144,19 @@ const PostDetailPage = () => {
                 return comment;
             }));
 
-            
+
             setShowReplies(prev => ({ ...prev, [commentId]: true }));
         } catch (error) {
             console.error("Error fetching replies:", error);
         }
-    };    
+    };
     const handleReplyComment = async () => {
         if (!replyText.trim() || !replyingTo) return;
 
         try {
             const newReply = await CommentService.addReply(replyingTo, replyText);
 
-            
+
             setComments(prevComments => (prevComments || []).map(comment => {
                 if (comment && comment.id === replyingTo) {
                     const currentReplies = Array.isArray(comment.replies) ? comment.replies : [];
@@ -166,7 +166,7 @@ const PostDetailPage = () => {
                 return comment;
             }));
 
-            
+
             setReplyingTo(null);
             setReplyText('');
         } catch (error) {
@@ -174,25 +174,25 @@ const PostDetailPage = () => {
         }
     };
 
-    
+
     const startEditComment = (comment) => {
         setEditingComment(comment.id);
         setEditText(comment.content);
-    };    
+    };
     const handleUpdateComment = async () => {
         if (!editText.trim() || !editingComment) return;
 
         try {
             const updatedComment = await CommentService.updateComment(editingComment, editText);
 
-            
+
             setComments(prevComments => (prevComments || []).map(comment => {
-                
+
                 if (comment && comment.id === editingComment) {
                     return { ...comment, content: updatedComment?.content || comment.content };
                 }
 
-                
+
                 if (comment && comment.replies && Array.isArray(comment.replies)) {
                     const updatedReplies = comment.replies.map(reply => {
                         if (reply && reply.id === editingComment) {
@@ -207,33 +207,33 @@ const PostDetailPage = () => {
                 return comment;
             }));
 
-            
+
             setEditingComment(null);
             setEditText('');
         } catch (error) {
             console.error("Error updating comment:", error);
         }
-    };    
+    };
     const handleDeleteComment = async (commentId) => {
         if (!window.confirm("Are you sure you want to delete this comment?")) return;
 
         try {
             await CommentService.deleteComment(commentId);
 
-            
+
             const isTopLevelComment = comments.some(comment => comment && comment.id === commentId);
 
             if (isTopLevelComment) {
-                
+
                 setComments(prevComments => (prevComments || []).filter(comment => comment && comment.id !== commentId));
             } else {
-                
+
                 setComments(prevComments => (prevComments || []).map(comment => {
                     if (comment && comment.replies && Array.isArray(comment.replies)) {
-                        
+
                         const updatedReplies = comment.replies.filter(reply => reply && reply.id !== commentId);
 
-                        
+
                         if (updatedReplies.length !== comment.replies.length) {
                             return { ...comment, replies: updatedReplies };
                         }
@@ -244,7 +244,7 @@ const PostDetailPage = () => {
         } catch (error) {
             console.error("Error deleting comment:", error);
         }
-    };    
+    };
     const handleDeletePost = async () => {
         if (!window.confirm("Are you sure you want to delete this post? This action cannot be undone.")) {
             return;
@@ -252,12 +252,12 @@ const PostDetailPage = () => {
 
         try {
             await PostService.deletePost(postId);
-            
+
             alert("Post deleted successfully");
 
-            
+
             if (background) {
-                
+
                 navigate('/profile', {
                     state: {
                         postDeleted: true,
@@ -265,7 +265,7 @@ const PostDetailPage = () => {
                     }
                 });
             } else {
-                
+
                 navigate('/profile', { replace: true });
             }
         } catch (error) {
@@ -274,17 +274,17 @@ const PostDetailPage = () => {
         }
     };
 
-    
+
     const handleEditPost = () => {
         navigate(`/create?edit=${postId}`);
     };
 
-    
+
     const handleOverlayClick = (e) => {
         if (e.target.classList.contains(styles["modal-overlay"])) {
-            
+
             if (background) {
-                navigate('/', {
+                navigate(-1, {
                     state: {
                         updatedPost: {
                             id: parseInt(postId),
@@ -298,11 +298,11 @@ const PostDetailPage = () => {
         }
     };
 
-    
+
     useEffect(() => {
         const handleEscKey = (e) => {
             if (e.key === "Escape" && background) {
-                navigate('/', {
+                navigate(-1, {
                     state: {
                         rerender: true,
                         updatedPost: clickedLike || postComment ? {
@@ -318,7 +318,7 @@ const PostDetailPage = () => {
 
         window.addEventListener("keydown", handleEscKey);
 
-        
+
         if (background) {
             document.body.style.overflow = "hidden";
         }
@@ -327,19 +327,19 @@ const PostDetailPage = () => {
             window.removeEventListener("keydown", handleEscKey);
             document.body.style.overflow = "auto";
         };
-    }, [navigate, background]);    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    }, [navigate, background]);
 
-    
+
+
+
+
+
+
+
+
+
+
+
     const goToNextMedia = () => {
         if (postData?.media && postData.media.length > 0) {
             setIsImageLoaded(false);
@@ -356,7 +356,7 @@ const PostDetailPage = () => {
         }
     };
     const handleCloseModal = () => {
-        navigate('/', {
+        navigate(-1, {
             state: {
                 updatedPost: {
                     id: parseInt(postId),
@@ -409,13 +409,13 @@ const PostDetailPage = () => {
                 <div className={styles["post-container"]}>
 
                     <div className={styles["post-card"]}>
-                        {}
+                        { }
                         <div className={styles["post-actions-top"]}>
                             {background && (
                                 <button className={styles["close-button"]} onClick={handleCloseModal}>×</button>
                             )}
 
-                            {}
+                            { }
                             {currentUser && postData?.creator?.email === currentUser.email && (
                                 <div className={additionalStyles["post-owner-actions"]}>
                                     <button
@@ -436,12 +436,12 @@ const PostDetailPage = () => {
                             )}
                         </div>
 
-                        {}
+                        { }
                         <div className={styles["post-image"]}>
                             <div className={`${styles["image-container"]} ${isImageLoaded ? styles["loaded"] : styles["loading"]}`}>
                                 {postData.media && postData.media.length > 0 ? (
                                     <>
-                                        {}
+                                        { }
                                         {postData.media.length > 1 && (
                                             <>
                                                 <button
@@ -461,7 +461,7 @@ const PostDetailPage = () => {
                                             </>
                                         )}
 
-                                        {}
+                                        { }
                                         {postData.media[currentMediaIndex].fileName.match(/\.(mp4|webm|ogg)$/i) ? (
                                             <video
                                                 src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
@@ -478,7 +478,7 @@ const PostDetailPage = () => {
                                             />
                                         )}
 
-                                        {}
+                                        { }
                                         {postData.media.length > 1 && (
                                             <div className={additionalStyles["media-dots"]}>
                                                 {postData.media.map((_, index) => (
@@ -503,7 +503,7 @@ const PostDetailPage = () => {
                             </div>
                         </div>
 
-                        {}
+                        { }
                         <div className={styles["post-content"]}>
                             <div className={styles["post-header"]}>
 
@@ -556,7 +556,7 @@ const PostDetailPage = () => {
                                                 key={comment.id}
                                                 className={`${additionalStyles["comment-item"]} ${comment.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
                                             >
-                                                {}
+                                                { }
                                                 <div className={additionalStyles["comment-header"]}>
                                                     <img
                                                         src={comment.userDTO?.avatar ? AVATAR_URL + comment.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
@@ -623,7 +623,7 @@ const PostDetailPage = () => {
                                                         <FontAwesomeIcon icon={faReply} />                                                            <span>Reply</span>
                                                     </button>
 
-                                                    {}
+                                                    { }
                                                     {(comment.userDTO?.email === currentUser?.email || comment.userDTO?.email === postData?.creator?.email) && (
                                                         <>
                                                             <button
@@ -645,12 +645,12 @@ const PostDetailPage = () => {
                                                     )}
                                                 </div>
 
-                                                {}
+                                                { }
                                                 <div className={additionalStyles["comment-time"]}>
                                                     {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                                                 </div>
 
-                                                {}
+                                                { }
                                                 {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && showReplies[comment.id] && (<div className={additionalStyles["replies-container"]}>
                                                     {comment.replies.map(reply => reply && (
                                                         <div
@@ -681,7 +681,7 @@ const PostDetailPage = () => {
                                                                     />                                                                            <span>{reply.likes}</span>
                                                                 </button>
 
-                                                                {}
+                                                                { }
                                                                 {(reply.userDTO?.email === currentUser?.email || reply.userDTO?.email === postData?.creator?.email) && (
                                                                     <>
                                                                         <button
@@ -710,7 +710,7 @@ const PostDetailPage = () => {
                                                 </div>
                                                 )}
 
-                                                {}
+                                                { }
                                                 {comment.replies && Array.isArray(comment.replies) && comment.replies.length > 0 && (
                                                     <button
                                                         onClick={() => toggleReplies(comment.id)}
@@ -722,7 +722,7 @@ const PostDetailPage = () => {
                                             </div>
                                         ))}
 
-                                            {}
+                                            { }
                                             {comments.length >= 20 * currentPage && (
                                                 <button
                                                     onClick={loadMoreComments}
@@ -737,7 +737,7 @@ const PostDetailPage = () => {
                                     )}
                                 </div>
 
-                                {}                                <div className={additionalStyles["comment-form-container"]}>
+                                { }                                <div className={additionalStyles["comment-form-container"]}>
                                     <div className={additionalStyles["comment-form"]}>
                                         {replyingTo ? (
                                             <div className={additionalStyles["reply-header"]}>
