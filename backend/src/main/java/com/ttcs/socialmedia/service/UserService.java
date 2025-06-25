@@ -1,36 +1,33 @@
 package com.ttcs.socialmedia.service;
 
-import com.ttcs.socialmedia.domain.Follow;
 import com.ttcs.socialmedia.domain.Profile;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
-import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.Role;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
-import org.springframework.data.domain.Pageable;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-
-import java.util.List;
-
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
+@RequiredArgsConstructor
 public class UserService {
+    @Value("${app.jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
+
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final FollowRepository followRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-            FollowRepository followRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.followRepository = followRepository;
-    }
 
     public void createUser(SignupDTO signupDTO) throws InvalidSignupException {
         if (this.userRepository.existsByEmail(signupDTO.getEmail())) {
@@ -80,6 +77,7 @@ public class UserService {
         userDTO.setUsername(user.getUsername());
         userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setRole(user.getRole().name());
+        userDTO.setProvider(user.getProvider().name());
         Profile p = user.getProfile();
         if (p != null)
             userDTO.setAvatar(p.getAvatar());
@@ -181,4 +179,6 @@ public class UserService {
         userRepository.delete(user);
         return true;
     }
+
+
 }

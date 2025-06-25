@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from '../../assets/css/login.module.css';
-import '../../assets/css/auth-common.css'; 
+import '../../assets/css/auth-common.css';
 import { defaultStyles } from '../../assets/js/defaultStyles';
 import { useAuth } from '../../context/AuthContext';
-
+import googleIcon from '../../assets/images/default-google.png';
+import githubIcon from '../../assets/images/default-github.png'
+import authService from "../../services/auth.service.jsx";
 const Login = () => {
     const [formData, setFormData] = useState({
         email: '',
@@ -17,9 +19,9 @@ const Login = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { login, currentUser } = useAuth();
-    const from = location.state?.from || '/';    
+    const from = location.state?.from || '/';
     useEffect(() => {
-        
+
         const fixClickableElements = () => {
             const buttons = document.querySelectorAll('button');
             const links = document.querySelectorAll('a');
@@ -36,19 +38,19 @@ const Login = () => {
         };
 
         fixClickableElements();
-        
+
         const timeoutId = setTimeout(fixClickableElements, 500);
 
         return () => clearTimeout(timeoutId);
     }, []);
-    
+
     useEffect(() => {
-        
+
         const params = new URLSearchParams(location.search);
         if (params.get('from') === 'signup') {
             setSuccess('Successful signup! You can now log in with your email and password.');
 
-            
+
             setTimeout(() => {
                 const successElement = document.querySelector(`.${styles.successMessage}`);
                 if (successElement) {
@@ -56,20 +58,20 @@ const Login = () => {
                 }
             }, 100);
 
-            
+
             const emailInput = document.querySelector('input[name="email"]');
             if (emailInput) {
                 emailInput.focus();
             }
 
-            
+
             setTimeout(() => {
                 setSuccess('');
             }, 5000);
         }
     }, [location, styles.successMessage]);
 
-    
+
     useEffect(() => {
         if (currentUser) {
             console.log('User already logged in, redirecting to:', from);
@@ -105,17 +107,37 @@ const Login = () => {
         setLoading(false);
     };
 
-    
+
     const handleLoginClick = () => {
         handleSubmit(new Event('submit', { cancelable: true, bubbles: true }));
     };
 
-    
+
     const handleSignupClick = () => {
         navigate('/signup');
     };
 
-    
+    const handleOauth2Login = async (e, loginType) => {
+        e.preventDefault();
+        try {
+            const data = await authService.getSocialLoginPage(loginType);
+            // console.log(data)
+            // const loginUrl = data.loginUrl;
+            // console.log(loginUrl)
+            const state = new URLSearchParams(data.loginUrl).get('state');
+            //console.log('State parameter:', state);
+            localStorage.setItem('oauthState', state);
+            localStorage.setItem('loginType', loginType);
+            window.location.href = data.loginUrl;
+            // get state parameter from the URL
+
+        } catch (error) {
+            console.error('Login error:', error);
+            setError(error.response?.data?.message || error.message || 'Login failed');
+        }
+
+    }
+
     const combinedStyles = {
         container: { ...defaultStyles.container },
         part1: { ...defaultStyles.part1 },
@@ -162,7 +184,7 @@ const Login = () => {
                     />
                 </form>
 
-                {}
+                { }
                 <button
                     className={styles.dangki}
                     style={combinedStyles.dangki}
@@ -179,12 +201,22 @@ const Login = () => {
                     <span>Or</span>
                 </div>
 
+                <div style={{ textAlign: "center" }}><span>Hoặc sử dụng</span></div>
+                <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "10px", marginBottom: "10px", gap: "20px" }}>
+                    <button onClick={(e) => handleOauth2Login(e, "google")}>
+                        <img height={"40"} width={"40"} src={googleIcon} />
+                    </button>
+                    <button onClick={(e) => handleOauth2Login(e, "github")}>
+                        <img height={"40"} width={"40"} src={githubIcon} />
+                    </button>
+                </div>
+
                 {/* <p className={styles.p3} style={{ margin: '15px 0', cursor: 'pointer', color: '#00376b', fontSize: '14px' }}>
                     Quên mật khẩu?
                 </p> */}
                 <p>
                     <span>Don't have an account? </span>
-                    {}
+                    { }
                     <Link
                         to="/signup"
                         className={styles.dangnhap}

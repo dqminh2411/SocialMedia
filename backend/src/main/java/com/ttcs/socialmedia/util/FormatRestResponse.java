@@ -28,6 +28,10 @@ public class FormatRestResponse implements ResponseBodyAdvice<Object> {
         if(body instanceof String){
             return body;
         }
+        String path = request.getURI().getPath();
+        if(path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")){
+            return body;
+        }
         // error states
         if (statusCode >= 400 || body instanceof RestResponse<?>) {
             return body; // body instanceof RestResponse

@@ -11,4 +11,7 @@ public class LoginDTO {
     private String email;
     @NotBlank(message = "password không được để trống")
     private String password;
+
+    private String provider;
+    private String providerId;
 }

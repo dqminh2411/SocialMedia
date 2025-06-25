@@ -3,11 +3,11 @@ package com.ttcs.socialmedia.service;
 import com.ttcs.socialmedia.domain.Hashtag;
 import com.ttcs.socialmedia.domain.dto.HashTagDTO;
 import com.ttcs.socialmedia.repository.HashtagRepository;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 

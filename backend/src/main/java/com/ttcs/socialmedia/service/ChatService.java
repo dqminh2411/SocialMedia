@@ -1,10 +1,5 @@
 package com.ttcs.socialmedia.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import com.ttcs.socialmedia.domain.Chat;
 import com.ttcs.socialmedia.domain.Message;
 import com.ttcs.socialmedia.domain.User;
@@ -12,8 +7,11 @@ import com.ttcs.socialmedia.domain.dto.ChatDTO;
 import com.ttcs.socialmedia.domain.dto.MessageDTO;
 import com.ttcs.socialmedia.repository.ChatRepository;
 import com.ttcs.socialmedia.repository.MessageRepository;
-
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor

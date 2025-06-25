@@ -149,15 +149,15 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
             </div>
 
             <p>{likeCount} likes</p>
-            <p>
-                {content.length > 30 ?
-                    <>
-                        <div dangerouslySetInnerHTML={{ __html: content.substring(0, 30) }} className={styles.comment} />
-                        <span className={styles.comment} onClick={handlePostClick}>... more</span>
-                    </> :
-                    <div dangerouslySetInnerHTML={{ __html: content }} className={styles.comment} />
-                }
-            </p>
+
+            {content.length > 30 ?
+                <>
+                    <div dangerouslySetInnerHTML={{ __html: content.substring(0, 30) }} className={styles.comment} />
+                    <span className={styles.comment} onClick={handlePostClick}>... more</span>
+                </> :
+                <div dangerouslySetInnerHTML={{ __html: content }} className={styles.comment} />
+            }
+
             <p className={styles.comment} onClick={handleViewAllComments}>View all {commentsCount} comments</p>
             <p className={styles.comment} onClick={handlePostClick}>Add a comment...</p>
         </div>

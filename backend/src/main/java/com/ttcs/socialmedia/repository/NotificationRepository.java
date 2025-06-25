@@ -2,7 +2,6 @@ package com.ttcs.socialmedia.repository;
 
 import com.ttcs.socialmedia.domain.Notification;
 import com.ttcs.socialmedia.util.constants.NotificationType;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

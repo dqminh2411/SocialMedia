@@ -6,7 +6,6 @@ import com.ttcs.socialmedia.domain.dto.NotificationDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.NotificationRepository;
 import com.ttcs.socialmedia.util.constants.NotificationType;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

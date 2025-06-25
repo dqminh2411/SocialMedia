@@ -34,6 +34,7 @@ import PostManagement from "./pages/admin/PostManagement.jsx";
 import './assets/css/Global.css';
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import { ChatProvider } from "./context/ChatContext.jsx";
+import AuthCallback from "./components/AuthCallback.jsx";
 
 
 const AppRoutes = () => {
@@ -123,6 +124,10 @@ const AppRoutes = () => {
 
                 { }
                 <Route path="*" element={<Navigate to="/login" />} />
+                <Route path="/auth/google/callback" element={
+
+                    <AuthCallback />
+                } />
             </Routes>
 
             { }

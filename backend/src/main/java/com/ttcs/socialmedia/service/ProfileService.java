@@ -8,7 +8,6 @@ import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.ProfileRepository;
 import com.ttcs.socialmedia.util.constants.FollowStatus;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

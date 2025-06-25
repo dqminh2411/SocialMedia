@@ -5,7 +5,6 @@ import com.ttcs.socialmedia.domain.Notification;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.FollowDTO;
 import com.ttcs.socialmedia.domain.dto.NotificationDTO;
-import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.service.FollowService;
 import com.ttcs.socialmedia.service.NotificationService;
 import com.ttcs.socialmedia.service.UserService;
@@ -13,7 +12,6 @@ import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.NotificationType;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 

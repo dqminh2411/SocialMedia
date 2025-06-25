@@ -1,18 +1,16 @@
 package com.ttcs.socialmedia.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import com.ttcs.socialmedia.domain.Chat;
 import com.ttcs.socialmedia.domain.Message;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.MessageDTO;
 import com.ttcs.socialmedia.service.ChatService;
-
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @AllArgsConstructor

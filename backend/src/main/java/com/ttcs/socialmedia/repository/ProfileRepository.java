@@ -2,7 +2,6 @@ package com.ttcs.socialmedia.repository;
 
 import com.ttcs.socialmedia.domain.Profile;
 import com.ttcs.socialmedia.domain.User;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

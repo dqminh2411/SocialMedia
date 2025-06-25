@@ -1,6 +1,7 @@
 package com.ttcs.socialmedia.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ttcs.socialmedia.util.constants.AuthProvider;
 import com.ttcs.socialmedia.util.constants.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,6 +29,10 @@ public class User {
     private Instant createdAt;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider;
+    private String providerId;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;

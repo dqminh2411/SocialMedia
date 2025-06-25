@@ -4,68 +4,76 @@ import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.LoginDTO;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
+import com.ttcs.socialmedia.service.AuthService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.annotation.ApiMessage;
 import com.ttcs.socialmedia.util.error.AuthException;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    private final PasswordEncoder passwordEncoder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
-
+    private final AuthService authService;
     @Value("${app.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil, UserService userService) {
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-        this.securityUtil = securityUtil;
-        this.userService = userService;
-    }
+
 
     @PostMapping("/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginUser) {
-        ResLoginDTO resLoginDTO = new ResLoginDTO();
         if (loginUser != null) {
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                    loginUser.getEmail(), loginUser.getPassword());
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
-            // get user info
-            User user = this.userService.getUserByEmail(loginUser.getEmail());
-            UserDTO userDTO = userService.userToUserDTO(user);
-            resLoginDTO.setUserDTO(userDTO);
-
-            // create access token
-            String accessToken = this.securityUtil.createAccessToken(userDTO);
-            resLoginDTO.setAccessToken(accessToken);
-
-            // create refresh token
-
-            String refreshToken = this.securityUtil.createRefreshToken(resLoginDTO);
-            this.userService.updateRefreshToken(loginUser.getEmail(), refreshToken);
-            // attach refresh token to cookie
-            ResponseCookie resCookie = ResponseCookie.from("refreshToken",refreshToken).httpOnly(true).path("/").maxAge(refreshTokenExpiration).build();
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookie.toString()).body(resLoginDTO);
+            Map<String,Object> resp = authService.login(loginUser);
+            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resp.get("resCookie").toString()).body((ResLoginDTO)resp.get("resLoginDTO"));
         }
         return null;
     }
+
+    @GetMapping("/social-login")
+    public ResponseEntity<?> getSocialLoginUrl(@RequestParam("loginType") String loginType){
+        Map<String, Object> resp = new HashMap<>();
+        String loginUrl = authService.generateLoginUrl(loginType);
+        resp.put("loginUrl", loginUrl);
+        return ResponseEntity.ok().body(resp);
+    }
+
+    @PostMapping("/social/callback")
+    public ResponseEntity<?> callback(@RequestParam("code") String code, @RequestParam("loginType") String loginType) throws IOException {
+        Map<String, Object> userInfo = authService.authenticateAndGetProfile(code, loginType);
+        if(userInfo == null || userInfo.isEmpty()){
+            return ResponseEntity.badRequest().body(Map.of("message", "Google user info authentication failed"));
+        }
+
+        LoginDTO loginDTO = new LoginDTO();
+        loginDTO.setEmail(userInfo.get("email").toString());
+        loginDTO.setProvider(loginType.toUpperCase());
+        loginDTO.setProviderId(userInfo.get("sub").toString());
+
+        return this.login(loginDTO);
+    };
+
+
     @GetMapping("/account")
     public ResponseEntity<UserDTO> getAccount(){
         String email = SecurityUtil.getCurrentUserLogin().isPresent()? SecurityUtil.getCurrentUserLogin().get() : "";

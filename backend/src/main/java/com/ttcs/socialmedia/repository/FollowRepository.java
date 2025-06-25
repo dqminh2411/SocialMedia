@@ -3,9 +3,6 @@ package com.ttcs.socialmedia.repository;
 import com.ttcs.socialmedia.domain.Follow;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.util.constants.FollowStatus;
-
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

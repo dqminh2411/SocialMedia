@@ -2,18 +2,15 @@ package com.ttcs.socialmedia.controller;
 
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.FollowDTO;
-import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.FollowService;
 import com.ttcs.socialmedia.service.UserService;
-
 import lombok.AllArgsConstructor;
-
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/follows")

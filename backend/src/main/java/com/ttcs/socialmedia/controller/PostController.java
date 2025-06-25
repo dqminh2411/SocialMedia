@@ -7,10 +7,7 @@ import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.CommentService;
 import com.ttcs.socialmedia.service.PostService;
 import com.ttcs.socialmedia.util.SecurityUtil;
-
-import io.micrometer.core.ipc.http.HttpSender.Response;
 import lombok.AllArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

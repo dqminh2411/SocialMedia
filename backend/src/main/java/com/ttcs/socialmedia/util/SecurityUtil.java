@@ -3,6 +3,7 @@ package com.ttcs.socialmedia.util;
 import com.nimbusds.jose.util.Base64;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -18,16 +19,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class SecurityUtil {
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
     private final JwtEncoder jwtEncoder;
 
-    public SecurityUtil(JwtEncoder jwtEncoder) {
-        this.jwtEncoder = jwtEncoder;
-    }
     @Value("${app.jwt.base64-secret}")
     private String jwtKey;
-
     @Value("${app.jwt.access-token-validity-in-seconds}")
     private long accessTokenExpiration;
     @Value("${app.jwt.refresh-token-validity-in-seconds}")
@@ -69,7 +67,6 @@ public class SecurityUtil {
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
-
     private SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());

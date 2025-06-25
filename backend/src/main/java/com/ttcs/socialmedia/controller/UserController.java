@@ -9,16 +9,15 @@ import com.ttcs.socialmedia.service.ProfileService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
 import jakarta.validation.Valid;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")

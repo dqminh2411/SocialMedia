@@ -28,6 +28,40 @@ class AuthService {
 
     }
 
+    getSocialLoginPage(loginType) {
+        return axios.get(API_URL + 'social-login', {
+            params: { loginType }
+        })
+            .then(response => response.data.data)
+            .catch(error => {
+                console.error(error);
+                throw error;
+            })
+    }
+
+    socialLogin(code, loginType) {
+        return axios.post(API_URL + "social/callback", null, {
+            params: { code, loginType }
+        })
+            .then(response => {
+                if (response.data.data) {
+                    console.log('Social login page data:', response.data.data);
+                    const userData = {
+                        user: response.data.data.userDTO,
+                        accessToken: response.data.data.accessToken
+                    }
+                    localStorage.setItem('user', JSON.stringify(userData));
+                } else {
+                    console.warn('Social login response missing data property');
+                }
+                return response.data.data;
+            })
+            .catch(error => {
+                console.error(error);
+                throw error;
+            });
+    }
+
     logout() {
         localStorage.removeItem('user');
     }

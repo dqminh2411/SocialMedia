@@ -1,7 +1,5 @@
 package com.ttcs.socialmedia.domain.dto;
 
-import java.time.Instant;
-
 import lombok.Getter;
 import lombok.Setter;
 

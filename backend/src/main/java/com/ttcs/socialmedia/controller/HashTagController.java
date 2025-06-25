@@ -3,7 +3,6 @@ package com.ttcs.socialmedia.controller;
 import com.ttcs.socialmedia.domain.Hashtag;
 import com.ttcs.socialmedia.domain.dto.HashTagDTO;
 import com.ttcs.socialmedia.service.HashtagService;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

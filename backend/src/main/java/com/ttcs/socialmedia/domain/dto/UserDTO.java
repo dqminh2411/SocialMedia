@@ -1,12 +1,11 @@
 package com.ttcs.socialmedia.domain.dto;
 
-import java.time.Instant;
-
-import com.ttcs.socialmedia.util.constants.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -19,5 +18,6 @@ public class UserDTO {
     private String fullname;
     private String avatar;
     private String role;
+    private String provider;
     private Instant createdAt;
 }
