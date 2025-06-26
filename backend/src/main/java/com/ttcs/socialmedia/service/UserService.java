@@ -24,6 +24,8 @@ public class UserService {
     @Value("${app.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
+    @Value("${default_avatar_url}")
+    private String defaultAvatarUrl;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -43,7 +45,7 @@ public class UserService {
         newUser.setHashedPassword(passwordEncoder.encode(signupDTO.getPassword()));
         if (newUser.getRole().equals(Role.USER)) {
             Profile profile = new Profile();
-            profile.setAvatar("defaultAvatar.jpg");
+            profile.setAvatar(defaultAvatarUrl);
             profile.setBio("");
             profile.setUser(newUser);
             newUser.setProfile(profile);

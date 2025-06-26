@@ -5,32 +5,35 @@ import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.ResProfileDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
+import com.ttcs.socialmedia.service.FileService;
 import com.ttcs.socialmedia.service.ProfileService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
     private final ProfileService profileService;
+    private final FileService fileService;
 
-    public UserController(UserService userService, ProfileService profileService) {
-        this.userService = userService;
-        this.profileService = profileService;
-    }
+
 
     @PostMapping(value = "/signup")
     public RestResponse<Object> signup(@Valid @RequestBody SignupDTO signupDTO) throws InvalidSignupException {
@@ -44,8 +47,9 @@ public class UserController {
         return null;
     }
 
-    @GetMapping("/test")
-    public RestResponse<Object> test() {
+    @PostMapping("/test")
+    public RestResponse<Object> test(@RequestParam("file") MultipartFile file) throws IOException, URISyntaxException {
+        fileService.deleteFile("https://res.cloudinary.com/dlz1eoryd/image/upload/v1750934198/socialMedia/avatars/upload-9072644940815940374c_kxfawo.jpg", "avatars");
         RestResponse<Object> resp = new RestResponse<>();
         resp.setStatusCode(HttpStatus.OK.value());
         resp.setMessage("testok");

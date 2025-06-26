@@ -464,14 +464,14 @@ const PostDetailPage = () => {
                                         { }
                                         {postData.media[currentMediaIndex].fileName.match(/\.(mp4|webm|ogg)$/i) ? (
                                             <video
-                                                src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
+                                                src={postData.media[currentMediaIndex].fileName}
                                                 controls
                                                 className={additionalStyles["media-content"]}
                                                 onLoadedData={() => setIsImageLoaded(true)}
                                             />
                                         ) : (
                                             <img
-                                                src={POST_MEDIA_URL + postData.media[currentMediaIndex].fileName}
+                                                src={postData.media[currentMediaIndex].fileName}
                                                 alt={`Post media ${currentMediaIndex + 1}`}
                                                 className={additionalStyles["media-content"]}
                                                 onLoad={() => setIsImageLoaded(true)}
@@ -508,12 +508,10 @@ const PostDetailPage = () => {
                             <div className={styles["post-header"]}>
 
                                 <img
-                                    src={postData.creator.avatar ? AVATAR_URL + postData.creator.avatar : AVATAR_URL + DEFAULT_AVATAR}
+                                    src={postData.creator.avatar}
                                     alt="avatar"
                                     className={styles["avatar"]}
-                                    onError={(e) => {
-                                        e.target.src = AVATAR_URL + DEFAULT_AVATAR;
-                                    }}
+
                                 />
                                 <Link to={`/profile/un/${postData.creator.username}`} className={styles.userLink}>
                                     <div className={styles.userInfo}>
@@ -559,12 +557,10 @@ const PostDetailPage = () => {
                                                 { }
                                                 <div className={additionalStyles["comment-header"]}>
                                                     <img
-                                                        src={comment.userDTO?.avatar ? AVATAR_URL + comment.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
+                                                        src={comment.userDTO.avatar}
                                                         alt={comment.userDTO?.username}
                                                         className={additionalStyles["comment-avatar"]}
-                                                        onError={(e) => {
-                                                            e.target.src = AVATAR_URL + DEFAULT_AVATAR;
-                                                        }}
+
                                                     />
                                                     <span className={additionalStyles["comment-username"]}>{comment.userDTO.username}</span>
                                                 </div>
@@ -658,12 +654,10 @@ const PostDetailPage = () => {
                                                             className={`${additionalStyles["reply-item"]} ${reply.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
                                                         >
                                                             <div className={additionalStyles["comment-header"]}>
-                                                                <img src={reply.userDTO?.avatar ? AVATAR_URL + reply.userDTO.avatar : AVATAR_URL + DEFAULT_AVATAR}
+                                                                <img src={reply.userDTO.avatar}
                                                                     alt={reply.userDTO?.username || "User"}
                                                                     className={additionalStyles["comment-avatar"]}
-                                                                    onError={(e) => {
-                                                                        e.target.src = AVATAR_URL + DEFAULT_AVATAR;
-                                                                    }}
+
                                                                 />
                                                                 <span className={additionalStyles["comment-username"]}>{reply.userDTO?.username || "Unknown User"}</span>
                                                             </div>

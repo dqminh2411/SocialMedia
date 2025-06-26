@@ -65,7 +65,6 @@ public class PostService {
         NewPostDTO newPostDTO = objectMapper.readValue(newPostJson, NewPostDTO.class);
 
         // create folder to store posts' medias
-        fileService.createDirectory("posts");
 
         User creator = new User();
         creator.setId(newPostDTO.getCreatorId());
@@ -79,7 +78,7 @@ public class PostService {
                 PostMedia media = new PostMedia();
                 media.setPost(post);
                 media.setPosition(i);
-                media.setFileName(fileService.save(medias.get(i - 1), "posts"));
+                media.setFileName(fileService.upload(medias.get(i - 1), "posts"));
                 postMediaList.add(media);
             }
         }
@@ -164,7 +163,7 @@ public class PostService {
             for (MultipartFile media : newMedias) {
                 PostMedia postMedia = new PostMedia();
                 postMedia.setPost(post);
-                postMedia.setFileName(fileService.save(media, "posts"));
+                postMedia.setFileName(fileService.upload(media, "posts"));
                 postMedia.setPosition(i++);
                 postMediaRepository.save(postMedia);
             }

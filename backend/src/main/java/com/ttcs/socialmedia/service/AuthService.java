@@ -55,6 +55,9 @@ public class AuthService {
     @Value("${app.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
+    @Value("${default_avatar_url}")
+    private String defaultAvatarUrl;
+
     private final UserService userService;
     private final SecurityUtil securityUtil;
     private final ClientRegistrationRepository clientRegistrationRepository;
@@ -147,7 +150,7 @@ public class AuthService {
                 String email = userInfo.get("email").toString();
                 User user = userService.getUserByEmail(email);
                 String providerId = (String) userInfo.get("sub");
-                String avatar = (String) userInfo.get("picture");
+
                 String fullname = (String) userInfo.get("name");
                 if (user != null) {
                     // check if user uses the right provider to login
@@ -168,7 +171,7 @@ public class AuthService {
 
                     //create profile
                     Profile profile = new Profile();
-                    profile.setAvatar(avatar);
+                    profile.setAvatar(defaultAvatarUrl);
                     profile.setUser(user);
                     profileRepository.save(profile);
                 }

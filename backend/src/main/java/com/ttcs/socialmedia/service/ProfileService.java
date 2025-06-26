@@ -58,15 +58,15 @@ public class ProfileService {
         Profile profile = this.profileRepository.findByUser(user);
         final String directoryName = "avatars";
         if (profile != null) {
-            String avatarFileName = "";
+            String avatarUrl = "";
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
-                    this.fileService.createDirectory(directoryName);
-                    avatarFileName = this.fileService.save(avatarFile, directoryName);
+
+                    avatarUrl = this.fileService.upload(avatarFile, directoryName);
                     if (profile.getAvatar() != null && !profile.getAvatar().isEmpty()) {
                         this.fileService.deleteFile(profile.getAvatar(), directoryName);
                     }
-                    profile.setAvatar(avatarFileName);
+                    profile.setAvatar(avatarUrl);
                 } catch (URISyntaxException | IOException e) {
                     throw new RuntimeException(e);
                 }

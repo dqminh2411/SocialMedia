@@ -30,7 +30,7 @@ public class SecurityConfiguration {
 
 
 
-    String[] whiteLists = {"/", "/auth/login", "/auth/social-login", "/auth/social/callback", "/users/signup", "/auth/refresh", "/storage/**",
+    String[] whiteLists = {"/","/users/test", "/auth/login", "/auth/social-login", "/auth/social/callback", "/users/signup", "/auth/refresh", "/storage/**",
             "/ws", "/actuator/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**"};
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint

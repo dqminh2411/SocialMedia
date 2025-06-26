@@ -11,7 +11,7 @@ import NotificationService from '../services/notification.service.jsx';
 
 const ProfilePage = () => {
     const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/'
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/'
+
     const { username } = useParams();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
@@ -200,7 +200,7 @@ const ProfilePage = () => {
                 postsCount: profileData.totalPostCount || 0,
                 followersCount: profileData.totalFollowerCount || 0,
                 followingCount: profileData.totalFollowingCount || 0,
-                avatar: UserService.getAvatarUrl(profileData.userDTO.avatar)
+                avatar: profileData.userDTO.avatar
             });
 
 
@@ -483,7 +483,8 @@ const ProfilePage = () => {
                                             onClick={() => navigate(`/post/${post.id}`, {
                                                 state: { background: location }
                                             })}
-                                        >                                            <img src={POST_MEDIA_URL + post.firstMediaName} alt="Post" />
+                                        >
+                                            <img src={post.firstMediaName} alt="Post" />
                                             <div className={styles.postOverlay}>
                                                 <div className={styles.postStats}>
                                                     <span>
@@ -637,7 +638,7 @@ const ProfilePage = () => {
                                     >
                                         <div className={styles.followAvatar}>
                                             <img
-                                                src={UserService.getAvatarUrl(user.avatar)}
+                                                src={user.avatar}
                                                 alt={user.username}
                                             />
                                         </div>
