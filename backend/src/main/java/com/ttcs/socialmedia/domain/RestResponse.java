@@ -1,6 +1,12 @@
 package com.ttcs.socialmedia.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RestResponse<T> {
     private int statusCode;
     private Object message;

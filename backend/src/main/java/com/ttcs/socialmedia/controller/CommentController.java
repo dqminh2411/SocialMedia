@@ -4,6 +4,7 @@ import com.ttcs.socialmedia.domain.dto.CommentDTO;
 import com.ttcs.socialmedia.service.CommentService;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

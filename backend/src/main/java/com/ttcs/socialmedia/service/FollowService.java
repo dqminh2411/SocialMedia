@@ -18,6 +18,7 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
+
     public void createFollow(FollowDTO followDTO) {
         User followingUser = userRepository.findById(followDTO.getFollowingUserId());
         User followedUser = userRepository.findById(followDTO.getFollowedUserId());
@@ -39,7 +40,8 @@ public class FollowService {
 
     public void deleteFollow(int followId) {
         Follow follow = followRepository.findById(followId);
-        if (follow != null) {
+        String currentUserEmail = com.ttcs.socialmedia.util.SecurityUtil.getCurrentUserLogin().orElse(null);
+        if (follow != null && currentUserEmail != null && follow.getFollowedUser().getEmail().equals(currentUserEmail)) {
             followRepository.delete(follow);
         }
     }

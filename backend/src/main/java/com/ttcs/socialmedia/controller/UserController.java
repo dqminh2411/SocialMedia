@@ -33,28 +33,23 @@ public class UserController {
     private final ProfileService profileService;
     private final FileService fileService;
 
-
-
     @PostMapping(value = "/signup")
     public RestResponse<Object> signup(@Valid @RequestBody SignupDTO signupDTO) throws InvalidSignupException {
         if (signupDTO != null) {
             this.userService.createUser(signupDTO);
-            RestResponse<Object> resp = new RestResponse<>();
-            resp.setMessage("Đăng kí tài khoản thành công");
-            resp.setStatusCode(HttpStatus.CREATED.value());
-            return resp;
+            return RestResponse.builder().statusCode(HttpStatus.CREATED.value()).message("Đăng kí tài khoản thành công").build();
         }
         return null;
     }
 
-    @PostMapping("/test")
-    public RestResponse<Object> test(@RequestParam("file") MultipartFile file) throws IOException, URISyntaxException {
-        fileService.deleteFile("https://res.cloudinary.com/dlz1eoryd/image/upload/v1750934198/socialMedia/avatars/upload-9072644940815940374c_kxfawo.jpg", "avatars");
-        RestResponse<Object> resp = new RestResponse<>();
-        resp.setStatusCode(HttpStatus.OK.value());
-        resp.setMessage("testok");
-        return resp;
-    }
+//    @PostMapping("/test")
+//    public RestResponse<Object> test(@RequestParam("file") MultipartFile file) throws IOException, URISyntaxException {
+//        fileService.deleteFile("https://res.cloudinary.com/dlz1eoryd/image/upload/v1750934198/socialMedia/avatars/upload-9072644940815940374c_kxfawo.jpg", "avatars");
+//        RestResponse<Object> resp = new RestResponse<>();
+//        resp.setStatusCode(HttpStatus.OK.value());
+//        resp.setMessage("testok");
+//        return resp;
+//    }
 
     @PutMapping("/profile/update")
     public ResProfileDTO updateProfile(@RequestParam("userId") int userId,

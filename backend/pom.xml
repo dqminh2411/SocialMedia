@@ -10,7 +10,7 @@
 		<!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ttcs</groupId>
-	<artifactId>socialmedia</artifactId>
+	<artifactId>socialMedia</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>socialmedia</name>
 	<description>Social Media project</description>
@@ -89,7 +89,6 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.36</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -120,6 +119,11 @@
 			<groupId>io.github.cdimascio</groupId>
 			<artifactId>dotenv-java</artifactId>
 			<version>2.2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+
 		</dependency>
 	</dependencies>
 

@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +29,11 @@ public class CommentService {
     private final UserService userService;
     private final LikeCommentRepository likeCommentRepository;
 
+    public boolean isCommentOwner(Comment comment){
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Not authenticated")
+        );
+        return comment.getCreator().getEmail().equals(currentUserEmail);
+    }
     public List<CommentDTO> getCommentPage(int postId, int pageNo) {
         final int pageSize = 20;
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -119,7 +125,7 @@ public class CommentService {
     public CommentDTO updateComment(int commentId, CommentDTO commentDTO) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         Comment comment = commentOptional.isPresent() ? commentOptional.get() : null;
-        if (comment == null)
+        if (comment == null || !isCommentOwner(comment)) // check comment owner
             return null;
         comment.setContent(commentDTO.getContent());
         comment = commentRepository.save(comment);
@@ -128,7 +134,7 @@ public class CommentService {
 
     public void deleteComment(int commentId) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
-        if (commentOptional.isPresent()) {
+        if (commentOptional.isPresent() && isCommentOwner(commentOptional.get())) {
             Comment comment = commentOptional.get();
             commentRepository.delete(comment);
         }

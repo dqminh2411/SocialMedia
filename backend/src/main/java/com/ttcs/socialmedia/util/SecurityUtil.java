@@ -1,6 +1,8 @@
 package com.ttcs.socialmedia.util;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.util.Base64;
+import com.nimbusds.jose.util.Base64URL;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
@@ -9,9 +11,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+
 import org.springframework.security.oauth2.jwt.*;
+
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
@@ -23,9 +28,10 @@ import java.util.Optional;
 public class SecurityUtil {
     public static final MacAlgorithm JWT_ALGORITHM = MacAlgorithm.HS512;
     private final JwtEncoder jwtEncoder;
+    private final SecretKey jwtSecretKey;
 
-    @Value("${app.jwt.base64-secret}")
-    private String jwtKey;
+//    @Value("${app.jwt.base64-secret}")
+//    private String jwtKey;
     @Value("${app.jwt.access-token-validity-in-seconds}")
     private long accessTokenExpiration;
     @Value("${app.jwt.refresh-token-validity-in-seconds}")
@@ -43,7 +49,7 @@ public class SecurityUtil {
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(userLogin.getEmail())
-                .claim("user",userLogin)
+                .claim("role","ROLE_" + userLogin.getRole())
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
@@ -61,19 +67,16 @@ public class SecurityUtil {
                 .issuedAt(now)
                 .expiresAt(validity)
                 .subject(resLoginDTO.getUserDTO().getEmail())
-                .claim("user", resLoginDTO)
+                .claim("accessToken", resLoginDTO.getAccessToken())
                 .build();
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
-    private SecretKey getSecretKey() {
-        byte[] keyBytes = Base64.from(jwtKey).decode();
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
-    }
+
 
     public Jwt checkRefreshToken(String refreshToken){
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(JWT_ALGORITHM).build();
         try{
             return decoder.decode(refreshToken);
         }catch (Exception e){

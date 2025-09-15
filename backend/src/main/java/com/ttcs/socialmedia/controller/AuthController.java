@@ -5,6 +5,7 @@ import com.ttcs.socialmedia.domain.dto.LoginDTO;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.AuthService;
+import com.ttcs.socialmedia.service.EmailService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.annotation.ApiMessage;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -38,13 +40,19 @@ public class AuthController {
     private final AuthService authService;
     @Value("${app.jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
+    private final EmailService emailService;
 
 
 
     @PostMapping("/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginUser) {
         if (loginUser != null) {
+            loginUser.setProvider("LOCAL");
             Map<String,Object> resp = authService.login(loginUser);
+
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            log.info("Email: {}", authentication.getName());
+            authentication.getAuthorities().forEach(grantedAuthority -> log.info("Granted Authority: {}", grantedAuthority.getAuthority()));
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resp.get("resCookie").toString()).body((ResLoginDTO)resp.get("resLoginDTO"));
         }
         return null;
@@ -143,5 +151,11 @@ public class AuthController {
 //        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).build();
 
+    }
+    @PostMapping("/forgot-password/email")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String,Object> body){
+        String email = (String) body.get("email");
+        emailService.sendEmailVerificationCode(email);
+        return ResponseEntity.ok().build();
     }
 }

@@ -6,15 +6,17 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeToken
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.ttcs.socialmedia.domain.Profile;
+import com.ttcs.socialmedia.domain.Role;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.LoginDTO;
 import com.ttcs.socialmedia.domain.dto.ResLoginDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.ProfileRepository;
+import com.ttcs.socialmedia.repository.RoleRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.AuthProvider;
-import com.ttcs.socialmedia.util.constants.Role;
+import com.ttcs.socialmedia.util.constants.RoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -64,6 +66,7 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
+    private RoleRepository roleRepository;
 
     public Map<String,Object> login(LoginDTO loginUser){
         ResLoginDTO resLoginDTO = new ResLoginDTO();
@@ -165,7 +168,8 @@ public class AuthService {
                     user.setProviderId(providerId);
                     user.setProvider(AuthProvider.valueOf(loginType.toUpperCase()));
                     user.setUsername(email.substring(0, email.indexOf("@")));
-                    user.setRole(Role.USER);
+                    Role role = roleRepository.findByName(RoleEnum.USER.name());
+                    user.setRole(role);
 
                     user = userRepository.save(user);
 

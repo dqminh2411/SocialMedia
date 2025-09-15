@@ -2,6 +2,7 @@ package com.ttcs.socialmedia.config;
 
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.service.UserService;
+import com.ttcs.socialmedia.util.constants.RoleEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,13 +32,17 @@ public class SecurityConfiguration {
 
 
     String[] whiteLists = {"/","/users/test", "/auth/login", "/auth/social-login", "/auth/social/callback", "/users/signup", "/auth/refresh", "/storage/**",
-            "/ws", "/actuator/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**"};
+            "/ws", "/actuator/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/api/email", "/auth/forgot-password/email"};
+
+    String[] adminOnly = {"/api/admin/**", "/permissions/**"};
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults()).authorizeHttpRequests(
-                authz -> authz.requestMatchers(whiteLists).permitAll().anyRequest().authenticated())
+                authz -> authz.requestMatchers(whiteLists).permitAll()
+                        .requestMatchers(adminOnly).hasRole(RoleEnum.ADMIN.name())
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
                 // .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new

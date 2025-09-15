@@ -18,7 +18,7 @@ public class CloudinaryConfig {
 
         Dotenv dotenv = Dotenv.load();
         Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
-        System.out.println(cloudinary.config.cloudName);
+        //System.out.println(cloudinary.config.cloudName);
         return cloudinary;
     }
 

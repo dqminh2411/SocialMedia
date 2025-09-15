@@ -1,12 +1,14 @@
 package com.ttcs.socialmedia.service;
 
 import com.ttcs.socialmedia.domain.Profile;
+import com.ttcs.socialmedia.domain.Role;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
+import com.ttcs.socialmedia.repository.RoleRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
-import com.ttcs.socialmedia.util.constants.Role;
+import com.ttcs.socialmedia.util.constants.RoleEnum;
 import com.ttcs.socialmedia.util.error.InvalidSignupException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,7 @@ public class UserService {
     private String defaultAvatarUrl;
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -41,9 +44,10 @@ public class UserService {
         User newUser = new User();
         newUser.setEmail(signupDTO.getEmail());
         newUser.setFullname(signupDTO.getFullname());
-        newUser.setRole(Role.USER);
+        Role role = roleRepository.findByName(RoleEnum.USER.name());
+        newUser.setRole(role);
         newUser.setHashedPassword(passwordEncoder.encode(signupDTO.getPassword()));
-        if (newUser.getRole().equals(Role.USER)) {
+        if (newUser.getRole().equals(RoleEnum.USER)) {
             Profile profile = new Profile();
             profile.setAvatar(defaultAvatarUrl);
             profile.setBio("");
@@ -78,7 +82,7 @@ public class UserService {
         userDTO.setFullname(user.getFullname());
         userDTO.setUsername(user.getUsername());
         userDTO.setCreatedAt(user.getCreatedAt());
-        userDTO.setRole(user.getRole().name());
+        userDTO.setRole(user.getRole().getName());
         userDTO.setProvider(user.getProvider().name());
         Profile p = user.getProfile();
         if (p != null)
@@ -160,8 +164,8 @@ public class UserService {
             user.setFullname(userDTO.getFullname());
         }
         if(userDTO.getRole() != null){
-            if(userDTO.getRole().equals("ADMIN")) user.setRole(Role.ADMIN);
-            else user.setRole(Role.USER);
+            Role role  = roleRepository.findByName(userDTO.getRole());
+            user.setRole(role);
         }
         return userRepository.save(user);
     }

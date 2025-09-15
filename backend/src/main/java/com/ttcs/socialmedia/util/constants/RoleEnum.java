@@ -1,5 +1,5 @@
 package com.ttcs.socialmedia.util.constants;
 
-public enum Role {
+public enum RoleEnum {
     ADMIN, USER
 }

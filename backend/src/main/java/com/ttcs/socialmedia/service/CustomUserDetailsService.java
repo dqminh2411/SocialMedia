@@ -23,6 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Email/Password không hợp lệ");
         }
-        return new User(user.getEmail(), user.getHashedPassword() == null? "":user.getHashedPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
+        return new User(user.getEmail(), user.getHashedPassword() == null? "":user.getHashedPassword(), Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName())));
     }
 }

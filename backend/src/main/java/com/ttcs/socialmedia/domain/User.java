@@ -2,7 +2,6 @@ package com.ttcs.socialmedia.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ttcs.socialmedia.util.constants.AuthProvider;
-import com.ttcs.socialmedia.util.constants.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +26,9 @@ public class User {
     private String refreshToken;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     private Instant createdAt;
-    @Enumerated(EnumType.STRING)
+
+    @ManyToOne
+    @JoinColumn(name = "role_name")
     private Role role;
 
     @Enumerated(EnumType.STRING)

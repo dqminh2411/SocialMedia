@@ -29,12 +29,11 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         this.delegate.commence(request, response, authException);
         response.setContentType("application/json;charset=UTF-8");
 
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-
-        res.setError(authException.getCause()==null? authException.getMessage():authException.getCause().getMessage());
-        res.setMessage("Token not valid (expired, incorrect or not passed in header)...");
-
+        RestResponse<Object> res = RestResponse.builder()
+                .error(authException.getCause()==null? authException.getMessage():authException.getCause().getMessage())
+                .message("Token not valid (expired, incorrect or not passed in header)...")
+                .statusCode(HttpStatus.UNAUTHORIZED.value())
+                .build();
         mapper.writeValue(response.getWriter(), res);
     }
 }
