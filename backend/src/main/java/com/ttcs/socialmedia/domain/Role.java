@@ -20,6 +20,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,10 +51,13 @@ public class Role {
     List<Permission> permissions;
 
     public Role() {
+        this.name = "";
+        this.permissions = new ArrayList<>();
     }
 
     public Role(String name) {
         this.name = name;
+        this.permissions = new ArrayList<>();
     }
 
     public String getName() {

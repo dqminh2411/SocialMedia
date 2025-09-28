@@ -17,6 +17,8 @@ package com.ttcs.socialmedia.controller;
  */
 
 import com.ttcs.socialmedia.domain.Permission;
+import com.ttcs.socialmedia.domain.dto.request.RolePermissionRequest;
+import com.ttcs.socialmedia.domain.dto.response.RolePermissionResponse;
 import com.ttcs.socialmedia.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -70,4 +72,13 @@ public class PermissionController {
         return RestResponse.<Void>builder().build();
     }
 
+    @PostMapping("/grant")
+    public RestResponse<RolePermissionResponse> grantPermissions(@RequestBody RolePermissionRequest rolePermissionRequest){
+
+        return RestResponse.<RolePermissionResponse>builder()
+                .statusCode(HttpStatus.CREATED.value())
+                .message("Permissions granted!")
+                .data(permissionService.grantPermissions(rolePermissionRequest))
+                .build();
+    }
 }

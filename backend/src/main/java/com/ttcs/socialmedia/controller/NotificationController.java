@@ -61,7 +61,6 @@ public class NotificationController {
         NotificationDTO notificationDTO = notificationService.convertToDTO(savedNotification);
 
         FollowDTO followDTO = new FollowDTO();
-        followDTO.setFollowingUserId(sender.getId());
         followDTO.setFollowedUserId(recipient.getId());
         followService.createFollow(followDTO);
 
