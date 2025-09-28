@@ -5,6 +5,7 @@ import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.FollowDTO;
 import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
+import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.FollowStatus;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,8 @@ public class FollowService {
 
 
     public void createFollow(FollowDTO followDTO) {
-        User followingUser = userRepository.findById(followDTO.getFollowingUserId());
+        String curEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user"));
+        User followingUser = userRepository.findByEmail(curEmail);
         User followedUser = userRepository.findById(followDTO.getFollowedUserId());
         if (followingUser != null && followedUser != null) {
             Follow follow = new Follow();
@@ -32,10 +34,15 @@ public class FollowService {
 
     public void confirmFollow(int followId) {
         Follow follow = followRepository.findById(followId);
-        if (follow != null) {
-            follow.setStatus(FollowStatus.CONFIRMED);
-            followRepository.save(follow);
+        String curEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user"));
+        User followedUser = userRepository.findByEmail(curEmail);
+        if(followedUser == null || follow == null || follow.getFollowedUser().getId() != followedUser.getId()){
+            return;
         }
+
+        follow.setStatus(FollowStatus.CONFIRMED);
+        followRepository.save(follow);
+
     }
 
     public void deleteFollow(int followId) {
@@ -48,7 +55,6 @@ public class FollowService {
 
     public String checkFollowStatus(int followingUserId, int followedUserId) {
         String status = followRepository.checkFollowStatus(followingUserId, followedUserId);
-
         return status;
     }
 

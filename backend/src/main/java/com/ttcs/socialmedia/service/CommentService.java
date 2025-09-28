@@ -29,7 +29,7 @@ public class CommentService {
     private final UserService userService;
     private final LikeCommentRepository likeCommentRepository;
 
-    public boolean isCommentOwner(Comment comment){
+    public boolean checkOwner(Comment comment){
         String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Not authenticated")
         );
         return comment.getCreator().getEmail().equals(currentUserEmail);
@@ -125,7 +125,7 @@ public class CommentService {
     public CommentDTO updateComment(int commentId, CommentDTO commentDTO) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         Comment comment = commentOptional.isPresent() ? commentOptional.get() : null;
-        if (comment == null || !isCommentOwner(comment)) // check comment owner
+        if (comment == null || !checkOwner(comment)) // check comment owner
             return null;
         comment.setContent(commentDTO.getContent());
         comment = commentRepository.save(comment);
@@ -134,7 +134,7 @@ public class CommentService {
 
     public void deleteComment(int commentId) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
-        if (commentOptional.isPresent() && isCommentOwner(commentOptional.get())) {
+        if (commentOptional.isPresent() && checkOwner(commentOptional.get())) {
             Comment comment = commentOptional.get();
             commentRepository.delete(comment);
         }

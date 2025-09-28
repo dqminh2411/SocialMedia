@@ -7,6 +7,7 @@ import com.ttcs.socialmedia.domain.dto.ResProfileDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.ProfileRepository;
+import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.FollowStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,9 +53,10 @@ public class ProfileService {
         return profileToResProfileDTO(profile);
     }
 
-    public ResProfileDTO update(int id, MultipartFile avatarFile, String bio) {
+    public ResProfileDTO update(MultipartFile avatarFile, String bio) {
+        String curEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user"));
         User user = new User();
-        user.setId(id);
+        user.setEmail(curEmail);
         Profile profile = this.profileRepository.findByUser(user);
         final String directoryName = "avatars";
         if (profile != null) {

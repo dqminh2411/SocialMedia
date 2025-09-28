@@ -7,6 +7,5 @@ import lombok.Setter;
 @Setter
 public class FollowDTO {
     private int id;
-    private int followingUserId;
     private int followedUserId;
 }

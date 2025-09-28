@@ -51,7 +51,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public RestResponse<Role> createRole(@RequestBody CreateRoleRequest req){
         return RestResponse.<Role>builder()
                 .statusCode(HttpStatus.CREATED.value())

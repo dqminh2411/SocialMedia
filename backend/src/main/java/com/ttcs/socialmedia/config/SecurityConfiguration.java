@@ -14,7 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@EnableMethodSecurity(securedEnabled = true)
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -34,7 +34,7 @@ public class SecurityConfiguration {
     String[] whiteLists = {"/","/users/test", "/auth/login", "/auth/social-login", "/auth/social/callback", "/users/signup", "/auth/refresh", "/storage/**",
             "/ws", "/actuator/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/api/email", "/auth/forgot-password/email"};
 
-    String[] adminOnly = {"/api/admin/**", "/permissions/**"};
+    String[] adminOnly = {"/api/admin/**", "/permissions/**", "/roles/**"};
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     public SecurityFilterChain filterChain(HttpSecurity http,

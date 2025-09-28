@@ -64,11 +64,14 @@ public class PostService {
 
         NewPostDTO newPostDTO = objectMapper.readValue(newPostJson, NewPostDTO.class);
 
-        // create folder to store posts' medias
-
-        User creator = new User();
-        creator.setId(newPostDTO.getCreatorId());
-        post.setCreator(creator);
+        // Determine creator from authenticated user, ignore any client-provided creatorId
+        String email = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+        User currentUser = userRepository.findByEmail(email);
+        if (currentUser == null) {
+            throw new RuntimeException("Current user not found");
+        }
+        post.setCreator(currentUser);
         post.setContent(newPostDTO.getContent());
 
         // set media
@@ -128,6 +131,9 @@ public class PostService {
         Post post = postRepository.findById(id);
         if (post == null) {
             throw new RuntimeException("Post not found");
+        }
+        if(!checkOwner(post)){
+            throw new RuntimeException("Current user not authorized");
         }
         if (mediasToDeleteJson == null) {
             mediasToDeleteJson = "[]"; // default to empty list if null
@@ -414,6 +420,9 @@ public class PostService {
         if (post == null) {
             return false;
         }
+        if(!checkOwner(post)){
+            throw new  RuntimeException("Current user not authorized");
+        }
 
         // Delete all related media files first
         if (post.getPostMedias() != null && !post.getPostMedias().isEmpty()) {
@@ -429,5 +438,11 @@ public class PostService {
 
         postRepository.delete(post);
         return true;
+    }
+    public boolean checkOwner(Post post){
+        User creator = post.getCreator();
+        String currentEmail = SecurityUtil.getCurrentUserLogin()
+                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+        return creator.getEmail().equals(currentEmail);
     }
 }

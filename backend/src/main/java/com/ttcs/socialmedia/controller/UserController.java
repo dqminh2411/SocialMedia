@@ -51,13 +51,6 @@ public class UserController {
 //        return resp;
 //    }
 
-    @PutMapping("/profile/update")
-    public ResProfileDTO updateProfile(@RequestParam("userId") int userId,
-            @RequestParam(name = "avatar", required = false) MultipartFile avatarFile,
-            @RequestParam(name = "bio", required = false) String bio) {
-        return this.profileService.update(userId, avatarFile, bio);
-    }
-
     @GetMapping("/suggestions")
     public List<UserDTO> getSuggestions(@RequestParam("userId") int userId,
             @RequestParam(name = "pageNo", defaultValue = "0") int pageNo) {
