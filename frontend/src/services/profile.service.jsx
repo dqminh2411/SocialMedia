@@ -2,18 +2,18 @@
 import axios from 'axios';
 import authHeader from './auth-header';
 
-const API_URL = 'http://localhost:8080/api/';
-
+const PROFILE_API_URL = 'http://localhost:8080/api/v1/profile';
+const FOLLOW_API_URL = 'http://localhost:8080/api/v1/follows';
 class ProfileService {
 
     getUserProfile(userId) {
-        return axios.get(API_URL + 'profile/' + userId, { headers: authHeader() })
+        return axios.get(PROFILE_API_URL + "/" + userId, { headers: authHeader() })
             .then(response => {
                 return response.data.data;
             });
     }
     getUserProfileByUsername(username) {
-        return axios.get(API_URL + 'profile/un/' + username, { headers: authHeader() })
+        return axios.get(PROFILE_API_URL + '/un/' + username, { headers: authHeader() })
             .then(response => {
                 return response.data.data;
             });
@@ -21,7 +21,7 @@ class ProfileService {
 
     updateUserProfile(profileData) {
         return axios.put(
-            'http://localhost:8080/users/profile/update',
+            PROFILE_API_URL + "/update",
             profileData,
             {
                 headers: {
@@ -34,21 +34,16 @@ class ProfileService {
                 return response.data;
             });
     }
-    getUserPosts(userId) {
-        return axios.get(API_URL + 'profile/' + userId + '/posts', { headers: authHeader() })
-            .then(response => {
-                return response.data;
-            });
-    } checkFollowStatus(followingUserId, followedUserId) {
+    checkFollowStatus(followingUserId, followedUserId) {
         return axios.get(
-            API_URL + 'follows/check?followingUserId=' + followingUserId + '&followedUserId=' + followedUserId,
+            FOLLOW_API_URL + '/check?followingUserId=' + followingUserId + '&followedUserId=' + followedUserId,
             { headers: authHeader() }
         ).then(response => {
             return response.data.data;
         })
     }
     getUserFollowers(userId, query = '', page = 0, size = 10) {
-        let url = API_URL + 'follows/followers/' + userId + '?page=' + page + '&size=' + size;
+        let url = FOLLOW_API_URL + 'follows/followers/' + userId + '?page=' + page + '&size=' + size;
         if (query) {
             url += '&query=' + encodeURIComponent(query);
         }
@@ -61,7 +56,7 @@ class ProfileService {
 
 
     getUserFollowing(userId, query = '', page = 0, size = 10) {
-        let url = API_URL + 'follows/following/' + userId + '?page=' + page + '&size=' + size;
+        let url = FOLLOW_API_URL + '/following/' + userId + '?page=' + page + '&size=' + size;
         if (query) {
             url += '&query=' + encodeURIComponent(query);
         }

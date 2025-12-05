@@ -44,7 +44,6 @@ const PostForm = ({ post = null, onSubmit }) => {
                 setFormData(prev => ({ ...prev, content: post.content }));
             }
             if (post.media && post.media.length > 0) {
-                const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
                 const images = [];
                 const videos = [];
 
@@ -58,7 +57,7 @@ const PostForm = ({ post = null, onSubmit }) => {
                     const mediaItem = {
                         id: media.id || `existing-${Math.random().toString(36).substr(2, 9)}`,
                         fileName: media.fileName,
-                        url: POST_MEDIA_URL + media.fileName,
+                        url: media.fileName,
 
                         isExisting: true
                     };

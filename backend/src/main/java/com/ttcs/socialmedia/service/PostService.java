@@ -5,13 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttcs.socialmedia.domain.*;
 import com.ttcs.socialmedia.domain.dto.*;
 import com.ttcs.socialmedia.repository.*;
+import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.event.MediaDeleteEvent;
 import lombok.AllArgsConstructor;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -37,6 +43,7 @@ public class PostService {
     private final ObjectMapper objectMapper;
     private final UserService userService;
     private final CommentService commentService;
+    private ApplicationEventPublisher eventPublisher;
 
     public PostDTO getPostById(int postId) {
         Post post = postRepository.findById(postId);
@@ -58,6 +65,7 @@ public class PostService {
         return postRepository.findPostsFromFollowedUsers(currentUser.getId(), pageable);
     }
 
+    @Transactional
     public PostDTO createPost(String newPostJson, List<MultipartFile> medias) throws URISyntaxException, IOException {
         Post post = new Post();
         // convert newPostJson to newPostDto
@@ -72,7 +80,8 @@ public class PostService {
             throw new RuntimeException("Current user not found");
         }
         post.setCreator(currentUser);
-        post.setContent(newPostDTO.getContent());
+        // sanitize input
+        post.setContent(SanitizeUtil.clean(newPostDTO.getContent()));
 
         // set media
         List<PostMedia> postMediaList = new ArrayList<>();
@@ -107,6 +116,7 @@ public class PostService {
         List<String> hashtags = newPostDTO.getHashtags();
         if (hashtags != null && !hashtags.isEmpty()) {
             for (String h : hashtags) {
+                if(h==null || SanitizeUtil.containsHtml(h)) continue;
                 Hashtag hashtag = hashtagRepository.findByName(h);
                 if (hashtag == null) {
                     hashtag = new Hashtag();
@@ -126,6 +136,7 @@ public class PostService {
 
     }
 
+    @Transactional
     public PostDTO updatePost(int id, String postJson, String mediasToDeleteJson, List<MultipartFile> newMedias)
             throws URISyntaxException, IOException {
         Post post = postRepository.findById(id);
@@ -138,72 +149,60 @@ public class PostService {
         if (mediasToDeleteJson == null) {
             mediasToDeleteJson = "[]"; // default to empty list if null
         }
-        List<String> mediasToDelete = objectMapper.readValue(mediasToDeleteJson, new TypeReference<List<String>>() {
-        });
+        List<String> tmp = objectMapper.readValue(mediasToDeleteJson, new TypeReference<List<String>>() {});
+        Set<String> mediasToDelete = new HashSet<>(tmp);
+
         // convert postJson to newPostDto
         NewPostDTO newPostDTO = objectMapper.readValue(postJson, NewPostDTO.class);
-        post.setContent(newPostDTO.getContent());
+
+        post.setContent(SanitizeUtil.clean(newPostDTO.getContent()));
         // delete medias
-        if (mediasToDelete != null && !mediasToDelete.isEmpty()) {
-            // delete media from postMedia table and file system
-            for (String mediaUrl : mediasToDelete) {
-                String imgName = mediaUrl.substring(mediaUrl.lastIndexOf("/") + 1);
-                PostMedia postMedia = postMediaRepository.findByFileName(imgName);
-                if (postMedia != null) {
-                    fileService.deleteFile(imgName, "posts");
-                    postMediaRepository.delete(postMedia);
-                }
+        List<String> filesNameToDelete = new ArrayList<>();
+        List<PostMedia> remainingMedias = new ArrayList<>();
+        for(PostMedia pm : post.getPostMedias()){
+            if(mediasToDelete.contains(pm.getFileName())){
+                filesNameToDelete.add(pm.getFileName());
+            }else{
+                remainingMedias.add(pm);
             }
         }
-
+        post.getPostMedias().clear();
+        post.getPostMedias().addAll(remainingMedias);
         // update medias' positions
-        List<PostMedia> postMedias = postMediaRepository.findByPost(post);
-        int i = 1;
-        for (PostMedia postMedia : postMedias) {
-            postMedia.setPosition(i++);
-            postMediaRepository.save(postMedia);
-        }
 
+        int i = 1;
+        for (PostMedia pm : post.getPostMedias()) {
+            pm.setPosition(i++);
+        }
         // insert new medias
-        if (newMedias != null && newMedias.size() > 0) {
+        if (newMedias != null && !newMedias.isEmpty()) {
             for (MultipartFile media : newMedias) {
                 PostMedia postMedia = new PostMedia();
                 postMedia.setPost(post);
                 postMedia.setFileName(fileService.upload(media, "posts"));
                 postMedia.setPosition(i++);
-                postMediaRepository.save(postMedia);
+                post.getPostMedias().add(postMedia);
             }
         }
 
         // update mentions
+        post.getPostMentions().clear();
         Set<String> newMentions = new HashSet<>(newPostDTO.getMentions());
-        for (PostMentions postMention : post.getPostMentions()) {
-            if (newMentions.contains(postMention.getUser().getUsername())) {
-                newMentions.remove(postMention.getUser().getUsername());
-            } else {
-                postMentionsRepository.delete(postMention);
-            }
-        }
-
         for (String mention : newMentions) {
             User mentionedUser = userRepository.findByUsername(mention);
             if (mentionedUser != null) {
                 PostMentions postMention = new PostMentions();
                 postMention.setPost(post);
                 postMention.setUser(mentionedUser);
-                postMentionsRepository.save(postMention);
+                post.getPostMentions().add(postMention);
+
             }
         }
 
         // update hashtags
         Set<String> newHashtags = new HashSet<>(newPostDTO.getHashtags());
-        for (PostHashtags postHashtag : post.getPostHashtags()) {
-            if (newHashtags.contains(postHashtag.getHashtag().getName())) {
-                newHashtags.remove(postHashtag.getHashtag().getName());
-            } else {
-                postHashtagsRepository.delete(postHashtag);
-            }
-        }
+        post.getPostHashtags().clear();
+
         for (String hashtag : newHashtags) {
             Hashtag hashtagEntity = hashtagRepository.findByName(hashtag);
             if (hashtagEntity == null) {
@@ -214,12 +213,17 @@ public class PostService {
             PostHashtags postHashtag = new PostHashtags();
             postHashtag.setPost(post);
             postHashtag.setHashtag(hashtagEntity);
-            postHashtagsRepository.save(postHashtag);
+            post.getPostHashtags().add(postHashtag);
         }
         // update post
 
         // return updated post
         post = postRepository.save(post);
+
+        // publish event to delete media files to guarantee updatePost transaction is done before media files are deleted
+        // as deleting files is not transactional
+        String mediaDir = "posts";
+        eventPublisher.publishEvent(new MediaDeleteEvent(filesNameToDelete, mediaDir));
         return postToDTO(post);
     }
 
@@ -311,6 +315,7 @@ public class PostService {
         return likePosts.stream().map(lp -> userService.userToUserDTO(lp.getUser())).collect(Collectors.toList());
     }
 
+    @Transactional
     public void likePost(int postId, String email) {
         Post post = postRepository.findById(postId);
         if (post == null) {
@@ -415,6 +420,7 @@ public class PostService {
      * @return true if the post was deleted, false if the post wasn't found
      * @throws URISyntaxException
      */
+    @Transactional
     public boolean deletePost(int id) throws URISyntaxException {
         Post post = postRepository.findById(id);
         if (post == null) {
@@ -424,19 +430,18 @@ public class PostService {
             throw new  RuntimeException("Current user not authorized");
         }
 
+        List<String> filesNameToDelete = new ArrayList<>();
         // Delete all related media files first
         if (post.getPostMedias() != null && !post.getPostMedias().isEmpty()) {
             for (PostMedia media : post.getPostMedias()) {
-                try {
-                    fileService.deleteFile(media.getFileName(), "posts");
-                } catch (IOException e) {
-                    // Log error but continue with deletion
-                    System.err.println("Error deleting media file: " + e.getMessage());
-                }
+                filesNameToDelete.add(media.getFileName());
             }
         }
-
         postRepository.delete(post);
+
+        // publish event to delete media
+        String mediaDir = "posts";
+        eventPublisher.publishEvent(new MediaDeleteEvent(filesNameToDelete,mediaDir));
         return true;
     }
     public boolean checkOwner(Post post){

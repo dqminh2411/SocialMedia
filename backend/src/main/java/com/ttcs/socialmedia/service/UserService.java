@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-
+    @Transactional
     public void createUser(SignupDTO signupDTO) throws InvalidSignupException {
         if (this.userRepository.existsByEmail(signupDTO.getEmail())) {
             throw new InvalidSignupException("Email đã tồn tại. Hãy dùng email khác");
@@ -145,6 +146,7 @@ public class UserService {
      * @param userDTO The data to update the user with
      * @return The updated user or null if the user wasn't found
      */
+    @Transactional
     public User updateUserByAdmin(int id, UserDTO userDTO) {
         User user = userRepository.findById(id);
         if (user == null) {
@@ -176,12 +178,12 @@ public class UserService {
      * @param id The ID of the user to delete
      * @return true if the user was deleted, false if the user wasn't found
      */
+    @Transactional
     public boolean deleteUser(int id) {
         User user = userRepository.findById(id);
         if (user == null) {
             return false;
         }
-
         userRepository.delete(user);
         return true;
     }

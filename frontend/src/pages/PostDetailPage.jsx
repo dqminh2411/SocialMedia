@@ -31,8 +31,10 @@ const PostDetailPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyText, setReplyText] = useState('');
-    const [editingComment, setEditingComment] = useState(null); const [editText, setEditText] = useState('');
-    const [showReplies, setShowReplies] = useState({}); const [loadingComments, setLoadingComments] = useState(false);
+    const [editingComment, setEditingComment] = useState(null);
+    const [editText, setEditText] = useState('');
+    const [showReplies, setShowReplies] = useState({});
+    const [loadingComments, setLoadingComments] = useState(false);
     const commentRef = useRef(null);
     const [currentUser, setCurrentUser] = useState(null);
     const [clickedLike, setClickedLike] = useState(false);
@@ -330,16 +332,6 @@ const PostDetailPage = () => {
     }, [navigate, background]);
 
 
-
-
-
-
-
-
-
-
-
-
     const goToNextMedia = () => {
         if (postData?.media && postData.media.length > 0) {
             setIsImageLoaded(false);
@@ -347,7 +339,8 @@ const PostDetailPage = () => {
                 prevIndex === postData.media.length - 1 ? 0 : prevIndex + 1
             );
         }
-    }; const goToPrevMedia = () => {
+    };
+    const goToPrevMedia = () => {
         if (postData?.media && postData.media.length > 0) {
             setIsImageLoaded(false);
             setCurrentMediaIndex((prevIndex) =>
@@ -521,7 +514,8 @@ const PostDetailPage = () => {
                             </div>
                             <div>
                                 <hr className={styles["line"]} />
-                            </div>                            <div className={styles["post-body"]}>
+                            </div>
+                            <div className={styles["post-body"]}>
                                 <div
                                     dangerouslySetInnerHTML={{ __html: postData.content }}
                                     className={additionalStyles["post-content-html"]}
@@ -549,7 +543,8 @@ const PostDetailPage = () => {
                                     <h3 className={additionalStyles["comments-heading"]}>Comments</h3>
 
                                     {Array.isArray(comments) && comments.length > 0 ? (
-                                        <div className={additionalStyles["comments-list"]}>                                            {comments.map(comment => comment && (
+                                        <div className={additionalStyles["comments-list"]}>
+                                            {comments.map(comment => comment && (
                                             <div
                                                 key={comment.id}
                                                 className={`${additionalStyles["comment-item"]} ${comment.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
@@ -589,10 +584,7 @@ const PostDetailPage = () => {
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <div
-                                                            dangerouslySetInnerHTML={{ __html: comment.content }}
-
-                                                        />
+                                                        <div dangerouslySetInnerHTML={{__html: comment.content}}/>
                                                     )}
                                                 </div>
 

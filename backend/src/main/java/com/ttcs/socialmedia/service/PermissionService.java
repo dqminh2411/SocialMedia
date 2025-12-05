@@ -28,7 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * PermissionService
@@ -72,11 +74,23 @@ public class PermissionService {
         if (role == null){
             return null;
         }
-        role.getPermissions().clear();
-        for (String permissionName : req.getPermissions()){
+        Set<String> newPermissions = new HashSet<>(req.getPermissions());
+        Set<String> curPermissions = new HashSet<>(role.getPermissions().stream().map(Permission::getName).toList());
+        newPermissions.removeAll(curPermissions);
+        req.getPermissions().forEach(curPermissions::remove);
+        // add new permissions
+        for (String permissionName : newPermissions){
             Permission permission = permissionRepository.findById(permissionName).orElse(null);
             if(permission == null) continue;
             role.getPermissions().add(permission);
+        }
+
+        // remove old permissions
+        for (String permissionName : curPermissions){
+            Permission permission = permissionRepository.findById(permissionName).orElse(null);
+            if(permission == null) continue;
+            role.getPermissions().remove(permission);
+//            log.info(String.format("Permission: %s revoked from Role: %s", permission.getName(), role.getName()));
         }
         role = roleRepository.save(role);
         for(Permission permission : role.getPermissions()){

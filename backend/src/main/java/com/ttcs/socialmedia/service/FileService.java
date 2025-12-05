@@ -37,7 +37,7 @@ public class FileService {
                "resource_type", "auto",
                "type", "upload"
         );
-        File tempFile = File.createTempFile(file.getOriginalFilename(), "-img");
+        File tempFile = File.createTempFile(UUID.randomUUID().toString(), null);
         file.transferTo(tempFile);
         Map uploadResult = cloudinary.uploader().upload(tempFile,params);
         System.out.println(uploadResult.get("url").toString());
@@ -49,7 +49,6 @@ public class FileService {
         if (fileUrl == null || fileUrl.isEmpty()) return;
         String publicId = "socialMedia/"+dirName+"/"+fileUrl.substring(fileUrl.lastIndexOf('/')+1,  fileUrl.lastIndexOf('.'));
         Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-
     }
 //    public void createDirectory(String directoryName) throws URISyntaxException {
 //        URI uri = new URI(baseURI+directoryName);

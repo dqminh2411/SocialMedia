@@ -8,6 +8,7 @@ import com.ttcs.socialmedia.domain.dto.CommentDTO;
 import com.ttcs.socialmedia.repository.CommentRepository;
 import com.ttcs.socialmedia.repository.LikeCommentRepository;
 import com.ttcs.socialmedia.repository.PostRepository;
+import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +86,7 @@ public class CommentService {
         return comments.stream().map(this::commentToCommentDTO).collect(Collectors.toList());
     } // create add reply method to add reply to comment
 
+    @Transactional
     public CommentDTO addReply(int commentId, CommentDTO commentDTO) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         Comment parentComment = commentOptional.orElse(null);
@@ -91,7 +94,7 @@ public class CommentService {
             throw new RuntimeException("Parent comment not found");
         }
         Comment comment = new Comment();
-        comment.setContent(commentDTO.getContent());
+        comment.setContent(SanitizeUtil.clean(commentDTO.getContent()));
         comment.setParent(parentComment);
         String email = SecurityUtil.getCurrentUserLogin().get();
         User creator = userService.getUserByEmail(email);
@@ -104,6 +107,7 @@ public class CommentService {
         return commentToCommentDTO(comment);
     }
 
+    @Transactional
     public CommentDTO addComment(CommentDTO commentDTO, String userEmail) {
         int postId = commentDTO.getPostId(); // Assuming CommentDTO has a getPostId() method
         Post post = postRepository.findById(postId);
@@ -115,23 +119,25 @@ public class CommentService {
             throw new RuntimeException("User not found");
         }
         Comment comment = new Comment();
-        comment.setContent(commentDTO.getContent());
+        comment.setContent(SanitizeUtil.clean(commentDTO.getContent()));
         comment.setPost(post);
         comment.setCreator(user);
         comment = commentRepository.save(comment);
         return commentToCommentDTO(comment);
     }
 
+    @Transactional
     public CommentDTO updateComment(int commentId, CommentDTO commentDTO) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         Comment comment = commentOptional.isPresent() ? commentOptional.get() : null;
         if (comment == null || !checkOwner(comment)) // check comment owner
             return null;
-        comment.setContent(commentDTO.getContent());
+        comment.setContent(SanitizeUtil.clean(commentDTO.getContent()));
         comment = commentRepository.save(comment);
         return commentToCommentDTO(comment);
     }
 
+    @Transactional
     public void deleteComment(int commentId) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         if (commentOptional.isPresent() && checkOwner(commentOptional.get())) {
@@ -140,6 +146,7 @@ public class CommentService {
         }
     }
 
+    @Transactional
     public void likeComment(int commentId, String email) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);
         Comment comment = commentOptional.orElse(null);

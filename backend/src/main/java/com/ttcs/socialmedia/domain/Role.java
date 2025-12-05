@@ -21,7 +21,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Role
@@ -48,39 +50,16 @@ public class Role {
     private String description;
 
     @ManyToMany
-    List<Permission> permissions;
+    Set<Permission> permissions;
 
     public Role() {
         this.name = "";
-        this.permissions = new ArrayList<>();
+        this.permissions = new HashSet<>();
     }
 
     public Role(String name) {
         this.name = name;
-        this.permissions = new ArrayList<>();
+        this.permissions = new HashSet<>();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<Permission> getPermissions() {
-        return permissions;
-    }
-
-    public void setPermissions(List<Permission> permissions) {
-        this.permissions = permissions;
-    }
 }

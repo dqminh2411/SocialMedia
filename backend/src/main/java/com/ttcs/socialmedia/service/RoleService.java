@@ -24,6 +24,7 @@ import com.ttcs.socialmedia.repository.RoleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -53,7 +54,7 @@ public class RoleService {
         Role newRole = new Role();
         newRole.setName(req.getName());
         newRole.setDescription(req.getDescription());
-        newRole.setPermissions(permissionRepository.findAllById(req.getPermissions()));
+        newRole.setPermissions(new HashSet<>(permissionRepository.findAllById(req.getPermissions())));
         return newRole;
     }
     public List<Role> getAllRoles(){

@@ -22,6 +22,7 @@ import CreatePostPage from "./pages/CreatePostPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import PostDetailPage from "./pages/PostDetailPage.jsx";
 import HashtagPage from "./pages/HashtagPage.jsx";
+import ForgotPassword from "./pages/auth/ForgotPassword.jsx";
 
 
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
@@ -48,7 +49,7 @@ const AppRoutes = () => {
                 { }
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
-
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 { }
                 <Route path="/" element={
                     <ProtectedRoute>

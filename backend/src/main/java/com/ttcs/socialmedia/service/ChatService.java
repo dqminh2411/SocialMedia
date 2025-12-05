@@ -9,6 +9,7 @@ import com.ttcs.socialmedia.repository.ChatRepository;
 import com.ttcs.socialmedia.repository.MessageRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException("Chat not found with id: " + chatId));
     }
 
+    @Transactional
     public Message saveMessage(MessageDTO messageDTO) {
         // Convert MessageDTO to Message entity
         Message message = new Message();
@@ -91,6 +93,7 @@ public class ChatService {
         return chatDTO;
     }
 
+    @Transactional
     public ChatDTO createChat(ChatDTO chatDTO) {
         boolean exists = chatRepository.existsByUsers(chatDTO.getThisUserId(), chatDTO.getOtherUserId());
         if (exists) {

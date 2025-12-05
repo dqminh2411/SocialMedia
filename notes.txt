@@ -1,0 +1,21 @@
+CASCADE PERMISSION --> ROLE_PERMISSIONS
+	ROLE --> ROLE_PERMISSIONS
+
+ADD SOFT DELETE
+
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            try {
+                Map<String, Object> user = jwt.getClaim("user");
+                if (user == null) {
+                    throw new IllegalArgumentException("No user claim present");
+                }
+                String role = (String) user.get("role");
+                if (role == null) {
+                    throw new IllegalArgumentException("No role found in user claim");
+                }
+                return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
+            } catch (Exception e) {
+                // Log the error and return empty authorities or throw custom exception
+                return Collections.emptySet();
+            }
+        });

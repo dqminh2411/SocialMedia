@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/profile")
+@RequestMapping("/api/v1/profile")
 @AllArgsConstructor
 public class ProfileController {
     private final ProfileService profileService;
@@ -39,5 +39,6 @@ public class ProfileController {
     public ResProfileDTO updateProfile(@RequestParam(name = "avatar", required = false) MultipartFile avatarFile,
                                        @RequestParam(name = "bio", required = false) String bio) {
         return this.profileService.update(avatarFile, bio);
+
     }
 }

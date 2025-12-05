@@ -174,12 +174,7 @@ const ProfilePage = () => {
         setTotalItems(0);
     };
 
-    const fetchUserProfile = async () => {
-
-
-
-
-
+    const fetchUserProfile = async () =>{
         const profileUsername = username || currentUser.user.username;
         if (!profileUsername) {
             setError('Username not provided');
@@ -433,7 +428,7 @@ const ProfilePage = () => {
                                 </div>
                                 <div className={styles.bio}>
                                     <p className={styles.fullName}>{user.fullName}</p>
-                                    <p>{user.bio}</p>
+                                    <div dangerouslySetInnerHTML={{ __html: user.bio }}></div>
                                 </div>
 
                                 { }
@@ -550,7 +545,9 @@ const ProfilePage = () => {
                                         style={{ display: 'none' }}
                                     />
                                 </div>
-                            </div>                            <div className={styles.formGroup}>
+                            </div>
+
+                            <div className={styles.formGroup}>
                                 <label htmlFor="bio">Bio</label>
                                 <textarea
                                     id="bio"

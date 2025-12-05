@@ -99,6 +99,17 @@ class AuthService {
             return {};
         }
     }
+    sendResetPasswordEmail(email) {
+        return axios.post(API_URL + 'forgot-password/email', { email })
+            .then(response => {
+                console.log('Reset password email sent:', response.data);
+                return response.data;
+            })
+            .catch(error => {
+                console.error('Error sending reset password email:', error);
+                throw error;
+            });
+    }
 
 }
 

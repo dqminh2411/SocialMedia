@@ -226,6 +226,16 @@ const Login = () => {
                         Sign up
                     </Link>
                 </p>
+                <p>
+                     <Link
+                        to="/forgot-password"
+                        className={styles.forgotPassword}
+                        style={{ color: '#00376b', fontSize: '14px', textDecoration: 'none' }}
+                        
+                    >
+                        Forgot your password?
+                    </Link>
+                </p>
             </div>
 
         </div>

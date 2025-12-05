@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +21,7 @@ public class FollowService {
     private final UserRepository userRepository;
 
 
+    @Transactional
     public void createFollow(FollowDTO followDTO) {
         String curEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user"));
         User followingUser = userRepository.findByEmail(curEmail);
@@ -32,6 +34,7 @@ public class FollowService {
         }
     }
 
+    @Transactional
     public void confirmFollow(int followId) {
         Follow follow = followRepository.findById(followId);
         String curEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user"));
@@ -45,6 +48,7 @@ public class FollowService {
 
     }
 
+    @Transactional
     public void deleteFollow(int followId) {
         Follow follow = followRepository.findById(followId);
         String currentUserEmail = com.ttcs.socialmedia.util.SecurityUtil.getCurrentUserLogin().orElse(null);

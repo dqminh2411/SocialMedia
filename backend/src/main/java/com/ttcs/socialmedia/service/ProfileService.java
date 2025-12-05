@@ -7,12 +7,18 @@ import com.ttcs.socialmedia.domain.dto.ResProfileDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.FollowRepository;
 import com.ttcs.socialmedia.repository.ProfileRepository;
+import com.ttcs.socialmedia.repository.UserRepository;
+import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.FollowStatus;
+import com.ttcs.socialmedia.util.event.MediaDeleteEvent;
+import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,21 +28,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class ProfileService {
     private final ProfileRepository profileRepository;
     private final FileService fileService;
     private final UserService userService;
     private final PostService postService;
     private final FollowRepository followRepository;
+    private final UserRepository userRepository;
+    private ApplicationEventPublisher eventPublisher;
 
-    public ProfileService(ProfileRepository profileRepository, FileService fileService, UserService userService,
-            PostService postService, FollowRepository followRepository) {
-        this.profileRepository = profileRepository;
-        this.fileService = fileService;
-        this.userService = userService;
-        this.postService = postService;
-        this.followRepository = followRepository;
-    }
 
     public ResProfileDTO getProfileByUserId(int id) {
         User user = new User();
@@ -53,29 +54,31 @@ public class ProfileService {
         return profileToResProfileDTO(profile);
     }
 
+    @Transactional
     public ResProfileDTO update(MultipartFile avatarFile, String bio) {
         String curEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new RuntimeException("No current user"));
-        User user = new User();
-        user.setEmail(curEmail);
+        User user = userRepository.findByEmail(curEmail);
         Profile profile = this.profileRepository.findByUser(user);
         final String directoryName = "avatars";
+        String oldAvatar = "";
         if (profile != null) {
             String avatarUrl = "";
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 try {
-
                     avatarUrl = this.fileService.upload(avatarFile, directoryName);
                     if (profile.getAvatar() != null && !profile.getAvatar().isEmpty()) {
-                        this.fileService.deleteFile(profile.getAvatar(), directoryName);
+                        oldAvatar = profile.getAvatar();
                     }
                     profile.setAvatar(avatarUrl);
-                } catch (URISyntaxException | IOException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
-            profile.setBio(bio);
+            profile.setBio(SanitizeUtil.clean(bio));
             profile = this.profileRepository.save(profile);
 
+            // publish event to delete old avatar file
+            eventPublisher.publishEvent(new MediaDeleteEvent(List.of(oldAvatar), directoryName));
             ResProfileDTO resProfile = profileToResProfileDTO(profile);
             return resProfile;
         }
