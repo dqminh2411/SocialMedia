@@ -31,10 +31,22 @@ public class SecurityConfiguration {
 
 
 
-    String[] whiteLists = {"/","/users/test", "/auth/login", "/auth/social-login", "/auth/social/callback", "/users/signup", "/auth/refresh", "/storage/**",
-            "/ws", "/actuator/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/api/email", "/auth/forgot-password/email"};
+    String[] whiteLists = {"/api/v1",
+            "/api/v1/auth/login",
+            "/api/v1/auth/social-login",
+            "/api/v1/auth/social/callback",
+            "api/v1/users/signup",
+            "/storage/**",
+            "/ws",
+            "/actuator/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/api/v1/email",
+            "/api/v1/auth/forgot-password/email",
+            "/api/v1/auth/refresh"};
 
-    String[] adminOnly = {"/api/admin/**", "/permissions/**", "/roles/**"};
+    String[] adminOnly = {"/api/v1/admin/**", "/api/v1/permissions/**", "/api/v1/roles/**"};
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     public SecurityFilterChain filterChain(HttpSecurity http,

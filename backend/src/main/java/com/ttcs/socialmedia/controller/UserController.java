@@ -2,29 +2,24 @@ package com.ttcs.socialmedia.controller;
 
 import com.ttcs.socialmedia.domain.RestResponse;
 import com.ttcs.socialmedia.domain.User;
-import com.ttcs.socialmedia.domain.dto.ResProfileDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.FileService;
 import com.ttcs.socialmedia.service.ProfileService;
 import com.ttcs.socialmedia.service.UserService;
-import com.ttcs.socialmedia.util.error.InvalidSignupException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("${apiPrefix}/users")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -34,7 +29,7 @@ public class UserController {
     private final FileService fileService;
 
     @PostMapping(value = "/signup")
-    public RestResponse<Object> signup(@Valid @RequestBody SignupDTO signupDTO) throws InvalidSignupException {
+    public RestResponse<Object> signup(@Valid @RequestBody SignupDTO signupDTO) {
         if (signupDTO != null) {
             this.userService.createUser(signupDTO);
             return RestResponse.builder().statusCode(HttpStatus.CREATED.value()).message("Đăng kí tài khoản thành công").build();

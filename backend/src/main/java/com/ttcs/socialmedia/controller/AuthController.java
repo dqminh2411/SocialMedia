@@ -9,7 +9,8 @@ import com.ttcs.socialmedia.service.EmailService;
 import com.ttcs.socialmedia.service.UserService;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.annotation.ApiMessage;
-import com.ttcs.socialmedia.util.error.AuthException;
+import com.ttcs.socialmedia.util.error.AppException;
+import com.ttcs.socialmedia.util.error.ErrorCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping(path = "${apiPrefix}/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -49,7 +50,6 @@ public class AuthController {
         if (loginUser != null) {
             loginUser.setProvider("LOCAL");
             Map<String,Object> resp = authService.login(loginUser);
-
             var authentication = SecurityContextHolder.getContext().getAuthentication();
             log.info("Email: {}", authentication.getName());
             authentication.getAuthorities().forEach(grantedAuthority -> log.info("Granted Authority: {}", grantedAuthority.getAuthority()));
@@ -94,12 +94,12 @@ public class AuthController {
     }
 
 
-    @GetMapping("/refresh")
-    public ResponseEntity<ResLoginDTO> refreshAccessToken(@CookieValue(name = "refreshToken",defaultValue = "defaultRefreshToken") String refreshToken) throws AuthException {
+    @PostMapping("/refresh")
+    public ResponseEntity<ResLoginDTO> refreshAccessToken(@CookieValue(name = "refreshToken",defaultValue = "defaultRefreshToken") String refreshToken) throws AppException {
 
         // check if cookie is passed to server or not
         if(refreshToken.equals("defaultRefreshToken")){
-            throw new AuthException("Không có Refresh Token trong cookies");
+            throw new AppException(ErrorCode.REFRESHTOKEN_NOTFOUND);
         }
         // check valid refresh token
         Jwt decodedToken = this.securityUtil.checkRefreshToken(refreshToken);
@@ -109,7 +109,7 @@ public class AuthController {
         // guarantee that the refresh token is the newest version
         User user = this.userService.getUserByEmailAndRefreshToken(email,refreshToken);
         if(user == null){
-            throw new AuthException("User/RefreshToken không hợp lệ");
+            throw new AppException(ErrorCode.REFRESHTOKEN_INVALID);
         }
 
         // create resLoginDTO
@@ -137,10 +137,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     @ApiMessage("Đăng xuất thành công")
-    public ResponseEntity<Void> logout() throws AuthException{
+    public ResponseEntity<Void> logout() throws AppException{
         String email = SecurityUtil.getCurrentUserLogin().isPresent()? SecurityUtil.getCurrentUserLogin().get() : "";
         if(email.isEmpty())
-            throw new AuthException("Người dùng đang không đăng nhập");
+            throw new AppException(ErrorCode.LOGOUT_NO_USER_LOGGEDIN);
         // update user's refresh token
         this.userService.updateRefreshToken(email,null);
         // update cookie

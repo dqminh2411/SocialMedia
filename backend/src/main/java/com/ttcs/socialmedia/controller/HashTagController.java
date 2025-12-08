@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/hashtags")
+@RequestMapping("${apiPrefix}/hashtags")
 public class HashTagController {
     private final HashtagService hashtagService;
 

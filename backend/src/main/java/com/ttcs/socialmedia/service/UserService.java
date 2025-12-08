@@ -9,7 +9,8 @@ import com.ttcs.socialmedia.repository.RoleRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
 import com.ttcs.socialmedia.util.constants.RoleEnum;
-import com.ttcs.socialmedia.util.error.InvalidSignupException;
+import com.ttcs.socialmedia.util.error.AppException;
+import com.ttcs.socialmedia.util.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -35,11 +36,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void createUser(SignupDTO signupDTO) throws InvalidSignupException {
+    public void createUser(SignupDTO signupDTO) throws AppException {
         if (this.userRepository.existsByEmail(signupDTO.getEmail())) {
-            throw new InvalidSignupException("Email đã tồn tại. Hãy dùng email khác");
+            throw new AppException(ErrorCode.SIGNUP_EXISTED_EMAIL);
         } else if (!signupDTO.getPassword().equals(signupDTO.getRePassword())) {
-            throw new InvalidSignupException("Mật khẩu nhập lại không khớp. Hãy thử lại");
+            throw new AppException(ErrorCode.SIGNUP_UNMATCHED_PASSWORD);
         }
 
         User newUser = new User();

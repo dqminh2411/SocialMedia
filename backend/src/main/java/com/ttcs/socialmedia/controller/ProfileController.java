@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/profile")
+@RequestMapping("${apiPrefix}/profile")
 @AllArgsConstructor
 public class ProfileController {
     private final ProfileService profileService;

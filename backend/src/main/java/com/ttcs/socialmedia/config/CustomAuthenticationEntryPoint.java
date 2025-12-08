@@ -30,8 +30,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json;charset=UTF-8");
 
         RestResponse<Object> res = RestResponse.builder()
-                .error(authException.getCause()==null? authException.getMessage():authException.getCause().getMessage())
-                .message("Token not valid (expired, incorrect or not passed in header)...")
+                .message(authException.getCause()==null? authException.getMessage():authException.getCause().getMessage())
                 .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .build();
         mapper.writeValue(response.getWriter(), res);

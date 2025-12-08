@@ -1,0 +1,23 @@
+package com.ttcs.socialmedia.util.error;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@AllArgsConstructor
+public enum ErrorCode {
+
+    SIGNUP_EXISTED_EMAIL(HttpStatus.BAD_REQUEST, "Email existed. Try another"),
+    SIGNUP_UNMATCHED_PASSWORD(HttpStatus.BAD_REQUEST, "Confirm password does not match. Retry"),
+    REFRESHTOKEN_INVALID(HttpStatus.BAD_REQUEST, "Invalid Refresh token"),
+    REFRESHTOKEN_NOTFOUND(HttpStatus.BAD_REQUEST, "Refresh token not found"),
+    LOGOUT_NO_USER_LOGGEDIN(HttpStatus.BAD_REQUEST, "No User Logged in"),
+    ;
+
+    private HttpStatus status;
+    private String message;
+
+}

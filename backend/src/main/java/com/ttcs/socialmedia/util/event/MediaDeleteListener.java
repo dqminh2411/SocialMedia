@@ -21,8 +21,7 @@ public class MediaDeleteListener {
         try{
             for(String fileName : event.getFilesToDelete()) {
                 String publicId = fileName.substring(fileName.indexOf("socialMedia/"), fileName.lastIndexOf("."));
-                Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-                int i = 1;
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
             }
         }catch(IOException e){
             e.printStackTrace();

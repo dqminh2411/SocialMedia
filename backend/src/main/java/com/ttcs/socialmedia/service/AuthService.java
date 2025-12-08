@@ -90,7 +90,7 @@ public class AuthService {
         String refreshToken = this.securityUtil.createRefreshToken(resLoginDTO);
         this.userService.updateRefreshToken(loginUser.getEmail(), refreshToken);
         // attach refresh token to cookie
-        ResponseCookie resCookie = ResponseCookie.from("refreshToken",refreshToken).httpOnly(true).path("/").maxAge(refreshTokenExpiration).build();
+        ResponseCookie resCookie = ResponseCookie.from("refreshToken",refreshToken).httpOnly(true).path("/").maxAge(refreshTokenExpiration).secure(true).build();
 
         return Map.of("resLoginDTO", resLoginDTO, "resCookie", resCookie);
 

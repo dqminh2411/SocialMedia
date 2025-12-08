@@ -45,7 +45,7 @@ import java.util.List;
  * 9/14/2025     doanm      Create
  */
 @RestController
-@RequestMapping("/roles")
+@RequestMapping("${apiPrefix}/roles")
 @RequiredArgsConstructor
 public class RoleController {
     private final RoleService roleService;

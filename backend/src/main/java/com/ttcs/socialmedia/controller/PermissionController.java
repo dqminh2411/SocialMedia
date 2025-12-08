@@ -44,7 +44,7 @@ import java.util.List;
  * 9/14/2025     doanm      Create
  */
 @RestController
-@RequestMapping("/permissions")
+@RequestMapping("${apiPrefix}/permissions")
 @RequiredArgsConstructor
 public class PermissionController {
     private final PermissionService permissionService;

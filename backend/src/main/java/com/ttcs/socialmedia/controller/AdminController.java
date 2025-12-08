@@ -17,7 +17,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping(path="${apiPrefix}/admin")
 @AllArgsConstructor
 public class AdminController {
     private final UserService userService;
