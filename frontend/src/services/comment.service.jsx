@@ -1,13 +1,11 @@
-import axios from 'axios';
+import api from './api.js';
 import authHeader from './auth-header';
-
-const API_URL = 'http://localhost:8080/api/';
 
 class CommentService {
 
     getComments(postId, pageNo) {
-        return axios.get(
-            API_URL + 'comments?postId=' + postId + '&pageNo=' + pageNo,
+        return api.get(
+            '/comments?postId=' + postId + '&pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -17,8 +15,8 @@ class CommentService {
 
 
     addComment(postId, content) {
-        return axios.post(
-            API_URL + 'comments',
+        return api.post(
+            '/comments',
             {
                 postId: postId,
                 content: content
@@ -32,8 +30,8 @@ class CommentService {
 
 
     updateComment(commentId, content) {
-        return axios.put(
-            API_URL + 'comments/' + commentId,
+        return api.put(
+            '/comments/' + commentId,
             { content: content },
             { headers: authHeader() }
         )
@@ -44,8 +42,8 @@ class CommentService {
 
 
     deleteComment(commentId) {
-        return axios.delete(
-            API_URL + 'comments/' + commentId,
+        return api.delete(
+            '/comments/' + commentId,
             { headers: authHeader() }
         )
             .then(response => {
@@ -55,8 +53,8 @@ class CommentService {
 
 
     getReplies(commentId, pageNo) {
-        return axios.get(
-            API_URL + 'comments/' + commentId + '/replies?pageNo=' + pageNo,
+        return api.get(
+            '/comments/' + commentId + '/replies?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -66,8 +64,8 @@ class CommentService {
 
 
     addReply(commentId, content) {
-        return axios.post(
-            API_URL + 'comments/' + commentId + '/replies',
+        return api.post(
+            '/comments/' + commentId + '/replies',
             {
                 parentId: commentId,
                 content: content
@@ -81,8 +79,8 @@ class CommentService {
 
 
     likeComment(commentId) {
-        return axios.post(
-            API_URL + 'comments/' + commentId + '/like',
+        return api.post(
+            '/comments/' + commentId + '/like',
             {},
             { headers: authHeader() }
         )

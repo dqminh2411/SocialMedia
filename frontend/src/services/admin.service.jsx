@@ -1,13 +1,11 @@
 
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/admin/';
+import api from './api.js';
 
 class AdminService {
     login(username, password) {
         console.log('Admin auth service login attempt with:', username);
-        return axios
-            .post('http://localhost:8080/auth/login', {
+        return api
+            .post('/auth/login', {
                 email: username,
                 password: password,
             })
@@ -28,7 +26,7 @@ class AdminService {
             });
     }
     getDashboardStats() {
-        return axios.get(API_URL + 'dashboard', { headers: this.getAuthHeader() })
+        return api.get('/admin/dashboard', { headers: this.getAuthHeader() })
             .then(response => response.data.data)
     }
 
@@ -65,7 +63,7 @@ class AdminService {
 
     getUsers(page = 0, size = 10, search = '') {
         try {
-            return axios.get(API_URL + 'users', {
+            return api.get('/admin/users', {
                 params: { page, size, search },
                 headers: this.getAuthHeader()
             });
@@ -77,7 +75,7 @@ class AdminService {
 
     getUserById(id) {
         try {
-            return axios.get(API_URL + `users/${id}`, {
+            return api.get(`/admin/users/${id}`, {
                 headers: this.getAuthHeader()
             });
         } catch (error) {
@@ -89,7 +87,7 @@ class AdminService {
     }
 
     updateUser(id, userData) {
-        return axios.put(API_URL + `users/${id}`, userData, {
+        return api.put(`/admin/users/${id}`, userData, {
             headers: this.getAuthHeader()
         }).then(response => {
             console.log('User updated successfully:', response.data.data);
@@ -98,7 +96,7 @@ class AdminService {
     }
 
     deleteUser(id) {
-        return axios.delete(API_URL + `users/${id}`, {
+        return api.delete(`/admin/users/${id}`, {
             headers: this.getAuthHeader()
         });
     }
@@ -108,7 +106,7 @@ class AdminService {
 
     getPosts(page = 0, size = 10, search = '') {
         try {
-            return axios.get(API_URL + 'posts', {
+            return api.get('/admin/posts', {
                 params: { page, size, search },
                 headers: this.getAuthHeader()
             });
@@ -120,7 +118,7 @@ class AdminService {
 
     getPostById(id) {
         try {
-            return axios.get(API_URL + `posts/${id}`, {
+            return api.get(`/admin/posts/${id}`, {
                 headers: this.getAuthHeader()
             });
         } catch (error) {
@@ -130,13 +128,13 @@ class AdminService {
     }
 
     updatePost(id, postData) {
-        return axios.put(API_URL + `posts/${id}`, postData, {
+        return api.put(`/admin/posts/${id}`, postData, {
             headers: this.getAuthHeader()
         });
     }
 
     deletePost(id) {
-        return axios.delete(API_URL + `posts/${id}`, {
+        return api.delete(`/admin/posts/${id}`, {
             headers: this.getAuthHeader()
         });
     }

@@ -1,13 +1,11 @@
+import api, { resetLogoutFlag } from './api.js';
 
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/auth/';
 
 class AuthService {
     login(email, password) {
         console.log('Auth service login attempt with:', email);
-        return axios
-            .post(API_URL + 'login', {
+        return api
+            .post('/auth/login', {
                 email,
                 password
             })
@@ -18,18 +16,20 @@ class AuthService {
                         user: response.data.data.userDTO,
                         accessToken: response.data.data.accessToken
                     };
-                    console.log('Storing user data:', userData);
-                    localStorage.setItem('user', JSON.stringify(userData));
+
+                    // Reset logout flag on successful login
+                    resetLogoutFlag();
+                    return userData;
                 } else {
                     console.warn('Login response missing data property');
                 }
-                return response.data;
+                return null;
             });
 
     }
 
     getSocialLoginPage(loginType) {
-        return axios.get(API_URL + 'social-login', {
+        return api.get('/auth/social-login', {
             params: { loginType }
         })
             .then(response => response.data.data)
@@ -40,7 +40,7 @@ class AuthService {
     }
 
     socialLogin(code, loginType) {
-        return axios.post(API_URL + "social/callback", null, {
+        return api.post("/auth/social/callback", null, {
             params: { code, loginType }
         })
             .then(response => {
@@ -51,6 +51,8 @@ class AuthService {
                         accessToken: response.data.data.accessToken
                     }
                     localStorage.setItem('user', JSON.stringify(userData));
+                    // Reset logout flag on successful social login
+                    resetLogoutFlag();
                 } else {
                     console.warn('Social login response missing data property');
                 }
@@ -67,7 +69,7 @@ class AuthService {
     }
 
     signup(formData) {
-        return axios.post('http://localhost:8080/users/signup', {
+        return api.post('/users/signup', {
             fullname: formData.fullname,
             email: formData.email,
             password: formData.password,
@@ -100,7 +102,7 @@ class AuthService {
         }
     }
     sendResetPasswordEmail(email) {
-        return axios.post(API_URL + 'forgot-password/email', { email })
+        return api.post('/forgot-password/email', { email })
             .then(response => {
                 console.log('Reset password email sent:', response.data);
                 return response.data;

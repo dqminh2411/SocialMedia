@@ -34,7 +34,13 @@ export const ChatProvider = ({ children }) => {
     };
     
     useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUser) {
+            setChats([]);
+            setMessages({});
+            setUnreadCount(0);
+            setActiveChat(null);
+            return;
+        }
 
         let reconnectInterval = null;
 
@@ -66,6 +72,11 @@ export const ChatProvider = ({ children }) => {
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching chats:", err);
+                // If unauthorized, stop trying
+                if (err.response?.status === 401) {
+                    setChats([]);
+                    setUnreadCount(0);
+                }
                 setError("Failed to load conversations");
                 setLoading(false);
             }
@@ -119,7 +130,7 @@ export const ChatProvider = ({ children }) => {
                 clearInterval(reconnectInterval);
             }
         };
-    }, []);
+    }, [currentUser]);
 
     
     const handleNewMessage = (newMessage) => {

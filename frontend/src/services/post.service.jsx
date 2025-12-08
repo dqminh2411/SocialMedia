@@ -1,7 +1,5 @@
-import axios from 'axios';
+import api from './api.js';
 import authHeader from './auth-header';
-
-const API_URL = 'http://localhost:8080/api/';
 
 class PostService {
 
@@ -26,8 +24,8 @@ class PostService {
             });
         }
 
-        return axios.post(
-            API_URL + 'posts',
+        return api.post(
+            '/posts',
             formData,
             {
                 headers: {
@@ -68,8 +66,8 @@ class PostService {
             formData.append('mediaToDelete', JSON.stringify(mediaToDelete));
         }
 
-        return axios.put(
-            API_URL + 'posts/' + postId,
+        return api.put(
+            '/posts/' + postId,
             formData,
             {
                 headers: {
@@ -85,7 +83,7 @@ class PostService {
 
 
     getUserPosts(userId, pageNo) {
-        return axios.get(API_URL + 'posts?userId=' + userId + '&pageNo=' + pageNo,
+        return api.get('/posts?userId=' + userId + '&pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -95,8 +93,8 @@ class PostService {
 
 
     likePost(postId) {
-        return axios.post(
-            API_URL + 'posts/' + postId + '/like',
+        return api.post(
+            '/posts/' + postId + '/like',
             {},
             { headers: authHeader() }
         )
@@ -107,8 +105,8 @@ class PostService {
 
 
     getPostLikes(postId, pageNo) {
-        return axios.get(
-            API_URL + 'posts/' + postId + '/likes?pageNo=' + pageNo,
+        return api.get(
+            '/posts/' + postId + '/likes?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -118,8 +116,8 @@ class PostService {
 
 
     getPostDetails(postId) {
-        return axios.get(
-            API_URL + 'posts/' + postId,
+        return api.get(
+            '/posts/' + postId,
             { headers: authHeader() }
         )
             .then(response => {
@@ -127,8 +125,8 @@ class PostService {
             });
     }
     getExplorePosts(pageNo) {
-        return axios.get(
-            API_URL + 'posts/explore?pageNo=' + pageNo,
+        return api.get(
+            '/posts/explore?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -136,8 +134,8 @@ class PostService {
             });
     }
     getHomePosts(pageNo = 0) {
-        return axios.get(
-            API_URL + 'posts/home?pageNo=' + pageNo,
+        return api.get(
+            '/posts/home?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -146,8 +144,8 @@ class PostService {
             )
     }
     getNewHomePosts(pageNo = 0) {
-        return axios.get(
-            API_URL + 'posts/new-home?pageNo=' + pageNo,
+        return api.get(
+            '/posts/new-home?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -156,8 +154,8 @@ class PostService {
     }
 
     searchHashtags(query) {
-        return axios.get(
-            API_URL + 'hashtags/search?query=' + encodeURIComponent(query),
+        return api.get(
+            '/hashtags/search?query=' + encodeURIComponent(query),
             { headers: authHeader() }
         )
             .then(response => {
@@ -166,8 +164,8 @@ class PostService {
             )
     }
     getPostsByHashtag(hashtag, pageNo = 0) {
-        return axios.get(
-            API_URL + 'posts/hashtag/' + encodeURIComponent(hashtag) + '?pageNo=' + pageNo,
+        return api.get(
+            '/posts/hashtag/' + encodeURIComponent(hashtag) + '?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {
@@ -177,8 +175,8 @@ class PostService {
 
 
     deletePost(postId) {
-        return axios.delete(
-            API_URL + 'posts/' + postId,
+        return api.delete(
+            '/posts/' + postId,
             { headers: authHeader() }
         )
             .then(response => {

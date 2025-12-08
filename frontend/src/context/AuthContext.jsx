@@ -41,15 +41,16 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await AuthService.login(email, password);
-            const user = parseStoredUser();
-            console.log('Login successful, user:', user);
+            const user = await AuthService.login(email, password);
             setCurrentUser(user);
-            return user;
+            console.log('Storing user data:', user);
+            localStorage.setItem('user', JSON.stringify(user));
+            return true;
         } catch (error) {
             console.error('Login error in context:', error);
-            throw error;
+            return false;
         }
+
     };
 
     const logout = () => {

@@ -20,6 +20,15 @@ const Login = () => {
     const location = useLocation();
     const { login, currentUser } = useAuth();
     const from = location.state?.from || '/';
+    
+    // Clear any stale auth data on mount
+    useEffect(() => {
+        // If coming from a logout/expired session, ensure clean state
+        if (!currentUser) {
+            localStorage.removeItem('user');
+        }
+    }, []);
+    
     useEffect(() => {
 
         const fixClickableElements = () => {
@@ -95,15 +104,18 @@ const Login = () => {
         console.log('Login attempt with:', formData.email);
 
         try {
-            const user = await login(formData.email, formData.password);
-            console.log('Login successful, user:', user);
-            console.log('Redirecting to:', from);
-            navigate(from, { replace: true });
+            const success = await login(formData.email, formData.password);
+            if(success){
+                console.log('Login successful!');
+                navigate(from, { replace: true });
+            }  else{
+                console.log('Login failed!');
+                setError('Login failed');
+            }
         } catch (error) {
             console.error('Login error:', error);
             setError(error.response?.data?.message || error.message || 'Login failed');
         }
-
         setLoading(false);
     };
 

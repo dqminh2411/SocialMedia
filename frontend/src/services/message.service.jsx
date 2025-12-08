@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from './api.js';
 import authHeader from './auth-header';
 import { Stomp } from '@stomp/stompjs';
 
@@ -195,8 +195,8 @@ class MessageService {
     }
 
     getAllMessages(chatId) {
-        return axios.get(
-            `http://localhost:8080/api/chat/${chatId}`,
+        return api.get(
+            `/chat/${chatId}`,
             { headers: authHeader() }
         ).then(response => {
             return response.data.data;
@@ -206,8 +206,8 @@ class MessageService {
         });
     }
     getAllChats(userId) {
-        return axios.get(
-            `http://localhost:8080/api/chat/user/${userId}`,
+        return api.get(
+            `/chat/user/${userId}`,
             { headers: authHeader() }
         ).then(response => {
             return response.data.data;
@@ -217,8 +217,8 @@ class MessageService {
         });
     }
     createChat(newChat) {
-        return axios.post(
-            `http://localhost:8080/api/chat`,
+        return api.post(
+            `/chat`,
             newChat,
             { headers: authHeader() }
         ).then(response => {
@@ -230,8 +230,8 @@ class MessageService {
     }
 
     markAsRead(chatId, messageId) {
-        return axios.put(
-            `http://localhost:8080/api/chat/${chatId}/messages/${messageId}/read`,
+        return api.put(
+            `/chat/${chatId}/messages/${messageId}/read`,
             {},
             { headers: authHeader() }
         ).then(response => {

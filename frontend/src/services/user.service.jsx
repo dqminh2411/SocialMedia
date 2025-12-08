@@ -1,7 +1,6 @@
-import axios from 'axios';
+import api from './api.js';
 import authHeader from './auth-header';
 
-const API_URL = 'http://localhost:8080/api/';
 const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
 const DEFAULT_AVATAR = 'default.png';
 
@@ -9,8 +8,8 @@ class UserService {
 
 
     getUserFollowers(userId, page = 0, size = 20) {
-        return axios.get(
-            API_URL + 'users/' + userId + '/followers',
+        return api.get(
+            '/users/' + userId + '/followers',
             {
                 params: { page, size },
                 headers: authHeader()
@@ -27,8 +26,8 @@ class UserService {
 
 
     getUserFollowing(userId, page = 0, size = 20) {
-        return axios.get(
-            API_URL + 'users/' + userId + '/following',
+        return api.get(
+            '/users/' + userId + '/following',
             {
                 params: { page, size },
                 headers: authHeader()
@@ -45,8 +44,8 @@ class UserService {
 
 
     followUser(userId) {
-        return axios.post(
-            API_URL + 'users/' + userId + '/follow',
+        return api.post(
+            '/users/' + userId + '/follow',
             {},
             { headers: authHeader() }
         )
@@ -61,8 +60,8 @@ class UserService {
 
 
     unfollowUser(userId) {
-        return axios.delete(
-            API_URL + 'users/' + userId + '/follow',
+        return api.delete(
+            '/users/' + userId + '/follow',
             { headers: authHeader() }
         )
             .then(response => {
@@ -76,8 +75,8 @@ class UserService {
 
 
     searchUsers(username, page = 1) {
-        return axios.get(
-            'http://localhost:8080/users/search',
+        return api.get(
+            '/users/search',
             {
                 params: { username, page },
                 headers: authHeader()
@@ -94,8 +93,8 @@ class UserService {
 
     // Get suggested users to follow
     getSuggestedUsers(userId, pageNo = 0) {
-        return axios.get(
-            'http://localhost:8080/users/suggestions',
+        return api.get(
+            '/users/suggestions',
             {
                 params: { userId, pageNo },
                 headers: authHeader()

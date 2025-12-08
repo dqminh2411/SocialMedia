@@ -22,12 +22,21 @@ export const NotificationProvider = ({ children }) => {
             setLoading(false);
         } catch (error) {
             console.error("Error fetching notifications:", error);
+            // If unauthorized, clear interval and stop fetching
+            if (error.response?.status === 401) {
+                setNotifications([]);
+                setUnreadCount(0);
+            }
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        if (!currentUser) return;
+        if (!currentUser) {
+            setNotifications([]);
+            setUnreadCount(0);
+            return;
+        }
 
         fetchNotifications();
 
@@ -38,7 +47,7 @@ export const NotificationProvider = ({ children }) => {
         return () => {
             clearInterval(notificationPollInterval);
         };
-    }, []);
+    }, [currentUser]);
 
     
     const markAsRead = async (notificationId) => {

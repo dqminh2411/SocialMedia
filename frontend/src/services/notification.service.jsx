@@ -1,13 +1,11 @@
-import axios from 'axios';
+import api from './api.js';
 import authHeader from './auth-header';
-
-const API_URL = 'http://localhost:8080/api/';
 
 class NotificationService {
 
     getNotifications(page = 0, size = 10) {
-        return axios.get(
-            API_URL + 'notifications',
+        return api.get(
+            '/notifications',
             {
                 params: { page, size },
                 headers: authHeader()
@@ -19,8 +17,8 @@ class NotificationService {
 
 
     sendFollowRequest(recipientId, senderId) {
-        return axios.post(
-            API_URL + 'notifications/follow-request',
+        return api.post(
+            '/notifications/follow-request',
             {
                 recipientId: recipientId,
                 senderId: senderId
@@ -33,8 +31,8 @@ class NotificationService {
 
 
     acceptFollowRequest(notificationId) {
-        return axios.post(
-            API_URL + 'notifications/accept',
+        return api.post(
+            '/notifications/accept',
             { id: notificationId },
             { headers: authHeader() }
         ).then(response => {
@@ -44,8 +42,8 @@ class NotificationService {
 
 
     rejectFollowRequest(notificationId) {
-        return axios.post(
-            API_URL + 'notifications/' + notificationId + '/reject',
+        return api.post(
+            '/notifications/' + notificationId + '/reject',
             {},
             { headers: authHeader() }
         ).then(response => {
@@ -55,8 +53,8 @@ class NotificationService {
 
 
     markAsRead(notificationId) {
-        return axios.put(
-            API_URL + 'notifications/' + notificationId + '/read',
+        return api.put(
+            '/notifications/' + notificationId + '/read',
             {},
             { headers: authHeader() }
         ).then(response => {
@@ -66,8 +64,8 @@ class NotificationService {
 
 
     markAllAsRead() {
-        return axios.put(
-            API_URL + 'notifications/read-all',
+        return api.put(
+            '/notifications/read-all',
             {},
             { headers: authHeader() }
         ).then(response => {
@@ -77,7 +75,7 @@ class NotificationService {
 
 
     getSentFollowRequests() {
-        return axios.get(API_URL + 'notifications/sent-requests', { headers: authHeader() })
+        return api.get('/notifications/sent-requests', { headers: authHeader() })
             .then(response => {
                 return response.data.data;
             });
