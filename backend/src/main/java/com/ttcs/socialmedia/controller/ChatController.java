@@ -4,6 +4,7 @@ import com.ttcs.socialmedia.domain.dto.ChatDTO;
 import com.ttcs.socialmedia.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,16 +16,17 @@ public class ChatController {
 //        this.chatService = chatService;
 //    }
 
+    @PreAuthorize("@chatService.isChatOwner(#chatId)")
     @GetMapping("/{chatId}")
     public ResponseEntity<?> getChatMessages(@PathVariable("chatId") Integer chatId) {
         // Fetch messages for the given chatId
         return ResponseEntity.ok(chatService.getMessagesByChatId(chatId));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserChats(@PathVariable("userId") Integer userId) {
+    @GetMapping("")
+    public ResponseEntity<?> getUserChats() {
         // Fetch chats for the given userId
-        return ResponseEntity.ok(chatService.getChatsByUserId(userId));
+        return ResponseEntity.ok(chatService.getCurrentUsersChats());
     }
 
     @PostMapping("")

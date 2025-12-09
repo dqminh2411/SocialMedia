@@ -15,6 +15,7 @@ public enum ErrorCode {
     REFRESHTOKEN_INVALID(HttpStatus.BAD_REQUEST, "Invalid Refresh token"),
     REFRESHTOKEN_NOTFOUND(HttpStatus.BAD_REQUEST, "Refresh token not found"),
     LOGOUT_NO_USER_LOGGEDIN(HttpStatus.BAD_REQUEST, "No User Logged in"),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "Access denied! You don't have privileges to access this resources"),
     ;
 
     private HttpStatus status;

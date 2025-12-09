@@ -46,7 +46,9 @@ public class SecurityConfiguration {
             "/api/v1/auth/forgot-password/email",
             "/api/v1/auth/refresh"};
 
-    String[] adminOnly = {"/api/v1/admin/**", "/api/v1/permissions/**", "/api/v1/roles/**"};
+    String[] adminOnly = {"/api/v1/admin/**",
+            "/api/v1/permissions/**",
+            "/api/v1/roles/**"};
     @Bean
     // , CustomAuthenticationEntryPoint customAuthenticationEntryPoint
     public SecurityFilterChain filterChain(HttpSecurity http,

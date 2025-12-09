@@ -10,6 +10,8 @@ import com.ttcs.socialmedia.repository.LikeCommentRepository;
 import com.ttcs.socialmedia.repository.PostRepository;
 import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.error.AppException;
+import com.ttcs.socialmedia.util.error.ErrorCode;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +34,7 @@ public class CommentService {
     private final LikeCommentRepository likeCommentRepository;
 
     public boolean checkOwner(Comment comment){
-        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AccessDeniedException("Not authenticated")
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED)
         );
         return comment.getCreator().getEmail().equals(currentUserEmail);
     }

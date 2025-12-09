@@ -7,6 +7,9 @@ import com.ttcs.socialmedia.domain.dto.ChatDTO;
 import com.ttcs.socialmedia.domain.dto.MessageDTO;
 import com.ttcs.socialmedia.repository.ChatRepository;
 import com.ttcs.socialmedia.repository.MessageRepository;
+import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.error.AppException;
+import com.ttcs.socialmedia.util.error.ErrorCode;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service("chatService")
 @AllArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
@@ -25,7 +28,14 @@ public class ChatService {
         return chatRepository.findById(chatId)
                 .orElseThrow(() -> new RuntimeException("Chat not found with id: " + chatId));
     }
-
+    public boolean isChatOwner(int chatId){
+        Chat chat = getChatById(chatId);
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
+        if(!chat.getUser1().getEmail().equals(currentUserEmail) && !chat.getUser2().getEmail().equals(currentUserEmail)){
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
+        return true;
+    }
     @Transactional
     public Message saveMessage(MessageDTO messageDTO) {
         // Convert MessageDTO to Message entity
@@ -71,10 +81,12 @@ public class ChatService {
         return messageToDTO(lastMessage);
     }
 
-    public List<ChatDTO> getChatsByUserId(Integer userId) {
-        User user = userService.getUserById(userId);
+    public List<ChatDTO> getCurrentUsersChats() {
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED)
+        );
+        User user = userService.getUserByEmail(currentUserEmail);
         if (user == null) {
-            throw new RuntimeException("User not found with id: " + userId);
+            throw new RuntimeException("User not found with email: " + currentUserEmail);
         }
         return chatRepository.findByOneUser(user.getId()).stream()
                 .map(chat -> chatToDTO(chat, user))

@@ -75,5 +75,3 @@ export const AdminProvider = ({ children }) => {
 export const useAdmin = () => {
     return useContext(AdminContext);
 };
-
-export default AdminContext;
