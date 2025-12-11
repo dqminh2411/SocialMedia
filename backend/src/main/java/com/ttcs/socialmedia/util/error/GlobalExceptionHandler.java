@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
     public ResponseEntity<RestResponse<Object>> handleBadCredentialsException(Exception exception) {
         RestResponse<Object> response = new RestResponse<>();
-        response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+
         response.setMessage(exception.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
@@ -33,7 +33,6 @@ public class GlobalExceptionHandler {
         RestResponse<Object> response = new RestResponse<>();
 
         BindingResult bindRes = methodArgumentNotValidException.getBindingResult();
-        response.setStatusCode(HttpStatus.BAD_REQUEST.value());
 
         List<FieldError> fieldErr = bindRes.getFieldErrors();
         List<String> errs = fieldErr.stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toList();
@@ -44,21 +43,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {
             NoResourceFoundException.class,
     })
-    public ResponseEntity<RestResponse<Object>> handleNotFoundException(Exception ex) {
-        RestResponse<Object> res = new RestResponse<Object>();
-        res.setStatusCode(HttpStatus.NOT_FOUND.value());
-//        res.setError(ex.getMessage());
-        res.setMessage("404 Not Found. URL may not exist...");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+    public ResponseEntity<RestResponse<Void>> handleNotFoundException(Exception ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(RestResponse.<Void>builder().message("Resource not found.").build());
     }
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<RestResponse<Object>> handleAppException(AppException exception) {
         return ResponseEntity
                 .status(exception.getError().getStatus())
-                .body(RestResponse.builder()
-                        .statusCode(exception.getError().getStatus().value())
-                        .message(exception.getMessage())
-                        .build());
+                .body(RestResponse.error(exception.getError()));
     }
 }

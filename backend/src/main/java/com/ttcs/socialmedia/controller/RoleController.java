@@ -23,6 +23,7 @@ import com.ttcs.socialmedia.service.PermissionService;
 import com.ttcs.socialmedia.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.ttcs.socialmedia.domain.RestResponse;
@@ -52,25 +53,21 @@ public class RoleController {
 
     @PostMapping
 //    @PreAuthorize("hasRole('ADMIN')")
-    public RestResponse<Role> createRole(@RequestBody CreateRoleRequest req){
-        return RestResponse.<Role>builder()
-                .statusCode(HttpStatus.CREATED.value())
-                .data(roleService.createRole(req))
-                .build();
+    public ResponseEntity<RestResponse<Role>> createRole(@RequestBody CreateRoleRequest req){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(RestResponse.ok("Role created successfully!", roleService.createRole(req)));
     }
 
     @GetMapping
-    public RestResponse<List<Role>> getAllRoles(){
-        return RestResponse.<List<Role>>builder()
-                .statusCode(HttpStatus.OK.value())
-                .data(roleService.getAllRoles())
-                .build();
+    public ResponseEntity<RestResponse<List<Role>>> getAllRoles(){
+        return ResponseEntity
+                .ok(RestResponse.ok("Get all roles successfully!", roleService.getAllRoles()));
     }
-
     @DeleteMapping("/{roleName}")
-    public RestResponse<Void> deleteRole(@PathVariable String roleName){
+    public ResponseEntity<RestResponse<Void>> deleteRole(@PathVariable String roleName){
         roleService.deleteRole(roleName);
-        return RestResponse.<Void>builder().build();
+        return ResponseEntity.ok(RestResponse.ok("Role deleted successfully!"));
     }
 
 }

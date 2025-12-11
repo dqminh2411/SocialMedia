@@ -15,7 +15,12 @@ public enum ErrorCode {
     REFRESHTOKEN_INVALID(HttpStatus.BAD_REQUEST, "Invalid Refresh token"),
     REFRESHTOKEN_NOTFOUND(HttpStatus.BAD_REQUEST, "Refresh token not found"),
     LOGOUT_NO_USER_LOGGEDIN(HttpStatus.BAD_REQUEST, "No User Logged in"),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User Not Found"),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "Access denied! You don't have privileges to access this resources"),
+    CHAT_EXISTED(HttpStatus.BAD_REQUEST, "Chat already existed"),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "Post not found!"),
+    POST_LIKE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Post Like Failed"),
+    POST_UNLIKE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Post Unlike Failed"),
     ;
 
     private HttpStatus status;

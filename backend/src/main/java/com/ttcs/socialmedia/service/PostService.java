@@ -7,10 +7,10 @@ import com.ttcs.socialmedia.domain.dto.*;
 import com.ttcs.socialmedia.repository.*;
 import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.error.AppException;
+import com.ttcs.socialmedia.util.error.ErrorCode;
 import com.ttcs.socialmedia.util.event.MediaDeleteEvent;
 import lombok.AllArgsConstructor;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Safelist;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,7 +48,7 @@ public class PostService {
     public PostDTO getPostById(int postId) {
         Post post = postRepository.findById(postId);
         if (post == null) {
-            throw new RuntimeException("Post not found");
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
         return postToDTO(post);
     }
@@ -57,10 +57,10 @@ public class PostService {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         String email = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+                .orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
         User currentUser = userRepository.findByEmail(email);
         if (currentUser == null) {
-            throw new RuntimeException("Current user not found");
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         return postRepository.findPostsFromFollowedUsers(currentUser.getId(), pageable);
     }
@@ -74,10 +74,10 @@ public class PostService {
 
         // Determine creator from authenticated user, ignore any client-provided creatorId
         String email = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+                .orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
         User currentUser = userRepository.findByEmail(email);
         if (currentUser == null) {
-            throw new RuntimeException("Current user not found");
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
         post.setCreator(currentUser);
         // sanitize input
@@ -140,11 +140,11 @@ public class PostService {
     public PostDTO updatePost(int id, String postJson, String mediasToDeleteJson, List<MultipartFile> newMedias)
             throws URISyntaxException, IOException {
         Post post = postRepository.findById(id);
-        if (post == null) {
-            throw new RuntimeException("Post not found");
+        if(checkOwner(post)){
+            throw new AppException(ErrorCode.ACCESS_DENIED);
         }
-        if(!checkOwner(post)){
-            throw new RuntimeException("Current user not authorized");
+        if (post == null) {
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
         if (mediasToDeleteJson == null) {
             mediasToDeleteJson = "[]"; // default to empty list if null
@@ -316,44 +316,63 @@ public class PostService {
     }
 
     @Transactional
-    public void likePost(int postId, String email) {
+    public void likePost(int postId) {
         Post post = postRepository.findById(postId);
         if (post == null) {
-            throw new RuntimeException("Post not found");
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
+        String email = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-
         LikePost existingLike = likePostRepository.findByPostAndUser(post, user);
 
-        if (existingLike != null) {
-
-            likePostRepository.delete(existingLike);
-        } else {
-
+        if (existingLike == null) {
             LikePost likePost = new LikePost();
             likePost.setPost(post);
             likePost.setUser(user);
-            likePostRepository.save(likePost);
+            likePost = likePostRepository.save(likePost);
+            if(likePost.getId() == 0)
+                throw new AppException(ErrorCode.POST_LIKE_FAILED);
+        }
+    }
+
+    public void unlikePost(int postId) {
+        Post post = postRepository.findById(postId);
+        if (post == null) {
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
+        }
+        String email = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        LikePost existingLike = likePostRepository.findByPostAndUser(post, user);
+
+        if (existingLike != null) {
+            try{
+                likePostRepository.delete(existingLike);
+            }catch(Exception e){
+                throw new AppException(ErrorCode.POST_UNLIKE_FAILED);
+            }
         }
     }
 
     public DetailPostDTO getPostDetailById(int postId) {
         Post post = postRepository.findById(postId);
         if (post == null) {
-            throw new RuntimeException("Post not found");
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
         return postToDetailDTO(post);
     }
 
     public Page<Post> getPostsFromUnfollowedUsers(int page, int size) {
         String email = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+                .orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
         User currentUser = userRepository.findByEmail(email);
         if (currentUser == null) {
-            throw new RuntimeException("Current user not found");
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         Pageable pageable = PageRequest.of(page, size);
@@ -426,8 +445,8 @@ public class PostService {
         if (post == null) {
             return false;
         }
-        if(!checkOwner(post)){
-            throw new  RuntimeException("Current user not authorized");
+        if(checkOwner(post)){
+            throw new  AppException(ErrorCode.ACCESS_DENIED);
         }
 
         List<String> filesNameToDelete = new ArrayList<>();
@@ -447,7 +466,7 @@ public class PostService {
     public boolean checkOwner(Post post){
         User creator = post.getCreator();
         String currentEmail = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("User not authenticated"));
-        return creator.getEmail().equals(currentEmail);
+                .orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
+        return !creator.getEmail().equals(currentEmail);
     }
 }

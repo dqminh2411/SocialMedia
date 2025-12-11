@@ -5,6 +5,7 @@ import com.ttcs.socialmedia.domain.Message;
 import com.ttcs.socialmedia.domain.User;
 import com.ttcs.socialmedia.domain.dto.ChatDTO;
 import com.ttcs.socialmedia.domain.dto.MessageDTO;
+import com.ttcs.socialmedia.domain.dto.request.CreateChatRequest;
 import com.ttcs.socialmedia.repository.ChatRepository;
 import com.ttcs.socialmedia.repository.MessageRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,14 +108,17 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatDTO createChat(ChatDTO chatDTO) {
-        boolean exists = chatRepository.existsByUsers(chatDTO.getThisUserId(), chatDTO.getOtherUserId());
+    public ChatDTO createChat(Integer receiverId) {
+        String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
+        User user = userService.getUserByEmail(currentUserEmail);
+        boolean exists = chatRepository.existsByUsers(user.getId(), receiverId);
         if (exists) {
-            throw new RuntimeException("Chat already exists between users");
+            throw new AppException(ErrorCode.CHAT_EXISTED);
         }
         Chat chat = new Chat();
-        chat.setUser1(userService.getUserById(chatDTO.getThisUserId()));
-        chat.setUser2(userService.getUserById(chatDTO.getOtherUserId()));
+        chat.setUser1(user);
+        chat.setUser2(userService.getUserById(receiverId));
+        chat.setCreatedAt(Instant.now());
         chat = chatRepository.save(chat);
         return chatToDTO(chat, chat.getUser1());
     }

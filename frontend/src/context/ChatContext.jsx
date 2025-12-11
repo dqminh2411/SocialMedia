@@ -51,7 +51,7 @@ export const ChatProvider = ({ children }) => {
                 setError(null);
 
                 const userId = currentUser.user.id;
-                const chatsData = await MessageService.getAllChats(userId);
+                const chatsData = await MessageService.getAllChats();
 
                 if (chatsData && Array.isArray(chatsData)) {
                     
@@ -303,13 +303,10 @@ export const ChatProvider = ({ children }) => {
             }
 
             
-            const newChatData = {
-                thisUserId: currentUser.user.id,
-                otherUserId: otherUserId
-            };
+    
 
-            console.log("Creating new chat with data:", newChatData);
-            const createdChat = await MessageService.createChat(newChatData);
+            console.log("Creating new chat with user:", otherUserId);
+            const createdChat = await MessageService.createChat(otherUserId);
             console.log("Chat created:", createdChat);
 
             if (createdChat) {
