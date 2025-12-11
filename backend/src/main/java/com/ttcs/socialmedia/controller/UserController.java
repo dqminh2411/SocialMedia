@@ -28,11 +28,13 @@ public class UserController {
     private final ProfileService profileService;
     private final FileService fileService;
 
-    @PostMapping(value = "/signup")
-    public RestResponse<Object> signup(@Valid @RequestBody SignupDTO signupDTO) {
+    @PostMapping
+    public ResponseEntity<?> signup(@Valid @RequestBody SignupDTO signupDTO) {
         if (signupDTO != null) {
             this.userService.createUser(signupDTO);
-            return RestResponse.builder().statusCode(HttpStatus.CREATED.value()).message("Đăng kí tài khoản thành công").build();
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(RestResponse.ok("Sign up successfully"));
         }
         return null;
     }
@@ -52,7 +54,7 @@ public class UserController {
         return this.userService.getSuggestions(userId, pageNo);
     }
 
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<?> searchUsers(@RequestParam("username") String username,
             @RequestParam(name = "pageNo", defaultValue = "1") int pageNo) {
         Page<User> userPage = this.userService.searchUsersByUsername(username, pageNo - 1);

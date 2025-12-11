@@ -6,7 +6,6 @@ export default function authHeader() {
 
         return { Authorization: 'Bearer ' + user.accessToken };
 
-
     } else {
         return {};
     }

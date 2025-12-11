@@ -1,14 +1,18 @@
 package com.ttcs.socialmedia.controller;
 
 import com.ttcs.socialmedia.domain.Post;
+import com.ttcs.socialmedia.domain.RestResponse;
 import com.ttcs.socialmedia.domain.dto.DetailPostDTO;
 import com.ttcs.socialmedia.domain.dto.PostDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.service.CommentService;
 import com.ttcs.socialmedia.service.PostService;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.error.AppException;
+import com.ttcs.socialmedia.util.error.ErrorCode;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,13 +43,13 @@ public class PostController {
         return this.postService.createPost(newPostJson, media);
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public PostDTO updatePost(@PathVariable("id") int id,
+    @PutMapping(value = "/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PostDTO updatePost(@PathVariable("postId") int postId,
             @RequestPart(value = "postText") String postJson,
             @RequestPart(value = "media", required = false) List<MultipartFile> media,
             @RequestPart(value = "mediaToDelete", required = false) String mediaToDeleteJson)
             throws URISyntaxException, IOException {
-        return this.postService.updatePost(id, postJson, mediaToDeleteJson, media);
+        return this.postService.updatePost(postId, postJson, mediaToDeleteJson, media);
     }
 
     @GetMapping("")
@@ -58,11 +62,20 @@ public class PostController {
         return postService.getLikePage(postId, pageNo - 1);
     }
 
-    @PostMapping("{id}/like")
-    public void likePost(@PathVariable("id") int postId) {
-        String email = SecurityUtil.getCurrentUserLogin().get();
-        this.postService.likePost(postId, email);
+    @PostMapping("/{postId}/likes")
+    public ResponseEntity<RestResponse<Void>> likePost(@PathVariable("postId") int postId) {
+        this.postService.likePost(postId);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(RestResponse.ok("Post liked successfully!"));
     }
+    @DeleteMapping("/{postId}/likes")
+    public ResponseEntity<RestResponse<Void>> unlikePost(@PathVariable("postId") int postId) {
+        this.postService.unlikePost(postId);
+        return ResponseEntity
+                .ok(RestResponse.ok("Post unliked successfully!"));
+    }
+
 
     @GetMapping("/explore")
     public ResponseEntity<?> getPostsFromUnfollowedUsers(
@@ -130,8 +143,8 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable("id") int postId) throws IOException, URISyntaxException {
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(@PathVariable("postId") int postId) throws IOException, URISyntaxException {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }

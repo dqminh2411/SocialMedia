@@ -1,8 +1,11 @@
 package com.ttcs.socialmedia.controller;
 
+import com.ttcs.socialmedia.domain.RestResponse;
 import com.ttcs.socialmedia.domain.dto.ChatDTO;
+import com.ttcs.socialmedia.domain.dto.request.CreateChatRequest;
 import com.ttcs.socialmedia.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,15 +32,12 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getCurrentUsersChats());
     }
 
-    @PostMapping("")
-    public ResponseEntity<?> createChat(@RequestBody ChatDTO chatDTO) {
-        ChatDTO chat = null;
-        try {
-            chat = chatService.createChat(chatDTO);
-        } catch (Exception e) {
-            return ResponseEntity.ok().body("Chat existed");
-        }
-        return ResponseEntity.ok(chat);
+    @PostMapping("/{receiverId}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> createChat(@PathVariable Integer receiverId) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(RestResponse.ok("New chat created successfully",  chatService.createChat(receiverId)));
     }
 
 }

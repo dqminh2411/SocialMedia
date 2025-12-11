@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LikePostRepository extends JpaRepository<LikePost, Integer> {
     int countByPost(Post post);
-
+    int deleteByPostAndUser(Post post, User user);
     LikePost findByPostAndUser(Post post, User user);
 }

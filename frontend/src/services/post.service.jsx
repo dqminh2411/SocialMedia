@@ -155,7 +155,7 @@ class PostService {
 
     searchHashtags(query) {
         return api.get(
-            '/hashtags/search?query=' + encodeURIComponent(query),
+            '/hashtags?query=' + encodeURIComponent(query),
             { headers: authHeader() }
         )
             .then(response => {

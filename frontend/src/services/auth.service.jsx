@@ -69,7 +69,7 @@ class AuthService {
     }
 
     signup(formData) {
-        return api.post('/users/signup', {
+        return api.post('/users', {
             fullname: formData.fullname,
             email: formData.email,
             password: formData.password,

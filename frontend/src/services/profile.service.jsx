@@ -19,7 +19,7 @@ class ProfileService {
 
     updateUserProfile(profileData) {
         return api.put(
-            '/profile/update',
+            '/profile',
             profileData,
             {
                 headers: {

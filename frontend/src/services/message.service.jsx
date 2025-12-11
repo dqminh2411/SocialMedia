@@ -205,9 +205,9 @@ class MessageService {
             throw error;
         });
     }
-    getAllChats(userId) {
+    getAllChats() {
         return api.get(
-            `/chat/user/${userId}`,
+            `/chat`,
             { headers: authHeader() }
         ).then(response => {
             return response.data.data;
@@ -216,10 +216,9 @@ class MessageService {
             throw error;
         });
     }
-    createChat(newChat) {
+    createChat(otherUserId) {
         return api.post(
-            `/chat`,
-            newChat,
+            `/chat/${otherUserId}`,
             { headers: authHeader() }
         ).then(response => {
             return response.data.data;

@@ -35,7 +35,7 @@ public class ProfileController {
         return profileService.getFollowingPage(profileId, pageNo - 1);
     }
 
-    @PutMapping("/update")
+    @PutMapping
     public ResProfileDTO updateProfile(@RequestParam(name = "avatar", required = false) MultipartFile avatarFile,
                                        @RequestParam(name = "bio", required = false) String bio) {
         return this.profileService.update(avatarFile, bio);

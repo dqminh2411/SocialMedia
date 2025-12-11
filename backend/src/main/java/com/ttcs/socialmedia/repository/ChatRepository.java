@@ -13,6 +13,12 @@ public interface ChatRepository extends JpaRepository<Chat, Integer> {
     @Query("SELECT c FROM Chat c WHERE c.user1.id = :userId OR c.user2.id = :userId")
     List<Chat> findByOneUser(Integer userId);
 
-    @Query("SELECT COUNT(c) > 0 FROM Chat c WHERE (c.user1.id = :user1Id AND c.user2.id = :user2Id) OR (c.user1.id = :user2Id AND c.user2.id = :user1Id)")
+    @Query("""
+           SELECT CASE WHEN EXISTS (
+                SELECT 1 FROM Chat c
+                WHERE (c.user1.id = :user1Id AND c.user2.id = :user2Id)
+                OR (c.user1.id = :user2Id AND c.user2.id = :user1Id))
+           THEN TRUE ELSE FALSE END
+    """)
     boolean existsByUsers(Integer user1Id, Integer user2Id);
 }

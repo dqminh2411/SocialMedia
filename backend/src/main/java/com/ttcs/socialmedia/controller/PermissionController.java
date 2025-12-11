@@ -16,12 +16,15 @@ package com.ttcs.socialmedia.controller;
  * 9/14/2025      doanm      Create
  */
 
+import ch.qos.logback.core.pattern.util.RegularEscapeUtil;
 import com.ttcs.socialmedia.domain.Permission;
 import com.ttcs.socialmedia.domain.dto.request.RolePermissionRequest;
 import com.ttcs.socialmedia.domain.dto.response.RolePermissionResponse;
 import com.ttcs.socialmedia.service.PermissionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.ttcs.socialmedia.domain.RestResponse;
@@ -51,34 +54,29 @@ public class PermissionController {
     
     @PostMapping
 //    @PreAuthorize("hasRole('ADMIN')")
-    public RestResponse<Permission> createPermission(@RequestBody Permission permission){
-        return RestResponse.<Permission>builder()
-                .statusCode(HttpStatus.CREATED.value())
-                .data(permissionService.createPermission(permission))
-                .build();
+    public ResponseEntity<RestResponse<Permission>> createPermission(@RequestBody Permission permission){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(RestResponse.ok("Permission created!", permissionService.createPermission(permission)));
     }
 
     @GetMapping
-    public RestResponse<List<Permission>> getAllPermissions(){
-        return RestResponse.<List<Permission>>builder()
-                .statusCode(HttpStatus.OK.value())
-                .data(permissionService.getAllPermissions())
-                .build();
+    public ResponseEntity<RestResponse<List<Permission>>> getAllPermissions(){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(RestResponse.ok("Get permissions successfully!", permissionService.getAllPermissions()));
     }
 
     @DeleteMapping("/{permissionName}")
-    public RestResponse<Void> deletePermission(@PathVariable String permissionName){
+    public ResponseEntity<RestResponse<Void>> deletePermission(@PathVariable String permissionName){
         permissionService.deletePermission(permissionName);
-        return RestResponse.<Void>builder().build();
+        return ResponseEntity
+                .ok(RestResponse.ok("Delete permissions successfully!"));
     }
 
-    @PostMapping("/grant")
-    public RestResponse<RolePermissionResponse> grantPermissions(@RequestBody RolePermissionRequest rolePermissionRequest){
-
-        return RestResponse.<RolePermissionResponse>builder()
-                .statusCode(HttpStatus.CREATED.value())
-                .message("Permissions granted!")
-                .data(permissionService.grantPermissions(rolePermissionRequest))
-                .build();
+    @PutMapping("/grant")
+    public ResponseEntity<RestResponse<RolePermissionResponse>> grantPermissions(@RequestBody RolePermissionRequest rolePermissionRequest){
+        return ResponseEntity
+                .ok(RestResponse.ok("Permissions granted!", permissionService.grantPermissions(rolePermissionRequest)));
     }
 }

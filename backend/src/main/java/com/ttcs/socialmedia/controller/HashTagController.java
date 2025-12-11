@@ -22,13 +22,8 @@ public class HashTagController {
         this.hashtagService = hashtagService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<HashTagDTO>> getAllHashtags() {
-        List<HashTagDTO> hashtags = hashtagService.getAllHashtagsDTO();
-        return ResponseEntity.ok(hashtags);
-    }
 
-    @GetMapping("/search")
+    @GetMapping()
     public ResponseEntity<?> searchHashtags(
             @RequestParam("query") String query,
             @RequestParam(value = "pageNo", defaultValue = "0") int pageNo,
