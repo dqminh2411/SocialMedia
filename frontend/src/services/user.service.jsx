@@ -76,7 +76,7 @@ class UserService {
 
     searchUsers(username, page = 1) {
         return api.get(
-            '/users/search',
+            '/users',
             {
                 params: { username, page },
                 headers: authHeader()

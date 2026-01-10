@@ -31,7 +31,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         RestResponse<Object> res = RestResponse.builder()
                 .message(authException.getCause()==null? authException.getMessage():authException.getCause().getMessage())
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
                 .build();
         mapper.writeValue(response.getWriter(), res);
     }

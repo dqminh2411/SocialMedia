@@ -130,7 +130,7 @@ export const ChatProvider = ({ children }) => {
                 clearInterval(reconnectInterval);
             }
         };
-    }, [currentUser]);
+    }, [currentUser.id]);
 
     
     const handleNewMessage = (newMessage) => {

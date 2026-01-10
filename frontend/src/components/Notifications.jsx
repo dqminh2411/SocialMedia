@@ -44,7 +44,7 @@ const Notifications = () => {
             unsubscribe();
             NotificationService.disconnect();
         };
-    }, [currentUser]);
+    }, [currentUser.id]);
 
     const toggleNotifications = () => {
         setIsOpen(!isOpen);

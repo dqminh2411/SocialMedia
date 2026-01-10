@@ -1,6 +1,6 @@
 import api from './api.js';
 import authHeader from './auth-header';
-import { Stomp } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 
 const CHAT_DESTINATION = '/app/chat';
 const USER_CHAT = '/user/chat';
@@ -14,36 +14,42 @@ class MessageService {
         this.connectionPromise = null;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
+        this.reconnectDelay = 5000;
     }
     connect() {
-
-        if (this.connected && this.stompClient) {
+        // If already connected and active, return
+        if (this.connected && this.stompClient && this.stompClient.active) {
+            console.log('WebSocket already connected and active');
             return Promise.resolve();
         }
 
-
+        // If a connection is in progress, return the existing promise
         if (this.connectionPromise) {
+            console.log('Connection already in progress, reusing promise');
             return this.connectionPromise;
         }
 
+        console.log('Initiating new WebSocket connection...');
 
+        // Create new connection promise
         this.connectionPromise = new Promise((resolve, reject) => {
             try {
-
                 const headers = authHeader();
-                // Create a WebSocket connection
-                const socket = new WebSocket("ws://localhost:8080/ws");
-
-                this.stompClient = Stomp.over(socket);
-
-
-                this.stompClient.debug = function (str) {
-                    console.log('STOMP Debug:', str);
-                };
-                this.stompClient.connect(
-                    headers,
-                    (frame) => {
-                        console.log('Connected to WebSocket: ' + frame);
+                
+                // Create a new STOMP client using the Client class
+                this.stompClient = new Client({
+                    brokerURL: 'ws://localhost:8080/ws',
+                    connectHeaders: headers,
+                    debug: function (str) {
+                        console.log('STOMP Debug:', str);
+                    },
+                    reconnectDelay: this.reconnectDelay,
+                    heartbeatIncoming: 4000,
+                    heartbeatOutgoing: 4000,
+                    
+                    // Connection successful callback
+                    onConnect: (frame) => {
+                        console.log('Connected to WebSocket: ', frame);
                         this.connected = true;
 
 
@@ -58,7 +64,7 @@ class MessageService {
                                         const data = JSON.parse(message.body);
                                         console.log("📨 Parsed message data:", data);
 
-
+                                        // Notify all registered handlers
                                         this.messageHandlers.forEach(handler => handler(data));
                                     } catch (error) {
                                         console.error("Error parsing message:", error);
@@ -72,19 +78,43 @@ class MessageService {
                             resolve();
                         } catch (subError) {
                             console.error('Error during subscription:', subError);
-
                             this.connectionPromise = null;
                             resolve();
                         }
                     },
-                    (error) => {
-                        console.error('Error connecting to WebSocket:', error);
+                    
+                    // Connection error callback
+                    onStompError: (frame) => {
+                        console.error('STOMP error:', frame);
                         this.connected = false;
-                        this.stompClient = null;
+                    },
+                    
+                    // WebSocket error callback
+                    onWebSocketError: (error) => {
+                        console.error('WebSocket error:', error);
+                        this.connected = false;
                         this.connectionPromise = null;
-                        reject(error);
+                        
+                        // Only reject if we haven't exceeded max attempts
+                        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                            this.reconnectAttempts++;
+                            console.log(`Will retry connection (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                        } else {
+                            reject(error);
+                        }
+                    },
+                    
+                    // Connection close callback
+                    onWebSocketClose: (event) => {
+                        console.log('WebSocket closed:', event);
+                        this.connected = false;
+                        this.connectionPromise = null;
                     }
-                );
+                });
+
+                // Activate the client to start the connection
+                this.stompClient.activate();
+                
             } catch (error) {
                 console.error('Error setting up WebSocket connection:', error);
                 this.connectionPromise = null;
@@ -95,16 +125,16 @@ class MessageService {
         return this.connectionPromise;
     }
     disconnect() {
-        try {
+        try { 
             console.log('Disconnecting from WebSocket');
 
-
+            // Clear handlers
             this.messageHandlers = [];
 
-
+            // Clear connection promise
             this.connectionPromise = null;
 
-
+            // Unsubscribe from subscription
             if (this.subscription) {
                 console.log('Unsubscribing from subscription');
                 try {
@@ -115,19 +145,17 @@ class MessageService {
                 this.subscription = null;
             }
 
-
+            // Deactivate the STOMP client
             if (this.stompClient) {
-                if (this.connected) {
-                    console.log('Disconnecting STOMP client');
+                if (this.stompClient.active) {
+                    console.log('Deactivating STOMP client');
                     try {
-                        this.stompClient.disconnect(() => {
-                            console.log('STOMP client disconnected successfully');
-                        });
+                        this.stompClient.deactivate();
+                        console.log('STOMP client deactivated successfully');
                     } catch (disconnectError) {
-                        console.warn('Error during STOMP disconnect:', disconnectError);
+                        console.warn('Error during STOMP deactivation:', disconnectError);
                     }
                 }
-
 
                 this.stompClient = null;
                 this.connected = false;
@@ -136,7 +164,7 @@ class MessageService {
             console.log('WebSocket cleanup completed');
         } catch (error) {
             console.error('Error during WebSocket disconnect:', error);
-
+            // Force cleanup
             this.stompClient = null;
             this.connected = false;
             this.subscription = null;
@@ -180,7 +208,11 @@ class MessageService {
             }
 
             console.log('Sending message to', CHAT_DESTINATION, message);
-            this.stompClient.send(CHAT_DESTINATION, authHeader(), JSON.stringify(message));
+            this.stompClient.publish({
+                destination: CHAT_DESTINATION,
+                headers: authHeader(),
+                body: JSON.stringify(message)
+            });
             console.log('Message sent successfully');
             this.reconnectAttempts = 0;
             return true;
@@ -213,7 +245,7 @@ class MessageService {
             return response.data.data;
         }).catch(error => {
             console.error("Error fetching chats:", error);
-            throw error;
+            throw error;    
         });
     }
     createChat(otherUserId) {
@@ -243,7 +275,7 @@ class MessageService {
 
 
     checkConnection() {
-        if (this.connected && this.stompClient) {
+        if (this.connected && this.stompClient && this.stompClient.active) {
             console.log('WebSocket connection is active');
             return Promise.resolve(true);
         }

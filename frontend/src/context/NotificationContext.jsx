@@ -10,27 +10,6 @@ export const NotificationProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const currentUser = AuthService.getCurrentUser();
 
-    
-    const fetchNotifications = async () => {
-        if (!currentUser) return;
-
-        try {
-            setLoading(true);
-            const data = await NotificationService.getNotifications();
-            setNotifications(data || []);
-            setUnreadCount(data.filter(n => !n.read).length);
-            setLoading(false);
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-            // If unauthorized, clear interval and stop fetching
-            if (error.response?.status === 401) {
-                setNotifications([]);
-                setUnreadCount(0);
-            }
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
         if (!currentUser) {
             setNotifications([]);
@@ -38,18 +17,42 @@ export const NotificationProvider = ({ children }) => {
             return;
         }
 
+        let isMounted = true;
+        let notificationPollInterval = null;
+
+        const fetchNotifications = async () => {
+        if (!currentUser) return;
+
+            try {
+                setLoading(true);
+                const data = await NotificationService.getNotifications();
+                setNotifications(data || []);
+                setUnreadCount(data.filter(n => !n.read).length);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+            // If unauthorized, clear interval and stop fetching
+                if (error.response?.status === 401) {
+                    setNotifications([]);
+                    setUnreadCount(0);
+                }
+                setLoading(false);
+            }
+        };
+
+        // Initial fetch
         fetchNotifications();
 
         
-        const notificationPollInterval = setInterval(fetchNotifications, 30000);
+         notificationPollInterval = setInterval(fetchNotifications, 30000);
 
         
         return () => {
-            clearInterval(notificationPollInterval);
+                clearInterval(notificationPollInterval);
         };
-    }, [currentUser]);
+    }, [currentUser.id]);
 
-    
+    // Mark as read
     const markAsRead = async (notificationId) => {
         try {
             await NotificationService.markAsRead(notificationId);
@@ -107,7 +110,7 @@ export const NotificationProvider = ({ children }) => {
             markAllAsRead,
             acceptFollowRequest,
             rejectFollowRequest,
-            refreshNotifications: fetchNotifications
+            refreshNotifications: () => {} // Provide empty function or remove this
         }}>
             {children}
         </NotificationContext.Provider>

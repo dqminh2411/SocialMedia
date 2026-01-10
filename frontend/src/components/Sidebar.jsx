@@ -20,13 +20,19 @@ const Sidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { currentUser, logout } = useAuth();
-    const { unreadCount } = useNotifications(); 
+    const { unreadCount, markAllAsRead } = useNotifications(); 
     const { unreadCount: unreadChatCount } = useChat(); 
 
     const handleLogout = () => {
         console.log('Logging out user:', currentUser?.email);
         logout();
         navigate('/login');
+    };
+
+    const handleNotificationClick = () => {
+        if (unreadCount > 0) {
+            markAllAsRead();
+        }
     };
 
     
@@ -65,18 +71,22 @@ const Sidebar = () => {
                             <div className={styles.iconContainer}>
                                 <img src={messagesIcon} alt="Messages" className={styles.icon} />
                                 {unreadChatCount > 0 && (
-                                    <span className={styles.notificationBadge}></span>
+                                    <span className={styles.notificationBadge}>{unreadChatCount}</span>
                                 )}
                             </div>
                             <span>Messages</span>
                         </Link>
                     </li>
                     <li className={styles.notificationItem}>
-                        <Link to="/notifications" className={isActive('/notifications') ? styles.active : ''}>
+                        <Link 
+                            to="/notifications" 
+                            className={isActive('/notifications') ? styles.active : ''}
+                            onClick={handleNotificationClick}
+                        >
                             <div className={styles.iconContainer}>
                                 <img src={notificationsIcon} alt="Notifications" className={styles.icon} />
                                 {unreadCount > 0 && (
-                                    <span className={styles.notificationBadge}></span>
+                                    <span className={styles.notificationBadge}>{unreadCount}</span>
                                 )}
                             </div>
                             <span>Notifications</span>
