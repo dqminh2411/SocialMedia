@@ -1,31 +1,45 @@
 package com.ttcs.socialmedia.service;
 
-import com.ttcs.socialmedia.domain.Notification;
-import com.ttcs.socialmedia.domain.User;
+import com.ttcs.socialmedia.domain.*;
 import com.ttcs.socialmedia.domain.dto.NotificationDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
-import com.ttcs.socialmedia.repository.NotificationRepository;
+import com.ttcs.socialmedia.repository.*;
+import com.ttcs.socialmedia.repository.PostRepository;
+import com.ttcs.socialmedia.repository.CommentRepository;
+import com.ttcs.socialmedia.util.constants.NotificationReferenceType;
 import com.ttcs.socialmedia.util.constants.NotificationType;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserService userService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final FollowRepository followRepository;
 
-    public NotificationService(NotificationRepository notificationRepository, UserService userService) {
-        this.notificationRepository = notificationRepository;
-        this.userService = userService;
-    }
 
-    public Notification saveNotification(Notification notification) {
-        return notificationRepository.save(notification);
+    public Notification sendNotification(Notification notification) {
+        // save notification
+        notification = notificationRepository.save(notification);
+        NotificationDTO notiToSend = convertToDTO(notification);
+        // send
+        messagingTemplate.convertAndSendToUser(notification.getRecipient().getEmail(),"/noti", notiToSend);
+        return notification;
     }
 
     public Notification getNotificationById(int id) {
@@ -41,10 +55,26 @@ public class NotificationService {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        return notificationRepository.findByRecipientId(user.getId(), pageable)
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        List<Notification> notificationList = notificationRepository.findByRecipientId(user.getId(), pageable);
+        List<Integer> commentIds = notificationList.stream()
+                .filter(n -> n.getReferenceType() != null && n.getReferenceType().equals(NotificationReferenceType.COMMENT))
+                .map(Notification::getReferencedId)
+                .toList();
+
+        Map<Integer, Comment> comments = commentRepository
+                .findAllById(commentIds)
+                .stream().collect(Collectors.toMap(Comment::getId, c->c));
+
+        List<NotificationDTO> notificationDTOs = new ArrayList<>();
+        for(Notification n : notificationList){
+            NotificationDTO dto = convertToDTO(n);
+            if(n.getReferenceType() != null && n.getReferenceType().equals(NotificationReferenceType.COMMENT)){
+                // add post id to comment notification
+                dto.setRefId2(comments.get(n.getReferencedId()).getPost().getId());
+            }
+            notificationDTOs.add(dto);
+        }
+        return notificationDTOs;
     }
 
     public boolean markAsRead(int notificationId, String userEmail) {
@@ -89,7 +119,8 @@ public class NotificationService {
         dto.setRead(notification.isRead());
         dto.setCreatedAt(notification.getCreatedAt());
         dto.setType(notification.getType());
-        dto.setReferencedId(notification.getReferencedId());
+        dto.setReferenceType(notification.getReferenceType());
+        dto.setRefId1(notification.getReferencedId());
 
         UserDTO senderDTO = userService.userToUserDTO(notification.getSender());
         UserDTO recipientDTO = userService.userToUserDTO(notification.getRecipient());
@@ -104,4 +135,5 @@ public class NotificationService {
         return notificationRepository.findBySenderIdAndType(
                 senderId, NotificationType.FOLLOW_REQUEST);
     }
+
 }

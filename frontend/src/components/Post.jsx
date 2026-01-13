@@ -15,9 +15,6 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
 
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
-    const DEFAULT_AVATAR = 'defaultAvatar.jpg';
-    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
     // Ensure media is always an array
     const mediaItems = Array.isArray(media) ? media : [media];
 
@@ -29,8 +26,6 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
     }, [likes, isLiked]);
 
     const handlePostClick = () => {
-
-
         navigate(`/post/${id}`, {
             state: { background: location }
         });
@@ -76,7 +71,7 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
     return (
         <div className={styles.post}>
             <div className={styles.postUser}>
-                <img src={userAvatar ? `${AVATAR_URL}${userAvatar}` : `${AVATAR_URL}${DEFAULT_AVATAR}`} alt={username} className={styles.avatar} />
+                <img src={userAvatar || null} alt={username} className={styles.avatar} />
                 <Link to={`/profile/un/${username}`} className={styles.userLink}>
                     <div className={styles.userInfo}>
                         <div className={styles.userName}>{username}</div>
@@ -94,14 +89,14 @@ const Post = ({ id, username, userAvatar, media, likes, content, createdAt, comm
 
                 {isVideo(mediaItems[currentMediaIndex].fileName) ? (
                     <video
-                        src={POST_MEDIA_URL + mediaItems[currentMediaIndex].fileName}
+                        src={mediaItems[currentMediaIndex].fileName}
                         className={styles.media}
                         controls
                         onClick={(e) => e.stopPropagation()}
                     />
                 ) : (
                     <img
-                        src={POST_MEDIA_URL + mediaItems[currentMediaIndex].fileName}
+                        src={mediaItems[currentMediaIndex].fileName}
                         alt={`Post content ${currentMediaIndex + 1}`}
                         className={styles.media}
                     />

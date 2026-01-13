@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Login from './pages/auth/login.jsx'
+import Login from './pages/auth/Login.jsx'
 import SignUp from './pages/auth/signup.jsx'
 import PostForm from "./components/PostForm.jsx";
 import PostPage from "./components/PostPage.jsx";
@@ -35,6 +35,7 @@ import PostManagement from "./pages/admin/PostManagement.jsx";
 import './assets/css/Global.css';
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import { ChatProvider } from "./context/ChatContext.jsx";
+import { WebSocketProvider } from "./context/WebSocketContext.jsx";
 import AuthCallback from "./components/AuthCallback.jsx";
 
 
@@ -156,11 +157,13 @@ function App() {
         <Router>
             <AuthProvider>
                 <AdminProvider>
-                    <NotificationProvider>
-                        <ChatProvider>
-                            <AppRoutes />
-                        </ChatProvider>
-                    </NotificationProvider>
+                    <WebSocketProvider>
+                        <NotificationProvider>
+                            <ChatProvider>
+                                <AppRoutes />
+                            </ChatProvider>
+                        </NotificationProvider>
+                    </WebSocketProvider>
                 </AdminProvider>
             </AuthProvider>
         </Router>

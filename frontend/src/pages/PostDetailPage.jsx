@@ -11,11 +11,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 import { faChevronLeft, faChevronRight, faCircle, faReply, faTrash, faEdit, faPencilAlt, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import Utils from  '../utils/utils';
 
 const PostDetailPage = () => {
-    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/'
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/'
-    const DEFAULT_AVATAR = 'defaultAvatar.jpg';
     const { postId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -536,7 +534,7 @@ const PostDetailPage = () => {
                                 </div>
                                 <div className={styles["stats"]}>
                                     <span className={styles["likes"]}>{likeCount} likes</span>
-                                    <span className={styles["time"]}>{postData.createdAt}</span>
+                                    <span className={styles["time"]}>{Utils.formatDateTime(postData.createdAt)}</span>
                                 </div>
 
                                 <div className={styles["comments-section"]}>
@@ -546,6 +544,7 @@ const PostDetailPage = () => {
                                         <div className={additionalStyles["comments-list"]}>
                                             {comments.map(comment => comment && (
                                             <div
+                                                id={`comment-${comment.id}`}
                                                 key={comment.id}
                                                 className={`${additionalStyles["comment-item"]} ${comment.userDTO?.email === currentUser?.email ? additionalStyles["user-comment"] : ""}`}
                                             >

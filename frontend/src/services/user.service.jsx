@@ -111,12 +111,7 @@ class UserService {
     }
 
 
-    getAvatarUrl(avatarFileName) {
-        if (!avatarFileName) {
-            return AVATAR_URL + DEFAULT_AVATAR;
-        }
-        return AVATAR_URL + avatarFileName;
-    }
+    
 }
 
 export default new UserService();

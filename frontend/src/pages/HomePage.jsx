@@ -17,7 +17,6 @@ const HomePage = () => {
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const navigate = useNavigate();
-    let testPosts = [];
 
 
     const fetchPosts = async () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from '../assets/css/NotificationsPage.module.css';
 import Sidebar from '../components/Sidebar';
 import NotificationService from '../services/notification.service.jsx';
@@ -7,10 +8,8 @@ import AuthService from '../services/auth.service.jsx';
 import { formatDistanceToNow } from 'date-fns';
 import { useNotifications } from '../context/NotificationContext.jsx';
 const NotificationsPage = () => {
-
-
-
-
+    const location = useLocation();
+    const navigate = useNavigate();
     const currentUser = AuthService.getCurrentUser();
     const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
     const DEFAULT_AVATAR = 'default.png';
@@ -26,62 +25,44 @@ const NotificationsPage = () => {
     const [readingNotification, setReadingNotification] = useState(null);
 
     const handleNotificationClick = async (notification) => {
-
-        if (!notification.read) {
-            setReadingNotification(notification.id);
-
-            try {
+            // Mark as read
+            if (!notification.read) {
                 await markAsRead(notification.id);
-
-
-                setTimeout(() => {
-                    setReadingNotification(null);
-                }, 1000);
-            } catch (error) {
-                console.error("Error marking notification as read:", error);
-                setReadingNotification(null);
             }
-        }
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            console.log("Notification clicked: ", notification);
+        
+            // Navigate based on notification type
+            if (notification.referenceType === "COMMENT") {
+                navigate(`/post/${notification.refId2}`,{
+                    state: { background: location }
+                });
+                setTimeout(() => {
+                    const commentElement = document.getElementById(`comment-${notification.refId1}`);
+                    if (commentElement) {
+                        commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        commentElement.classList.add(styles.highlightComment);
+                        setTimeout(() => {
+                            commentElement.classList.remove(styles.highlightComment);
+                        }, 2000);
+                    }
+                }, 300);
+                
+            } else if (notification.referenceType === "POST") {
+                navigate(`/post/${notification.refId1}`);
+            }
+            
+        };
+    
+        const handleAcceptFollow = async (notification, e) => {
+            e.stopPropagation();
+            await acceptFollowRequest(notification.id);
+        };
+    
+        const handleRejectFollow = async (notification, e) => {
+            e.stopPropagation();
+            await rejectFollowRequest(notification.id);
+        };
+    
 
     return (
         <div className={styles.container}>
@@ -99,7 +80,6 @@ const NotificationsPage = () => {
                             </button>
                         )}
                     </div>
-
                     <div className={styles.notificationTabs}>
                         <button className={`${styles.tabButton} ${styles.active}`}>All</button>
                         <button className={styles.tabButton}>Likes</button>
@@ -140,23 +120,24 @@ const NotificationsPage = () => {
                                     <div className={styles.actionButtons}>
                                         <button
                                             className={styles.acceptBtn}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                acceptFollowRequest(notification.id);
-                                            }}
+                                            onClick={(e) => handleAcceptFollow(notification, e)}
                                         >
                                             Accept
                                         </button>
                                         <button
                                             className={styles.rejectBtn}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                rejectFollowRequest(notification.id);
-                                            }}
+                                            onClick={(e) => handleRejectFollow(notification, e)}
                                         >
                                             Reject
                                         </button>
                                     </div>
+                                )}
+                                {notification.accepted && (
+                                    <span className={styles.accepted}>Accepted</span>
+                                )}
+
+                                {notification.rejected && (
+                                    <span className={styles.rejected}>Rejected</span>
                                 )}
                             </div>
                         ))

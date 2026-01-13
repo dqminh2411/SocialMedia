@@ -1,15 +1,14 @@
 package com.ttcs.socialmedia.service;
 
-import com.ttcs.socialmedia.domain.Comment;
-import com.ttcs.socialmedia.domain.LikeComment;
-import com.ttcs.socialmedia.domain.Post;
-import com.ttcs.socialmedia.domain.User;
+import com.ttcs.socialmedia.domain.*;
 import com.ttcs.socialmedia.domain.dto.CommentDTO;
 import com.ttcs.socialmedia.repository.CommentRepository;
 import com.ttcs.socialmedia.repository.LikeCommentRepository;
 import com.ttcs.socialmedia.repository.PostRepository;
 import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.constants.NotificationReferenceType;
+import com.ttcs.socialmedia.util.constants.NotificationType;
 import com.ttcs.socialmedia.util.error.AppException;
 import com.ttcs.socialmedia.util.error.ErrorCode;
 import lombok.AllArgsConstructor;
@@ -20,6 +19,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +32,7 @@ public class CommentService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final LikeCommentRepository likeCommentRepository;
+    private final NotificationService notificationService;
 
     public boolean checkOwner(Comment comment){
         String currentUserEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED)
@@ -105,7 +106,21 @@ public class CommentService {
         }
         comment.setCreator(creator);
         comment.setPost(parentComment.getPost());
-        commentRepository.save(comment);
+        comment = commentRepository.save(comment);
+        if(!parentComment.getPost().getCreator().getEmail().equals(email)
+                && !parentComment.getCreator().getEmail().equals(email) ){
+            Notification notification = Notification.builder()
+                    .content(creator.getUsername() + NotificationType.COMMENT_REPLY.getTemplateMessage() + " of " + parentComment.getPost().getCreator().getUsername())
+                    .read(false)
+                    .recipient(parentComment.getCreator())
+                    .createdAt(Instant.now())
+                    .referencedId(comment.getId())
+                    .referenceType(NotificationReferenceType.COMMENT)
+                    .sender(creator)
+                    .type(NotificationType.COMMENT_REPLY)
+                    .build();
+            notificationService.sendNotification(notification);
+        }
         return commentToCommentDTO(comment);
     }
 
@@ -125,6 +140,16 @@ public class CommentService {
         comment.setPost(post);
         comment.setCreator(user);
         comment = commentRepository.save(comment);
+        if(!post.getCreator().getEmail().equals(user.getEmail())){
+            Notification notification = new Notification();
+            notification.setType(NotificationType.COMMENT_ADD);
+            notification.setContent(user.getUsername() + notification.getType().getTemplateMessage());
+            notification.setRecipient(post.getCreator());
+            notification.setSender(user);
+            notification.setReferenceType(NotificationReferenceType.COMMENT);
+            notification.setReferencedId(comment.getId());
+            notificationService.sendNotification(notification);
+        }
         return commentToCommentDTO(comment);
     }
 

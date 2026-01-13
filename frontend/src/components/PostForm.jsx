@@ -719,7 +719,8 @@ const PostForm = ({ post = null, onSubmit }) => {
                                 </div>
                             )}
                         </div>
-                    )}                    <div className={styles['editor-toolbar']}>
+                    )}                    
+                    <div className={styles['editor-toolbar']}>
                         <button
                             type="button"
                             className={styles['toolbar-button']}
@@ -842,6 +843,11 @@ const PostForm = ({ post = null, onSubmit }) => {
                                 placeholder="Search hashtags..."
                                 value={hashtagSearch}
                                 onChange={(e) => setHashtagSearch(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if(e.key === "Enter"){
+                                        searchHashtags(hashtagSearch);
+                                    }
+                                }}
                                 className={styles['hashtag-search-input']}
                             />
                             <button

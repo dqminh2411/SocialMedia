@@ -38,7 +38,7 @@ const SearchPage = () => {
             <Sidebar />
             <div className={styles.mainContent}>
                 <div className={styles.searchContainer}>
-                    <form className={styles.searchBox} onSubmit={handleSearch}>
+                    <form className={styles.searchBox} onSubmit={handleSearch} >
                         <input
                             type="text"
                             className={styles.searchInput}

@@ -15,8 +15,7 @@ const MessagesPage = () => {
     const chatContainerRef = useRef(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const emojiPickerRef = useRef(null);
-    const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
-    const DEFAULT_AVATAR = 'defaultAvatar.jpg';
+    
     const currentUser = AuthService.getCurrentUser();
 
 
@@ -120,8 +119,7 @@ const MessagesPage = () => {
     const formatMessageDate = (timestamp) => {
         const date = new Date(timestamp);
         const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterday = today.getDate() - 1;
 
         if (date.toDateString() === today.toDateString()) {
             return 'Today';
@@ -312,7 +310,8 @@ const MessagesPage = () => {
                             <button className={styles.newMessageBtn} onClick={toggleNewChatPopup}>New</button>
                         </div>
 
-                        <div className={styles.conversations}>                            {conversations.map(convo => (
+                        <div className={styles.conversations}>                            
+                            {conversations.map(convo => (
                             <div
                                 key={convo.id}
                                 className={`${styles.conversationItem} 
@@ -513,7 +512,7 @@ const MessagesPage = () => {
                                         >
                                             <div className={styles.resultAvatar}>
                                                 <img
-                                                    src={`${AVATAR_URL}${user.avatar || DEFAULT_AVATAR}`}
+                                                    src={user.avatar || null}
                                                     alt={user.username}
                                                 />
                                             </div>
@@ -534,7 +533,8 @@ const MessagesPage = () => {
                                     No users found matching "{searchUsername}"
                                 </div>
                             ) : null}
-                        </div>                        <div className={styles.newChatActions}>
+                        </div>                        
+                        <div className={styles.newChatActions}>
                             <button
                                 className={styles.createChatBtn}
                                 disabled={!selectedUser || searching}

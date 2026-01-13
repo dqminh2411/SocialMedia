@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from '../../assets/css/login.module.css';
 import '../../assets/css/auth-common.css';
-import { defaultStyles } from '../../assets/js/defaultStyles';
-import { useAuth } from '../../context/AuthContext';
+import { defaultStyles } from '../../assets/js/defaultStyles.js';
+import { useAuth } from '../../context/AuthContext.jsx';
 import googleIcon from '../../assets/images/default-google.png';
 import githubIcon from '../../assets/images/default-github.png'
 import authService from "../../services/auth.service.jsx";
@@ -21,13 +21,12 @@ const Login = () => {
     const { login, currentUser } = useAuth();
     const from = location.state?.from || '/';
     
-    // Clear any stale auth data on mount
     useEffect(() => {
-        // If coming from a logout/expired session, ensure clean state
-        if (!currentUser) {
-            localStorage.removeItem('user');
+        if (currentUser) {
+            console.log('User already logged in, redirecting to:', from);
+            navigate(from, { replace: true });
         }
-    }, []);
+    }, [currentUser?.user?.id, navigate, from]);
     
     useEffect(() => {
 
@@ -59,7 +58,6 @@ const Login = () => {
         if (params.get('from') === 'signup') {
             setSuccess('Successful signup! You can now log in with your email and password.');
 
-
             setTimeout(() => {
                 const successElement = document.querySelector(`.${styles.successMessage}`);
                 if (successElement) {
@@ -79,15 +77,7 @@ const Login = () => {
             }, 5000);
         }
     }, [location, styles.successMessage]);
-
-
-    useEffect(() => {
-        if (currentUser) {
-            console.log('User already logged in, redirecting to:', from);
-            navigate(from, { replace: true });
-        }
-    }, [currentUser, navigate, from]);
-
+    
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({

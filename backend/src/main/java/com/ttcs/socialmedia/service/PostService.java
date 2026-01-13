@@ -7,10 +7,13 @@ import com.ttcs.socialmedia.domain.dto.*;
 import com.ttcs.socialmedia.repository.*;
 import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.constants.NotificationReferenceType;
+import com.ttcs.socialmedia.util.constants.NotificationType;
 import com.ttcs.socialmedia.util.error.AppException;
 import com.ttcs.socialmedia.util.error.ErrorCode;
 import com.ttcs.socialmedia.util.event.MediaDeleteEvent;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PostService {
     private final PostRepository postRepository;
     private final FileService fileService;
@@ -43,6 +48,7 @@ public class PostService {
     private final ObjectMapper objectMapper;
     private final UserService userService;
     private final CommentService commentService;
+    private final NotificationService notificationService;
     private ApplicationEventPublisher eventPublisher;
 
     public PostDTO getPostById(int postId) {
@@ -132,6 +138,7 @@ public class PostService {
         post.setPostHashtags(postHashtags);
         // save post
         post = postRepository.save(post);
+        log.info("New post id: " + post.getId() + " created!");
         return postToDTO(post);
 
     }
@@ -224,6 +231,7 @@ public class PostService {
         // as deleting files is not transactional
         String mediaDir = "posts";
         eventPublisher.publishEvent(new MediaDeleteEvent(filesNameToDelete, mediaDir));
+        log.info("Post with id: " + post.getId() + " updated");
         return postToDTO(post);
     }
 
@@ -333,9 +341,23 @@ public class PostService {
             likePost.setPost(post);
             likePost.setUser(user);
             likePost = likePostRepository.save(likePost);
+            if(!post.getCreator().getEmail().equals(email)){
+                Notification notification = Notification.builder()
+                        .type(NotificationType.POST_LIKE)
+                        .sender(user)
+                        .referenceType(NotificationReferenceType.POST)
+                        .referencedId(post.getId())
+                        .createdAt(Instant.now())
+                        .recipient(post.getCreator())
+                        .read(false)
+                        .content(user.getUsername() + NotificationType.POST_LIKE.getTemplateMessage())
+                        .build();
+                notificationService.sendNotification(notification);
+            }
             if(likePost.getId() == 0)
                 throw new AppException(ErrorCode.POST_LIKE_FAILED);
         }
+        log.info("Post with id: " + post.getId() + " liked");
     }
 
     public void unlikePost(int postId) {
@@ -352,6 +374,7 @@ public class PostService {
         if (rowDeleted == 0) {
             throw new AppException(ErrorCode.POST_UNLIKE_FAILED);
         }
+        log.info("Post with id: " + post.getId() + " unliked");
     }
 
     public DetailPostDTO getPostDetailById(int postId) {
@@ -456,6 +479,8 @@ public class PostService {
         // publish event to delete media
         String mediaDir = "posts";
         eventPublisher.publishEvent(new MediaDeleteEvent(filesNameToDelete,mediaDir));
+
+        log.info("Post with id: " + post.getId() + " deleted");
         return true;
     }
     public boolean checkOwner(Post post){

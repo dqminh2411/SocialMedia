@@ -18,8 +18,6 @@ const HashtagPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Constants
-    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
 
     useEffect(() => {
         const fetchHashtagPosts = async () => {
@@ -75,9 +73,7 @@ const HashtagPage = () => {
                                     })}
                                 >
                                     <img
-                                        src={post.firstMediaName !== null
-                                            ? POST_MEDIA_URL + post.firstMediaName
-                                            : 'https://via.placeholder.com/300'}
+                                        src={post.firstMediaName || 'https://via.placeholder.com/300'}
                                         alt={`Post with hashtag #${hashtagName}`}
                                     />
                                     <div className={styles.overlay}>

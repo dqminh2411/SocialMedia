@@ -22,7 +22,7 @@ const handleLogout = () => {
         document.cookie = "";
     });
     
-    
+    console.log("User logged out due to token expiration");
     // Redirect to login
     window.location.href = "/login";
 };

@@ -55,7 +55,7 @@ public class NotificationController {
         notification.setRead(false);
         notification.setCreatedAt(Instant.now());
 
-        Notification savedNotification = notificationService.saveNotification(notification);
+        Notification savedNotification = notificationService.sendNotification(notification);
 
         // Convert to DTO for WebSocket
         NotificationDTO notificationDTO = notificationService.convertToDTO(savedNotification);
@@ -97,7 +97,7 @@ public class NotificationController {
         followService.confirmFollow(follow.getId());
         // Mark notification as read
         notification.setRead(true);
-        notificationService.saveNotification(notification);
+        notificationService.sendNotification(notification);
 
         // Create a notification for the sender
         Notification acceptNotification = new Notification();
@@ -108,7 +108,7 @@ public class NotificationController {
         acceptNotification.setRead(false);
         acceptNotification.setCreatedAt(Instant.now());
 
-        notificationService.saveNotification(acceptNotification);
+        notificationService.sendNotification(acceptNotification);
 
         // Send notification via WebSocket
         // NotificationDTO acceptNotificationDTO =
@@ -142,7 +142,7 @@ public class NotificationController {
 
         // Mark notification as read
         notification.setRead(true);
-        notificationService.saveNotification(notification);
+        notificationService.sendNotification(notification);
 
         return ResponseEntity.ok().build();
     }

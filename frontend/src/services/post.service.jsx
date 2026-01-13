@@ -94,7 +94,7 @@ class PostService {
 
     likePost(postId) {
         return api.post(
-            '/posts/' + postId + '/like',
+            '/posts/' + postId + '/likes',
             {},
             { headers: authHeader() }
         )

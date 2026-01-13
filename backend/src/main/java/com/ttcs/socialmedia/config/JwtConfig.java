@@ -71,7 +71,6 @@ public class JwtConfig {
     @Bean
     public SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtKey).decode();
-        System.out.println("keybytes: " + keyBytes.length);
 //        return new SecretKeySpec(jwtKey.getBytes(), SecurityUtil.JWT_ALGORITHM.getName());
         SecretKey secretKey = new SecretKeySpec(keyBytes, 0, keyBytes.length, SecurityUtil.JWT_ALGORITHM.getName());
         return secretKey;

@@ -51,7 +51,7 @@ public class AuthController {
             loginUser.setProvider("LOCAL");
             Map<String,Object> resp = authService.login(loginUser);
             var authentication = SecurityContextHolder.getContext().getAuthentication();
-            log.info("Email: {}", authentication.getName());
+            log.info("User: {} logged in", authentication.getName());
             authentication.getAuthorities().forEach(grantedAuthority -> log.info("Granted Authority: {}", grantedAuthority.getAuthority()));
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resp.get("resCookie").toString()).body((ResLoginDTO)resp.get("resLoginDTO"));
         }

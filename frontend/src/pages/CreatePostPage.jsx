@@ -37,10 +37,6 @@ const CreatePostPage = () => {
     const handlePostSubmit = (postData) => {
         setIsSubmitting(true);
         setError(null);
-
-        
-        
-
         
         navigate('/profile', { replace: true });
     };

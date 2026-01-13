@@ -17,8 +17,7 @@ const ExplorePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Constants
-    const POST_MEDIA_URL = 'http://localhost:8080/storage/posts/';
+    
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -37,20 +36,10 @@ const ExplorePage = () => {
         fetchPosts();
     }, []);
 
-
-
-
-
-
-
-
-
-
     return (
         <div className={styles.container}>
             <Sidebar />
             <div className={styles.mainContent}>
-
 
                 {loading ? (
                     <div className={styles.loadingContainer}>
@@ -72,9 +61,7 @@ const ExplorePage = () => {
                                     })}
                                 >
                                     <img
-                                        src={post.firstMediaName !== null
-                                            ? POST_MEDIA_URL + post.firstMediaName
-                                            : 'https://via.placeholder.com/300'}
+                                        src={post.firstMediaName || 'https://via.placeholder.com/300'}
                                         alt={`Explore post ${post.id}`}
                                     />
                                     <div className={styles.overlay}>

@@ -1,6 +1,7 @@
 package com.ttcs.socialmedia.domain.dto;
 
 import com.ttcs.socialmedia.util.constants.NotificationType;
+import com.ttcs.socialmedia.util.constants.NotificationReferenceType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,5 +17,6 @@ public class NotificationDTO {
     private UserDTO recipient;
     private UserDTO sender;
     private NotificationType type;
-    private int referencedId;
+    private NotificationReferenceType referenceType;
+    private int refId1, refId2;
 }

@@ -1,8 +1,10 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
 import MessageService from '../services/message.service';
 import AuthService from '../services/auth.service';
 import UserService from '../services/user.service';
 import ProfileService from '../services/profile.service';
+import { useWebSocket } from './WebSocketContext';
+
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -11,9 +13,17 @@ export const ChatProvider = ({ children }) => {
     const [messages, setMessages] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [isConnected, setIsConnected] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const currentUser = AuthService.getCurrentUser();
+    const activeChatRef = useRef(activeChat);
+    
+    // Get WebSocket context
+    const { isConnected, onChatMessage, sendChatMessage } = useWebSocket();
+
+    // Keep activeChatRef in sync
+    useEffect(() => {
+        activeChatRef.current = activeChat;
+    }, [activeChat]);
 
     const formatRelativeTime = (date) => {
         const now = new Date();
@@ -41,10 +51,6 @@ export const ChatProvider = ({ children }) => {
             setActiveChat(null);
             return;
         }
-
-        let reconnectInterval = null;
-
-        
         const fetchChats = async () => {
             try {
                 setLoading(true);
@@ -59,7 +65,7 @@ export const ChatProvider = ({ children }) => {
                         id: chat.id,
                         userId: chat.otherUser.id,
                         username: chat.otherUser.username,
-                        avatar: UserService.getAvatarUrl(chat.otherUser.avatar),
+                        avatar: chat.otherUser.avatar,
                         lastMessage: chat.lastMessage?.content || "No messages yet",
                         time: chat.lastMessage ? formatRelativeTime(new Date(chat.lastMessage.sentAt)) : "",
                         unread: chat.lastMessage ? chat.lastMessage.read === false && chat.lastMessage.senderId !== userId : true
@@ -82,56 +88,15 @@ export const ChatProvider = ({ children }) => {
             }
         };
 
-        
-        const connectWebSocket = async () => {
-            try {
-                console.log("Connecting to WebSocket Chat...");
-                await MessageService.connect();
-                setIsConnected(true);
-                console.log("WebSocket Chat connected successfully");
-            } catch (error) {
-                console.error("Error connecting to WebSocket Chat:", error);
-                setIsConnected(false);
-                
-                setTimeout(connectWebSocket, 5000);
-            }
-        };
-
-        
-        const checkConnection = () => {
-            if (!isConnected) {
-                console.log("Checking WebSocket connection status");
-                MessageService.checkConnection()
-                    .then(connected => {
-                        setIsConnected(connected);
-                    })
-                    .catch(() => {
-                        setIsConnected(false);
-                    });
-            }
-        };
-
         fetchChats();
-        connectWebSocket();
 
-        
-        reconnectInterval = setInterval(checkConnection, 30000);
-
-        
-        const unsubscribe = MessageService.onMessage(handleNewMessage);
-
+        // Subscribe to chat messages via WebSocket
+        const unsubscribe = onChatMessage(handleNewMessage);
         
         return () => {
-            console.log("Cleaning up chat context");
             unsubscribe();
-            MessageService.disconnect();
-
-            if (reconnectInterval) {
-                clearInterval(reconnectInterval);
-            }
         };
-    }, [currentUser.id]);
-
+    }, [currentUser?.user?.id, onChatMessage]);
     
     const handleNewMessage = (newMessage) => {
         if (!newMessage || !newMessage.chatId) return;
@@ -140,7 +105,10 @@ export const ChatProvider = ({ children }) => {
 
         
         setMessages(prevMessages => {
-            if (!prevMessages[chatId]) return prevMessages;
+            // Check if message already exists to avoid duplicates
+            if (prevMessages[chatId]?.some(msg => msg.id === newMessage.id)) {
+                return prevMessages;
+            }
 
             return {
                 ...prevMessages,
@@ -153,7 +121,7 @@ export const ChatProvider = ({ children }) => {
             const updatedChats = prevChats.map(chat => {
                 if (chat.id === chatId) {
                     const isUnread = newMessage.senderId !== currentUser.user.id &&
-                        activeChat !== chatId;
+                        activeChatRef.current !== chatId;
 
                     
                     if (isUnread && !chat.unread) {
@@ -181,7 +149,7 @@ export const ChatProvider = ({ children }) => {
         });
 
         
-        if (activeChat === chatId && newMessage.senderId !== currentUser.user.id) {
+        if (activeChatRef.current === chatId && newMessage.senderId !== currentUser.user.id) {
             markMessageAsRead(chatId, newMessage.id);
         }
     };
@@ -256,28 +224,11 @@ export const ChatProvider = ({ children }) => {
 
         
         if (!isConnected) {
-            console.log("WebSocket not connected, attempting to connect...");
-            MessageService.connect()
-                .then(() => {
-                    console.log("Connected to WebSocket, sending message");
-                    setIsConnected(true);
-                    MessageService.sendMessage(senderId, chatId, content);
-                })
-                .catch(error => {
-                    console.error("Failed to connect WebSocket for sending message:", error);
-                    
-                    setMessages(prevMessages => ({
-                        ...prevMessages,
-                        [chatId]: prevMessages[chatId].map(msg =>
-                            msg.id === tempMessage.id
-                                ? { ...msg, pending: false, failed: true }
-                                : msg
-                        )
-                    }));
-                });
+            console.log("WebSocket not connected, message may fail...");
+            // Still try to send - WebSocket might reconnect
+            sendChatMessage(senderId, chatId, content);
         } else {
-            
-            MessageService.sendMessage(senderId, chatId, content);
+            sendChatMessage(senderId, chatId, content);
         }
     };
     const createChat = async (otherUserId) => {

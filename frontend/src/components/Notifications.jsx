@@ -1,110 +1,71 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from '../assets/css/Notifications.module.css';
 import NotificationService from '../services/notification.service.jsx';
 import AuthService from '../services/auth.service.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { formatDistanceToNow } from 'date-fns';
+import { useNotifications } from '../context/NotificationContext';
 
 const Notifications = () => {
-    const [notifications, setNotifications] = useState([]);
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0);
     const currentUser = AuthService.getCurrentUser();
     const AVATAR_URL = 'http://localhost:8080/storage/avatars/';
     const DEFAULT_AVATAR = 'default.png';
 
-    useEffect(() => {
-        if (!currentUser) return;
-
-
-        const fetchNotifications = async () => {
-            try {
-                const data = await NotificationService.getNotifications();
-                setNotifications(data || []);
-                setUnreadCount(data.filter(n => !n.read).length);
-            } catch (error) {
-                console.error("Error fetching notifications:", error);
-            }
-        };
-
-        fetchNotifications();
-
-
-        NotificationService.connect();
-
-
-        const unsubscribe = NotificationService.onMessage(notification => {
-            setNotifications(prev => [notification, ...prev]);
-            setUnreadCount(prevCount => prevCount + 1);
-        });
-
-        return () => {
-
-            unsubscribe();
-            NotificationService.disconnect();
-        };
-    }, [currentUser.id]);
+    // Use NotificationContext instead of local state
+    const {
+        notifications,
+        unreadCount,
+        markAsRead,
+        markAllAsRead,
+        acceptFollowRequest,
+        rejectFollowRequest
+    } = useNotifications();
 
     const toggleNotifications = () => {
         setIsOpen(!isOpen);
     };
 
     const handleNotificationClick = async (notification) => {
-
+        // Mark as read
         if (!notification.read) {
-            try {
-                await NotificationService.markAsRead(notification.id);
-
-
-                setNotifications(prev =>
-                    prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-                );
-                setUnreadCount(prevCount => prevCount - 1);
-            } catch (error) {
-                console.error("Error marking notification as read:", error);
-            }
+            await markAsRead(notification.id);
         }
+        console.log("Notification clicked: ", notification);
+        // Close dropdown
+        setIsOpen(false);
+
+        // Navigate based on notification type
+        if (notification.referenceType === "COMMENT") {
+            navigate(`/post/${notification.refId2}`);
+            setTimeout(() => {
+                const commentElement = document.getElementById(`comment-${notification.refId1}`);
+                if (commentElement) {
+                    commentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    commentElement.classList.add(styles.highlightComment);
+                    setTimeout(() => {
+                        commentElement.classList.remove(styles.highlightComment);
+                    }, 2000);
+                }
+            }, 300);
+            
+        } else if (notification.referenceType === "POST") {
+            navigate(`/post/${notification.refId1}`);
+        }
+        
     };
 
-    const handleAcceptFollow = async (notification) => {
-        try {
-            await NotificationService.acceptFollowRequest(notification.id);
-
-
-            setNotifications(prev =>
-                prev.map(n => n.id === notification.id ? { ...n, read: true, accepted: true } : n)
-            );
-            setUnreadCount(prevCount => prevCount - 1);
-        } catch (error) {
-            console.error("Error accepting follow request:", error);
-        }
+    const handleAcceptFollow = async (notification, e) => {
+        e.stopPropagation();
+        await acceptFollowRequest(notification.id);
     };
 
-    const handleRejectFollow = async (notification) => {
-        try {
-            await NotificationService.rejectFollowRequest(notification.id);
-
-
-            setNotifications(prev =>
-                prev.map(n => n.id === notification.id ? { ...n, read: true, rejected: true } : n)
-            );
-            setUnreadCount(prevCount => prevCount - 1);
-        } catch (error) {
-            console.error("Error rejecting follow request:", error);
-        }
-    };
-
-    const markAllAsRead = async () => {
-        try {
-            await NotificationService.markAllAsRead();
-
-
-            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-            setUnreadCount(0);
-        } catch (error) {
-            console.error("Error marking all notifications as read:", error);
-        }
+    const handleRejectFollow = async (notification, e) => {
+        e.stopPropagation();
+        await rejectFollowRequest(notification.id);
     };
 
     return (
@@ -129,6 +90,7 @@ const Notifications = () => {
                             </button>
                         )}
                     </div>
+                    
 
                     <div className={styles.notificationsList}>
                         {notifications.length === 0 ? (
@@ -137,7 +99,9 @@ const Notifications = () => {
                             notifications.map(notification => (
                                 <div
                                     key={notification.id}
-                                    className={`${styles.notificationItem} ${!notification.read ? styles.unread : ''}`}
+                                    className={`${styles.notificationItem} ${!notification.read ? styles.unread : ''} ${
+                                        notification.type !== 'FOLLOW_REQUEST' ? styles.clickable : ''
+                                    }`}
                                     onClick={() => handleNotificationClick(notification)}
                                 >
                                     <div className={styles.notificationContent}>
@@ -161,19 +125,13 @@ const Notifications = () => {
                                         <div className={styles.actionButtons}>
                                             <button
                                                 className={styles.acceptBtn}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleAcceptFollow(notification);
-                                                }}
+                                                onClick={(e) => handleAcceptFollow(notification, e)}
                                             >
                                                 <FontAwesomeIcon icon={faCheck} />
                                             </button>
                                             <button
                                                 className={styles.rejectBtn}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRejectFollow(notification);
-                                                }}
+                                                onClick={(e) => handleRejectFollow(notification, e)}
                                             >
                                                 <FontAwesomeIcon icon={faTimes} />
                                             </button>
@@ -198,3 +156,5 @@ const Notifications = () => {
 };
 
 export default Notifications;
+
+

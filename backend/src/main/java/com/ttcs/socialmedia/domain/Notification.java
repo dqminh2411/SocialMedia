@@ -1,9 +1,9 @@
 package com.ttcs.socialmedia.domain;
 
+import com.ttcs.socialmedia.util.constants.NotificationReferenceType;
 import com.ttcs.socialmedia.util.constants.NotificationType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -11,6 +11,9 @@ import java.time.Instant;
 @Table(name="notifications")
 @Getter
 @Setter
+@NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +24,8 @@ public class Notification {
     @Column(name="is_read")
     private boolean read;
 
-    private Instant createdAt;
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 
     @ManyToOne
     @JoinColumn(name = "recipient_id")
@@ -34,5 +38,9 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
+    @Enumerated(EnumType.STRING)
+    private NotificationReferenceType referenceType;
+
     private int referencedId;
+
 }
