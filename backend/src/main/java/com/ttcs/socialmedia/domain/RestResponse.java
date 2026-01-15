@@ -33,6 +33,7 @@ public class RestResponse<T> {
     public static <T> RestResponse<T> error(ErrorCode error){
         return RestResponse.<T>builder()
                 .success(false)
+                .message(error.getMessage())
                 .error(error)
                 .build();
     }

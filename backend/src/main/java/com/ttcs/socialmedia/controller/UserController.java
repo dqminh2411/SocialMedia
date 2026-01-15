@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,10 +32,9 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> signup(@Valid @RequestBody SignupDTO signupDTO) {
         if (signupDTO != null) {
-            this.userService.createUser(signupDTO);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(RestResponse.ok("Sign up successfully"));
+                    .body(RestResponse.ok("Sign up successfully",this.userService.createUser(signupDTO)));
         }
         return null;
     }
@@ -55,6 +55,7 @@ public class UserController {
     }
 
     @GetMapping()
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> searchUsers(@RequestParam("username") String username,
             @RequestParam(name = "pageNo", defaultValue = "1") int pageNo) {
         Page<User> userPage = this.userService.searchUsersByUsername(username, pageNo - 1);

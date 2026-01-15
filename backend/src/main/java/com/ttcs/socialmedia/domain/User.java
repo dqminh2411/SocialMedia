@@ -3,8 +3,7 @@ package com.ttcs.socialmedia.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ttcs.socialmedia.util.constants.AuthProvider;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,6 +12,9 @@ import java.util.List;
 @Table(name="users")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

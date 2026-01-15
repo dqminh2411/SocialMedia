@@ -3,6 +3,13 @@ package com.ttcs.socialmedia.domain.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 
 public class SignupDTO {
     @NotBlank(message = "Họ và tên không được để trống")

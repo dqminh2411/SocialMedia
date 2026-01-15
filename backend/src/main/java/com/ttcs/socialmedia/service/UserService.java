@@ -3,6 +3,7 @@ package com.ttcs.socialmedia.service;
 import com.ttcs.socialmedia.domain.Profile;
 import com.ttcs.socialmedia.domain.Role;
 import com.ttcs.socialmedia.domain.User;
+import com.ttcs.socialmedia.domain.dto.ResSignupDTO;
 import com.ttcs.socialmedia.domain.dto.SignupDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.RoleRepository;
@@ -36,7 +37,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void createUser(SignupDTO signupDTO) throws AppException {
+    public ResSignupDTO createUser(SignupDTO signupDTO) throws AppException {
         if (this.userRepository.existsByEmail(signupDTO.getEmail())) {
             throw new AppException(ErrorCode.SIGNUP_EXISTED_EMAIL);
         } else if (!signupDTO.getPassword().equals(signupDTO.getRePassword())) {
@@ -49,16 +50,16 @@ public class UserService {
         Role role = roleRepository.findByName(RoleEnum.USER.name());
         newUser.setRole(role);
         newUser.setHashedPassword(passwordEncoder.encode(signupDTO.getPassword()));
-        if (newUser.getRole().equals(RoleEnum.USER)) {
+        if (newUser.getRole() != null && newUser.getRole().getName().equals(RoleEnum.USER.name())) {
             Profile profile = new Profile();
             profile.setAvatar(defaultAvatarUrl);
             profile.setBio("");
-            profile.setUser(newUser);
             newUser.setProfile(profile);
         } else {
-            newUser.setProfile(null);
+            throw new AppException(ErrorCode.ROLE_NOT_EXISTED);
         }
-        userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
+        return convertToResSignupDTO(newUser);
     }
 
     public User getUserByEmail(String email) {
@@ -90,6 +91,15 @@ public class UserService {
         if (p != null)
             userDTO.setAvatar(p.getAvatar());
         return userDTO;
+    }
+
+    public ResSignupDTO convertToResSignupDTO(User user){
+        return ResSignupDTO.builder()
+                .id(user.getId())
+                .fullname(user.getFullname())
+                .email(user.getEmail())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
     public List<UserDTO> getSuggestions(int userId, int pageNo) {

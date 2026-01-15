@@ -21,6 +21,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "Post not found!"),
     POST_LIKE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Post Like Failed"),
     POST_UNLIKE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Post Unlike Failed"),
+    ROLE_NOT_EXISTED(HttpStatus.INTERNAL_SERVER_ERROR, "Role not existed")
     ;
 
     private HttpStatus status;

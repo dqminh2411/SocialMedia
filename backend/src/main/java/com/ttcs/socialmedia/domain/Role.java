@@ -17,8 +17,7 @@ package com.ttcs.socialmedia.domain;
  */
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,6 +43,8 @@ import java.util.Set;
 @Table(name="roles")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class Role {
     @Id
     private String name;

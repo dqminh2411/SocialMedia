@@ -35,7 +35,7 @@ public class SecurityConfiguration {
             "/api/v1/auth/login",
             "/api/v1/auth/social-login",
             "/api/v1/auth/social/callback",
-            "api/v1/users/signup",
+            "api/v1/users",
             "/storage/**",
             "/ws",
             "/actuator/**",
