@@ -12,12 +12,12 @@ import java.util.Map;
 @Configuration
 public class CloudinaryConfig {
 
+    @Value("${CLOUDINARY_URL}")
+    private String CLOUDINARY_URL;
     @Bean
     public Cloudinary cloudinary() {
         // Set your Cloudinary credentials
-
-        Dotenv dotenv = Dotenv.load();
-        Cloudinary cloudinary = new Cloudinary(dotenv.get("CLOUDINARY_URL"));
+        Cloudinary cloudinary = new Cloudinary(CLOUDINARY_URL);
         //System.out.println(cloudinary.config.cloudName);
         return cloudinary;
     }

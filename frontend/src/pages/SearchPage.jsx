@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../assets/css/SearchPage.module.css';
 import Sidebar from '../components/Sidebar';
@@ -77,7 +77,7 @@ const SearchPage = () => {
                                                 users.map(user => (
                                                     <div key={user.id} className={styles.userItem}>
                                                         <div className={styles.userAvatar}>
-                                                            <img src={UserService.getAvatarUrl(user.avatar)} alt={user.username} />
+                                                            <img src={user.avatar} alt={user.username} />
                                                         </div>
                                                         <Link to={`/profile/un/${user.username}`} className={styles.userLink}>
                                                             <div className={styles.userInfo}>

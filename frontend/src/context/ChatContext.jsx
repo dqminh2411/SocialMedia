@@ -271,7 +271,7 @@ export const ChatProvider = ({ children }) => {
                     id: createdChat.id,
                     userId: otherUserId,
                     username: otherUser.username,
-                    avatar: UserService.getAvatarUrl(otherUser.avatar),
+                    avatar: otherUser.avatar,
                     lastMessage: "No messages yet",
                     time: "",
                     unread: false

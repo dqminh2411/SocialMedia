@@ -3,7 +3,7 @@ import styles from '../assets/css/MessagesPage.module.css';
 import Sidebar from '../components/Sidebar';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faSmile, faPaperclip, faImage, faInfoCircle, faArrowLeft, faSearch, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faSmile, faInfoCircle, faSearch, faTimes, faCheck } from '@fortawesome/free-solid-svg-icons';
 import EmojiPicker from 'emoji-picker-react';
 import UserService from '../services/user.service.jsx';
 import AuthService from '../services/auth.service.jsx';
@@ -35,8 +35,7 @@ const MessagesPage = () => {
         error,
         getMessages,
         sendMessage,
-        createChat,
-        setActiveChat
+        createChat
     } = useChat();
 
 
@@ -119,8 +118,8 @@ const MessagesPage = () => {
     const formatMessageDate = (timestamp) => {
         const date = new Date(timestamp);
         const today = new Date();
-        const yesterday = today.getDate() - 1;
-
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
         if (date.toDateString() === today.toDateString()) {
             return 'Today';
         } else if (date.toDateString() === yesterday.toDateString()) {

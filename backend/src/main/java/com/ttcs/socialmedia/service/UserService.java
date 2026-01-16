@@ -9,10 +9,12 @@ import com.ttcs.socialmedia.domain.dto.UserDTO;
 import com.ttcs.socialmedia.repository.RoleRepository;
 import com.ttcs.socialmedia.repository.UserRepository;
 import com.ttcs.socialmedia.util.SecurityUtil;
+import com.ttcs.socialmedia.util.constants.AuthProvider;
 import com.ttcs.socialmedia.util.constants.RoleEnum;
 import com.ttcs.socialmedia.util.error.AppException;
 import com.ttcs.socialmedia.util.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -48,17 +51,20 @@ public class UserService {
         newUser.setEmail(signupDTO.getEmail());
         newUser.setFullname(signupDTO.getFullname());
         Role role = roleRepository.findByName(RoleEnum.USER.name());
+        newUser.setProvider(AuthProvider.LOCAL);
         newUser.setRole(role);
         newUser.setHashedPassword(passwordEncoder.encode(signupDTO.getPassword()));
         if (newUser.getRole() != null && newUser.getRole().getName().equals(RoleEnum.USER.name())) {
             Profile profile = new Profile();
             profile.setAvatar(defaultAvatarUrl);
             profile.setBio("");
+            profile.setUser(newUser);
             newUser.setProfile(profile);
         } else {
             throw new AppException(ErrorCode.ROLE_NOT_EXISTED);
         }
         newUser = userRepository.save(newUser);
+        log.info("New user with id: " + newUser.getId() + " created!");
         return convertToResSignupDTO(newUser);
     }
 

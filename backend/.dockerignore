@@ -1,0 +1,27 @@
+# built folder
+target/
+
+# .md file
+*.md
+
+# maven build tool
+mvnw
+mvnw.cmd
+.mvn/
+
+# IDE-specific
+.idea/
+*.iml
+.vscode/
+
+# doc
+docs
+
+# docker file
+.dockerignore
+Dockerfile
+
+# git repo
+.gitattributes
+.gitignore
+
