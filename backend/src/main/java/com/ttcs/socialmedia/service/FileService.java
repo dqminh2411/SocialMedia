@@ -2,8 +2,12 @@ package com.ttcs.socialmedia.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.ttcs.socialmedia.domain.PostMedia;
+import com.ttcs.socialmedia.repository.PostMediaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,12 +47,6 @@ public class FileService {
         System.out.println(uploadResult.get("url").toString());
         tempFile.delete();
         return uploadResult.get("url").toString();
-    }
-
-    public void deleteFile(String fileUrl, String dirName) throws URISyntaxException, IOException {
-        if (fileUrl == null || fileUrl.isEmpty()) return;
-        String publicId = "socialMedia/"+dirName+"/"+fileUrl.substring(fileUrl.lastIndexOf('/')+1,  fileUrl.lastIndexOf('.'));
-        Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
     }
 //    public void createDirectory(String directoryName) throws URISyntaxException {
 //        URI uri = new URI(baseURI+directoryName);

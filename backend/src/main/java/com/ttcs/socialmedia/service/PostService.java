@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttcs.socialmedia.domain.*;
 import com.ttcs.socialmedia.domain.dto.*;
+import com.ttcs.socialmedia.domain.dto.response.PostListResponse;
 import com.ttcs.socialmedia.repository.*;
 import com.ttcs.socialmedia.util.SanitizeUtil;
 import com.ttcs.socialmedia.util.SecurityUtil;
@@ -26,10 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,7 +57,7 @@ public class PostService {
         return postToDTO(post);
     }
 
-    public Page<Post> getHomePosts(int page) {
+    public PostListResponse getHomePosts(int page) {
         int pageSize = 10;
         Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
         String email = SecurityUtil.getCurrentUserLogin()
@@ -68,7 +66,17 @@ public class PostService {
         if (currentUser == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        return postRepository.findPostsFromFollowedUsers(currentUser.getId(), pageable);
+        Page<Post> postsPage =  postRepository.findPostsFromFollowedUsers(currentUser.getId(), pageable);
+        List<DetailPostDTO> postDTOs = postsPage.getContent().stream()
+                .map(post -> postToDetailDTO(post))
+                .toList();
+        return PostListResponse
+                .builder().posts(postDTOs)
+                .currentPage(postsPage.getNumber())
+                .totalPages(postsPage.getTotalPages())
+                .totalElements(postsPage.getTotalElements())
+                .build();
+
     }
 
     @Transactional
@@ -458,7 +466,7 @@ public class PostService {
      * @throws URISyntaxException
      */
     @Transactional
-    public boolean deletePost(int id) throws URISyntaxException {
+    public boolean deletePost(int id)  {
         Post post = postRepository.findById(id);
         if (post == null) {
             return false;
@@ -479,7 +487,6 @@ public class PostService {
         // publish event to delete media
         String mediaDir = "posts";
         eventPublisher.publishEvent(new MediaDeleteEvent(filesNameToDelete,mediaDir));
-
         log.info("Post with id: " + post.getId() + " deleted");
         return true;
     }
