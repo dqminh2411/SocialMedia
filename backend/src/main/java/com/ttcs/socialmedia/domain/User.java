@@ -40,7 +40,7 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Profile profile;
 
-    @OneToMany(mappedBy="creator", cascade=CascadeType.ALL,  orphanRemoval = true)
+    @OneToMany(mappedBy="creator", cascade=CascadeType.ALL,  orphanRemoval = true, fetch = FetchType.LAZY)
     List<Post> posts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

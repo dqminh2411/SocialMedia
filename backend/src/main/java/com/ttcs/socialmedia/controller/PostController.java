@@ -96,17 +96,7 @@ public class PostController {
 
     @GetMapping("/home")
     public ResponseEntity<?> getHomePosts(@RequestParam(name = "pageNo", defaultValue = "0") int page) {
-
-        Page<Post> postsPage = postService.getHomePosts(page);
-        List<DetailPostDTO> postDTOs = postsPage.getContent().stream()
-                .map(post -> postService.postToDetailDTO(post))
-                .toList();
-        Map<String, Object> response = Map.of(
-                "posts", postDTOs,
-                "totalPages", postsPage.getTotalPages(),
-                "currentPage", postsPage.getNumber(),
-                "totalElements", postsPage.getTotalElements());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(postService.getHomePosts(page));
     }
 
     @GetMapping("/new-home")

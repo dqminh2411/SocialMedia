@@ -1,21 +1,6 @@
-CASCADE PERMISSION --> ROLE_PERMISSIONS
-	ROLE --> ROLE_PERMISSIONS
-
-ADD SOFT DELETE
-
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            try {
-                Map<String, Object> user = jwt.getClaim("user");
-                if (user == null) {
-                    throw new IllegalArgumentException("No user claim present");
-                }
-                String role = (String) user.get("role");
-                if (role == null) {
-                    throw new IllegalArgumentException("No role found in user claim");
-                }
-                return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role));
-            } catch (Exception e) {
-                // Log the error and return empty authorities or throw custom exception
-                return Collections.emptySet();
-            }
-        });
+Recommendation strategy:
+- track user view post -> send batch api -> db batch write post_view -> get post based on time, likes, comment, interaction history:
+	+ liked, commented post: not recommend again
+	+ viewed post: now - last_seen_at >= 2 day
+	+ ordered by day(post.created_at) desc, (p.likes * 2 + p.comments) desc.
+	+ query order: get time-satisfactory posts then order

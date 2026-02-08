@@ -29,10 +29,12 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
                         """)
         Page<Post> findPostsFromUnfollowedUsers(@Param("currentUserId") int currentUserId, Pageable pageable);
 
-        @Query("SELECT p FROM Post p WHERE EXISTS " +
-                        "(SELECT 1 FROM Follow f WHERE f.followingUser.id = :currentUserId AND f.followedUser.id = p.creator.id AND f.status = 'CONFIRMED')"
-                        +
-                        "ORDER BY p.createdAt DESC")
+        @Query("""
+                SELECT p FROM Post p WHERE EXISTS 
+                (SELECT 1 FROM Follow f WHERE f.followingUser.id = :currentUserId AND f.followedUser.id = p.creator.id AND f.status = 'CONFIRMED')
+                ORDER BY p.createdAt DESC
+                """
+        )
         Page<Post> findPostsFromFollowedUsers(@Param("currentUserId") int currentUserId, Pageable pageable);
 
         @Query("SELECT p FROM Post p JOIN PostHashtags ph ON p.id = ph.post.id WHERE ph.hashtag = :hashtag " +
