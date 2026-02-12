@@ -5,6 +5,7 @@ import com.ttcs.socialmedia.domain.RestResponse;
 import com.ttcs.socialmedia.domain.dto.DetailPostDTO;
 import com.ttcs.socialmedia.domain.dto.PostDTO;
 import com.ttcs.socialmedia.domain.dto.UserDTO;
+import com.ttcs.socialmedia.domain.dto.request.UserPostViewRequest;
 import com.ttcs.socialmedia.service.CommentService;
 import com.ttcs.socialmedia.service.PostService;
 import com.ttcs.socialmedia.util.SecurityUtil;
@@ -94,9 +95,9 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/home")
-    public ResponseEntity<?> getHomePosts(@RequestParam(name = "pageNo", defaultValue = "0") int page) {
-        return ResponseEntity.ok(postService.getHomePosts(page));
+    @GetMapping("/feed")
+    public ResponseEntity<?> getFeedPosts(@RequestParam(name = "pageNo", defaultValue = "0") int page) {
+        return ResponseEntity.ok(postService.getFeedPosts(page));
     }
 
     @GetMapping("/new-home")
@@ -136,6 +137,12 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(@PathVariable("postId") int postId) throws IOException, URISyntaxException {
         postService.deletePost(postId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/views", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> addUserPostView(@RequestBody UserPostViewRequest request){
+        postService.addUserPostView(request);
         return ResponseEntity.noContent().build();
     }
 }

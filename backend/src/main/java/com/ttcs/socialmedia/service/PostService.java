@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ttcs.socialmedia.domain.*;
 import com.ttcs.socialmedia.domain.dto.*;
+import com.ttcs.socialmedia.domain.dto.request.UserPostViewRequest;
 import com.ttcs.socialmedia.domain.dto.response.PostListResponse;
 import com.ttcs.socialmedia.repository.*;
 import com.ttcs.socialmedia.util.SanitizeUtil;
@@ -20,13 +21,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +53,8 @@ public class PostService {
     private final UserService userService;
     private final CommentService commentService;
     private final NotificationService notificationService;
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public PostDTO getPostById(int postId) {
         Post post = postRepository.findById(postId);
@@ -57,26 +64,67 @@ public class PostService {
         return postToDTO(post);
     }
 
-    public PostListResponse getHomePosts(int page) {
-        int pageSize = 10;
-        Pageable pageable = PageRequest.of(page, pageSize, Sort.by("createdAt").descending());
+    public PostListResponse getFeedPosts(int page) {
         String email = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
         User currentUser = userRepository.findByEmail(email);
         if (currentUser == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        Page<Post> postsPage =  postRepository.findPostsFromFollowedUsers(currentUser.getId(), pageable);
-        List<DetailPostDTO> postDTOs = postsPage.getContent().stream()
+        int pageSize = 10;
+        // cache key
+        String key = "feed:user:" + currentUser.getId();
+        if(page == 0){
+            int cachedPostsNum = 300;
+            // get and cache posts from db to redis
+            Pageable pageable = PageRequest.of(page, cachedPostsNum, Sort.by("createdAt").descending());
+            List<Post> posts  = postRepository.findUnseenFeedPostsByUser(currentUser.getId(), pageable);
+            if (posts.isEmpty()){
+                int recentPostNums = 30;
+                pageable = PageRequest.of(page, recentPostNums, Sort.by("createdAt").descending());
+                Instant last3Days = Instant.now().minus(3, ChronoUnit.DAYS);
+                posts = postRepository.findRecentFeedPostsByUser(currentUser.getId(), pageable, last3Days);
+            }
+            // sort based on DATE (createdAt) desc, ( likes + commments ) desc
+            posts.sort((Post p1, Post p2) -> {
+                // get LocalDate from Instant
+                ZoneId zone = ZoneId.systemDefault();
+                LocalDate p1Date = p1.getCreatedAt().atZone(zone).toLocalDate(), p2Date = p2.getCreatedAt().atZone(zone).toLocalDate();
+                if(!p1Date.equals(p2Date)) return p1Date.compareTo(p2Date);
+                Integer p1Score = p1.getCommentsCount() + p1.getLikesCount(), p2Score = p2.getCommentsCount() + p2.getLikesCount();
+                return p1Score.compareTo(p2Score);
+            });
+
+            if(!posts.isEmpty()){
+                redisTemplate.opsForList().leftPushAll(key, posts.stream().map(Post::getId).toList());
+                redisTemplate.expire(key, Duration.of(30, ChronoUnit.MINUTES));
+            }
+
+
+            // get 10 (if sufficient) first posts for feed
+            List<DetailPostDTO> postDTOS = posts.subList(0, Math.min(posts.size(), pageSize))
+                    .stream()
+                    .map(p -> postToDetailDTO(p))
+                    .toList();
+            return PostListResponse.builder()
+                    .posts(postDTOS)
+                    .currentPage(page)
+                    .build();
+        }
+        int offset = pageSize * (page - 1);
+        if(redisTemplate.opsForList().size(key) == 0 || offset >= redisTemplate.opsForList().size(key))
+            return PostListResponse.builder().build();
+        List<Integer> postIds = redisTemplate.opsForList()
+                .range(key, pageSize * (page-1), Math.min(pageSize * page - 1, redisTemplate.opsForList().size(key)-1))
+                .stream().map(o -> (Integer)o).toList();
+        List<Post> posts =  postRepository.findAllById(postIds);
+        List<DetailPostDTO> postDTOs = posts.stream()
                 .map(post -> postToDetailDTO(post))
                 .toList();
         return PostListResponse
                 .builder().posts(postDTOs)
-                .currentPage(postsPage.getNumber())
-                .totalPages(postsPage.getTotalPages())
-                .totalElements(postsPage.getTotalElements())
+                .currentPage(page)
                 .build();
-
     }
 
     @Transactional
@@ -495,5 +543,20 @@ public class PostService {
         String currentEmail = SecurityUtil.getCurrentUserLogin()
                 .orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
         return !creator.getEmail().equals(currentEmail);
+    }
+
+    public void addUserPostView(UserPostViewRequest request){
+        String currentEmail = SecurityUtil.getCurrentUserLogin().orElseThrow(() -> new AppException(ErrorCode.ACCESS_DENIED));
+        User currentUser = userRepository.findByEmail(currentEmail);
+        if(currentUser == null)
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        Set<Integer> viewedPostIds = request.getViewedPostIds();
+        String feedKey = "feed:user:" + currentUser.getId();
+        // validate post ids: only accept post ids already in cache
+        viewedPostIds.retainAll(redisTemplate.opsForList().range(feedKey,0,-1));
+        String postViewKey = "postView:user:" + currentUser.getId();
+        for(int pid : viewedPostIds){
+            redisTemplate.opsForHash().putIfAbsent(postViewKey, String.valueOf(pid), Instant.now().toEpochMilli());
+        }
     }
 }

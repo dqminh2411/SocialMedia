@@ -1,6 +1,38 @@
 Recommendation strategy:
 - track user view post -> send batch api -> db batch write post_view -> get post based on time, likes, comment, interaction history:
 	+ liked, commented post: not recommend again
-	+ viewed post: now - last_seen_at >= 2 day
+	+ viewed post: now - last_seen_at >= 3 day
 	+ ordered by day(post.created_at) desc, (p.likes * 2 + p.comments) desc.
 	+ query order: get time-satisfactory posts then order
+- run out of post in the last 3 days ==> explore (track explore post view (duration => more point), post like, post comments)
+	+ favorite user, favorite content (based on topic keywords) (background job)
+	+ collaboration filter: suggest follower and followings' interested content => track
+- suggest posts in home: interested content
+- posts in explore: more diversed content
+
+problems with updating post view, unviewed post pagination, ranking query
+- continuously updating post view when user scroll feed => inconsistent post pagination query result
+- get posts ordered by score (likes,comments - change overtime) => inconsistent post pagination query result
+
+solution: - store viewed posts id before a feed session ( a feed session starts when user first scroll feed and ends when user reload/come back to == page 0 in pagination) pages
+- not update post view during a feed session
+- update post view after a feed session ends
+- get posts based on recency (consistent) -> sort based on score
+
+solution (using Redis db snapshot)
+- get 100-300 posts and its ranks from db and store in Redis (Users rarely scroll infinitively but rather consume first few hundred posts)
+- TTL for Redis: 20-25 minutes for a feed session
+- when TTL expires or no more new posts in redis => display "Refresh feed" notification
+- store viewed posts id (via API) and update post view asynchronously
+
+
+Some problems
+- too many small writes (post view tracking) for a user => redis cache + async worker (one flush for many users) to flush to db (a db write/few seconds is acceptable)
+ex: if there are hundreds of concurrent users, a db write every few seconds can batch hundreds to thousands of records 
+- too many api calls ( a call/few seconds is acceptable) + visibilitychange/pagehide/sendbeacon
+- when flushing post views from redis to db, is it necessary to check valid post ids in db (less throughput while can check in cache)
+
+
+attempted to assign id from null one-to-one property [com.ttcs.socialmedia.domain.PostView.post]
+ 
+
