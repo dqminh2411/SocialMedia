@@ -135,7 +135,7 @@ class PostService {
     }
     getHomePosts(pageNo = 0) {
         return api.get(
-            '/posts/home?pageNo=' + pageNo,
+            '/posts/feed?pageNo=' + pageNo,
             { headers: authHeader() }
         )
             .then(response => {

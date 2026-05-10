@@ -63,9 +63,9 @@ class WebSocketService {
                 this.stompClient = new Client({
                     brokerURL: 'ws://localhost:8080/ws',
                     connectHeaders: header,
-                    debug: function (str) {
-                        console.log('STOMP Debug:', str);
-                    },
+                    // debug: function (str) {
+                    //     console.log('STOMP Debug:', str);
+                    // },
                     reconnectDelay: this.reconnectDelay,
                     heartbeatIncoming: 4000,
                     heartbeatOutgoing: 4000,

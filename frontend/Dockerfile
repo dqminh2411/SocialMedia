@@ -1,5 +1,5 @@
 FROM node:18-alpine AS builder
-WORKDIR /react-app
+WORKDIR /app-fe
 
 # copy package.json and package-lock.json for better dependencies caching
 COPY package*.json ./
@@ -7,7 +7,7 @@ COPY package*.json ./
 # install dependencies
 RUN npm install
 
-# copy files to /react-app
+# copy files to /app-fe
 COPY . .
 
 # build react app
@@ -15,9 +15,9 @@ RUN npm run build
 
 
 FROM node:18-alpine AS runner
-WORKDIR /react-app
+WORKDIR /app-fe
 
-COPY --from=builder /react-app/dist ./dist
+COPY --from=builder /app-fe/dist ./dist
 
 # install 'serve' to serve production build
 RUN npm install -g serve
