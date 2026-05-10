@@ -1,0 +1,89 @@
+spring:
+  application:
+    name: socialmedia-test
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: dbuser
+    password: pass
+  
+  # autoconfigure:
+  #   exclude:
+  #     - org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+    show-sql: false
+
+    properties:
+      hibernate:
+        format_sql: true
+        connection:
+          characterEncoding: UTF-8
+          CharSet: utf8mb4
+          collation: utf8mb4_unicode_ci
+
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 80MB
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            scope:
+              - email
+              - profile
+            redirect-uri: http://localhost/test
+
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 60000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+
+logging:
+  level:
+    org.springframework.messaging: WARN
+    org.springframework.web.socket: WARN
+    org.springframework.web.socket.messaging: WARN
+
+apiPrefix: /api/v1
+
+app:
+  upload-file:
+    base-uri: uploads/
+
+  jwt:
+    base64-secret: test-secret-key-for-testing-only
+    access-token-validity-in-seconds: 900
+    refresh-token-validity-in-seconds: 2592000
+
+default_avatar_url: https://example.com/default-avatar.jpg
+
+CLOUDINARY_URL: cloudinary://test:test@test
