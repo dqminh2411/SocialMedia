@@ -33,5 +33,6 @@ build/
 .vscode/
 
 # env
+.env 
 
 mysql_data/
