@@ -1,9 +1,9 @@
 import axios from 'axios';
-
+import.meta.env.BE_API_BASE_URL;
 let isLoggedOut = false;
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api/v1',
+    baseURL: import.meta.env.BE_API_BASE_URL || 'http://localhost:8080/api/v1',
     withCredentials: true
 })
 
