@@ -6,6 +6,8 @@ import {Client} from '@stomp/stompjs';
 const USER_CHAT = '/user/chat';
 const USER_NOTI = '/user/noti';
 const CHAT_DESTINATION = '/app/chat';
+const WS_BACKEND_URL = 'ws'+import.meta.env.VITE_BE_API_BASE_URL.slice(5)+'/ws';
+
 
 class WebSocketService {
     constructor() {
@@ -61,7 +63,7 @@ class WebSocketService {
                 console.log('Auth headers for WebSocket: ', header);
                 // Create a new STOMP client using the Client class
                 this.stompClient = new Client({
-                    brokerURL: 'ws://localhost:8080/ws',
+                    brokerURL: WS_BACKEND_URL,
                     connectHeaders: header,
                     // debug: function (str) {
                     //     console.log('STOMP Debug:', str);
